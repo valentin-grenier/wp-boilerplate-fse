@@ -41,3 +41,11 @@ function studio_remove_block_style_variations()
     );
 }
 add_action('enqueue_block_editor_assets', 'studio_remove_block_style_variations');
+
+// == Add meta to <head> ==
+# Ajouter des meta dans la balise <head> de la page
+function studio_add_head_meta()
+{
+    //echo '<meta name="google-site-verification" content="12345" />';
+}
+add_action('wp_head', 'studo_add_head_meta');
