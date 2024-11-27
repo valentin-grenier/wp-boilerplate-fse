@@ -1,0 +1,286 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"useRootPaddingAwareAlignments": true,
+		"appearanceTools": true,
+		"layout": {
+			"contentSize": "760px",
+			"wideSize": "1140px",
+			"allowCustomContentAndWideSize": false,
+			"allowEditing": true
+		},
+		"color": {
+			"text": true,
+			"background": true,
+			"link": true,
+			"caption": true,
+			"button": true,
+			"heading": true,
+			"custom": false,
+			"customDuotone": false,
+			"customGradient": false,
+			"defaultDuotone": false,
+			"defaultGradients": false,
+			"defaultPalette": false,
+			"gradients": [],
+			"duotone": [],
+			"palette": [
+				{
+					"name": "Primaire",
+					"slug": "primary",
+					"color": "#000000"
+				},
+				{
+					"name": "Secondaire",
+					"slug": "secondary",
+					"color": ""
+				},
+				{
+					"name": "Accent",
+					"slug": "accent",
+					"color": ""
+				},
+				{
+					"name": "Contrast",
+					"slug": "contrast",
+					"color": ""
+				},
+				{
+					"name": "Blanc",
+					"slug": "white",
+					"color": "#ffffff"
+				}
+			]
+		},
+		"spacing": {
+			"blockGap": true,
+			"customSpacingSize": true,
+			"margin": true,
+			"padding": true,
+			"units": ["px", "rem", "%"],
+			"defaultSpacingSizes": false,
+			"spacingSizes": [
+				{
+					"name": "Très petit",
+					"size": "1rem",
+					"slug": "xs"
+				},
+				{
+					"name": "Petit",
+					"size": "1.5rem",
+					"slug": "sm"
+				},
+				{
+					"name": "Moyen",
+					"size": "2rem",
+					"slug": "md"
+				},
+				{
+					"name": "Grand",
+					"size": "4rem",
+					"slug": "lg"
+				},
+				{
+					"name": "Très grand",
+					"size": "8rem",
+					"slug": "xl"
+				}
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"defaultFontSizes": false,
+			"dropCap": true,
+			"fluid": true,
+			"fontStyle": true,
+			"fontWeight": true,
+			"letterSpacing": true,
+			"lineHeight": true,
+			"textAlign": true,
+			"textColumns": true,
+			"textDecoration": true,
+			"textTransform": true,
+			"writingMode": true,
+			"fontFamilies": [
+				{
+					"fontFamily": "'Open Sans', sans-serif",
+					"name": "Open Sans",
+					"slug": "primary",
+					"fontFace": [
+						{
+							"fontFamily": "",
+							"fontStretch": "normal",
+							"fontStyle": "normal",
+							"fontWeight": "400",
+							"src": ["file:./assets/fonts/"]
+						}
+					]
+				}
+			],
+			"fontSizes": [
+				{
+					"name": "Petit",
+					"size": "0.88rem",
+					"slug": "sm",
+					"fluid": {
+						"min": "",
+						"max": ""
+					}
+				},
+				{
+					"name": "Moyen",
+					"size": "1.125rem",
+					"slug": "md",
+					"fluid": {
+						"min": "",
+						"max": ""
+					}
+				},
+				{
+					"name": "Grand",
+					"size": "1.4rem",
+					"slug": "lg",
+					"fluid": {
+						"min": "",
+						"max": ""
+					}
+				},
+				{
+					"name": "Très Grand",
+					"size": "3rem",
+					"slug": "xl",
+					"fluid": {
+						"min": "",
+						"max": ""
+					}
+				},
+				{
+					"name": "Énorme",
+					"size": "4rem",
+					"slug": "xxl",
+					"fluid": {
+						"min": "",
+						"max": ""
+					}
+				}
+			]
+		},
+		"border": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"background": {
+			"backgroundImage": true,
+			"backgroundSize": false
+		},
+		"shadow": {
+			"defaultPresets": true,
+			"presets": [
+				{
+					"name": "Douce",
+					"slug": "light",
+					"shadow": "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px"
+				},
+				{
+					"name": "Fine",
+					"slug": "neat",
+					"shadow": "rgba(99, 99, 99, 0.4) 0px 2px 8px 0px"
+				},
+				{
+					"name": "Imposante",
+					"slug": "huge",
+					"shadow": "rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px"
+				}
+			]
+		},
+		"dimensions": {
+			"aspectRatio": true,
+			"defaultAspectRatios": true,
+			"minHeight": true
+		},
+		"position": {
+			"sticky": true
+		},
+		"custom": {
+			"fontWeight": {},
+			"lineHeight": {},
+			"radius": {},
+			"color": {}
+		},
+		"blocks": {
+			"core/image": {
+				"lightbox": {
+					"enabled": true,
+					"allowEditing": true
+				}
+			}
+		}
+	},
+	"styles": {
+		"color": {
+			"text": "",
+			"background": ""
+		},
+		"spacing": {
+			"blockGap": ""
+		},
+		"typography": {
+			"fontFamily": "",
+			"fontSize": "",
+			"fontWeight": "",
+			"lineHeight": ""
+		},
+		"elements": {
+			"button": {},
+			"heading": {},
+			"h1": {},
+			"h2": {},
+			"h3": {},
+			"h4": {},
+			"h5": {},
+			"h6": {},
+			"link": {},
+			"caption": {}
+		},
+		"blocks": {
+			"core/group": {
+				"spacing": {
+					"margin": {
+						"top": "0 !important"
+					}
+				}
+			},
+
+			"core/template-part": {
+				"spacing": {
+					"margin": {
+						"top": "0 !important"
+					}
+				}
+			}
+		}
+	},
+	"templateParts": [
+		{
+			"area": "header",
+			"name": "header",
+			"title": "Header"
+		},
+
+		{
+			"area": "footer",
+			"name": "footer",
+			"title": "Footer"
+		}
+	],
+	"customTemplates": [
+		{
+			"name": "page-full-width",
+			"title": "Page pleine largeur, sans titre",
+			"postTypes": ["page"]
+		}
+	]
+}
