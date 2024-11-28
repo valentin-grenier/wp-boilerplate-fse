@@ -48,4 +48,4 @@ function studio_add_head_meta()
 {
     //echo '<meta name="google-site-verification" content="12345" />';
 }
-add_action('wp_head', 'studo_add_head_meta');
+add_action('wp_head', 'studio_add_head_meta');
