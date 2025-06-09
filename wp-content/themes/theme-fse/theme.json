@@ -2,21 +2,21 @@
 	"$schema": "https://schemas.wp.org/trunk/theme.json",
 	"version": 3,
 	"settings": {
-		"useRootPaddingAwareAlignments": true,
-		"appearanceTools": true,
+		"useRootPaddingAwareAlignments": false,
+		"appearanceTools": false,
 		"layout": {
 			"contentSize": "760px",
 			"wideSize": "1140px",
 			"allowCustomContentAndWideSize": false,
-			"allowEditing": true
+			"allowEditing": false
 		},
 		"color": {
-			"text": true,
-			"background": true,
-			"link": true,
-			"caption": true,
-			"button": true,
-			"heading": true,
+			"text": false,
+			"background": false,
+			"link": false,
+			"caption": false,
+			"button": false,
+			"heading": false,
 			"custom": false,
 			"customDuotone": false,
 			"customGradient": false,
@@ -54,10 +54,10 @@
 			]
 		},
 		"spacing": {
-			"blockGap": true,
-			"customSpacingSize": true,
-			"margin": true,
-			"padding": true,
+			"blockGap": false,
+			"customSpacingSize": false,
+			"margin": false,
+			"padding": false,
 			"units": ["px", "rem", "%"],
 			"defaultSpacingSizes": false,
 			"spacingSizes": [
@@ -91,17 +91,17 @@
 		"typography": {
 			"customFontSize": false,
 			"defaultFontSizes": false,
-			"dropCap": true,
-			"fluid": true,
-			"fontStyle": true,
-			"fontWeight": true,
-			"letterSpacing": true,
-			"lineHeight": true,
-			"textAlign": true,
-			"textColumns": true,
-			"textDecoration": true,
-			"textTransform": true,
-			"writingMode": true,
+			"dropCap": false,
+			"fluid": false,
+			"fontStyle": false,
+			"fontWeight": false,
+			"letterSpacing": false,
+			"lineHeight": false,
+			"textAlign": false,
+			"textColumns": false,
+			"textDecoration": false,
+			"textTransform": false,
+			"writingMode": false,
 			"fontFamilies": [
 				{
 					"fontFamily": "'Open Sans', sans-serif",
@@ -167,17 +167,17 @@
 			]
 		},
 		"border": {
-			"color": true,
-			"radius": true,
-			"style": true,
-			"width": true
+			"color": false,
+			"radius": false,
+			"style": false,
+			"width": false
 		},
 		"background": {
-			"backgroundImage": true,
+			"backgroundImage": false,
 			"backgroundSize": false
 		},
 		"shadow": {
-			"defaultPresets": true,
+			"defaultPresets": false,
 			"presets": [
 				{
 					"name": "Douce",
@@ -197,12 +197,12 @@
 			]
 		},
 		"dimensions": {
-			"aspectRatio": true,
-			"defaultAspectRatios": true,
-			"minHeight": true
+			"aspectRatio": false,
+			"defaultAspectRatios": false,
+			"minHeight": false
 		},
 		"position": {
-			"sticky": true
+			"sticky": false
 		},
 		"custom": {
 			"fontWeight": {},
@@ -213,8 +213,8 @@
 		"blocks": {
 			"core/image": {
 				"lightbox": {
-					"enabled": true,
-					"allowEditing": true
+					"enabled": false,
+					"allowEditing": false
 				}
 			}
 		}
