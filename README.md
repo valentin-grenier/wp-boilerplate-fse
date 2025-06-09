@@ -1,11 +1,30 @@
-# FSE Boilerplate WordPress
+# FSE Boilerplate WordPress Theme
 
-Un starter theme WordPress Full Site Editing (FSE) conçu pour accélérer le développement de thèmes modernes.
+A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes — powered by Sass and modular PHP.
 
-## 🛠️ Fonctionnalités
+## 🧩 Features
 
--   **Prise en charge complète de FSE** : Templates et template-parts dans des fichiers HTML.
--   **Styles personnalisables** : Configuration via `theme.json`.
--   **Blocs réutilisables** : Modèles (patterns) intégrés pour un démarrage rapide.
--   **Support natif WordPress** : Compatible avec les dernières versions de WordPress.
--   **Structure claire** : Organisation optimisée pour faciliter le développement.
+- **Full FSE support**: Templates and template parts structured in native `.html` files.
+- **Custom styles via `theme.json`**: Define your color palette, spacing, typography, and block settings.
+- **SCSS workflow included**: Compiles separate frontend and editor styles using `npm run build` or `npm run watch`.
+- **Modular PHP architecture**: Split into logical `inc/` files (`theme-setup`, `assets`, `security`, `performance`, etc.).
+- **Block restrictions**: Disable unused block styles, comment-related blocks, and dashboard widgets.
+- **Console signature**: A developer-friendly signature logs in the browser console on every load.
+- **Security hardening**: XML-RPC disabled, file editor blocked, version info hidden, and more.
+- **Editor experience optimized**: Clean block inserter with only relevant styles and blocks.
+-
+
+## 🚀 Quick Start
+
+```bash
+npm install
+npm run watch       # Watch SCSS for changes
+```
+
+## ✍️ Author
+
+Made with ❤️ by Studio Val — a creative WordPress developer focused on fast, modern, maintainable custom themes.
+
+## Licence
+
+MIT — free to use and adapt with attribution.
