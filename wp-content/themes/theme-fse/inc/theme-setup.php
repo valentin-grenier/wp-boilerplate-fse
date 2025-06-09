@@ -33,7 +33,6 @@ function studio_theme_setup()
     remove_theme_support('core-block-patterns');
 
     // Clean up <head>.
-    remove_action('wp_head', 'wp_generator');
     remove_action('wp_head', 'wlwmanifest_link');
     remove_action('wp_head', 'rsd_link');
 }
