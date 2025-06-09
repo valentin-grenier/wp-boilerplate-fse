@@ -2,6 +2,8 @@
 
 /**
  * Remove heading levels from the Block Editor
+ * 
+ * @return array
  */
 function studio_remove_heading_levels($args, $block_type)
 {
