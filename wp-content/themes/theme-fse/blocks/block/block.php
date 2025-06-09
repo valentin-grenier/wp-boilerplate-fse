@@ -1,0 +1,1 @@
+<span>I am the default block !</span>

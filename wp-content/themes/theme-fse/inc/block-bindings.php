@@ -1,6 +1,10 @@
 <?php
 
-// == Set custom meta bindings ==
+/**
+ * Set custom block bindings for meta data
+ * 
+ * @return void
+ */
 add_action('init', 'studio_register_meta');
 function studio_register_meta()
 {
