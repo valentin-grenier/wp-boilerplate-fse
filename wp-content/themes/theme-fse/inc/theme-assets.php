@@ -16,8 +16,8 @@ function studio_theme_assets()
     );
 
     // Enqueue all JS files in /assets/js/
-    $js_dir = get_template_directory() . '/assets/js/';
-    $js_uri = get_template_directory_uri() . '/assets/js/';
+    $js_dir = get_template_directory() . '/assets/js/public/';
+    $js_uri = get_template_directory_uri() . '/assets/js/public/';
 
     foreach (glob($js_dir . '*.js') as $index => $file) {
         $handle = 'studio-js-' . basename($file, '.js');
