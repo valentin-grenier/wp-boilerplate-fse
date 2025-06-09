@@ -15,13 +15,14 @@ jobs:
               uses: actions/checkout@v3
 
             - name: Deploy everything through SFTP
-              uses: pressidium/lftp-deploy-action@v1
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
               with:
-                  host: ${{ secrets.STAGING_SFTP_HOST }}
-                  port: 22
+                  server: ${{ secrets.STAGING_SFTP_HOST }}
                   username: ${{ secrets.STAGING_SFTP_USER }}
                   password: ${{ secrets.STAGING_SFTP_PASS }}
+                  protocol: sftp
+                  port: 22
                   localDir: ./
                   remoteDir: /${{ secrets.STAGING_SFTP_DIR }}
-                  delete: true
+                  dangerous-clean-slate: true
                   exclude: .git,node_modules,vendor,*.map,*.log,*.md,*.txt,*.json,*.yml,*.yaml,*.xml,*.zip,*.tar.gz,*.tgz,*.bak,*.swp,*.DS_Store,.env,.env.local,.env.development,.env.production,.env.staging
