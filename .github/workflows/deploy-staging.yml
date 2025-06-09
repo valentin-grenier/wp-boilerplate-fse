@@ -1,4 +1,4 @@
-name: Deploy via git pull on Server
+name: Deploy to Staging (via Webhook)
 
 on:
   push:
@@ -10,12 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.WORK_DIR }}
-            git pull origin staging
+      - name: Trigger deployment webhook on o2switch
+        run: |
+          curl --fail "https://yourdomain.com/.deploy/pull.php?token=${{ secrets.STAGING_DEPLOY_TOKEN }}"
