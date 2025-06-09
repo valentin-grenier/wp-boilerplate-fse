@@ -22,4 +22,12 @@ jobs:
           port: 22
           localDir: "."
           remoteDir: ${{ secrets.SFTP_REMOTE_DIR }}
-          options: '--delete --verbose --only-newer --no-empty-dirs --parallel=1 --exclude .git --exclude .github --exclude .gitignore --reverse'
+
+          onlyNewer: true
+          restoreMTime: true
+          parallel: 1
+          reverse: true
+
+          settings: 'sftp:auto-confirm=yes; set ssl:verify-certificate yes;'
+    
+          options: '--delete --no-empty-dirs --verbose'
