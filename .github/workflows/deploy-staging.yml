@@ -1,28 +1,23 @@
 name: Deploy to staging
 
 on:
-    push:
-        branches:
-            - staging
-
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  
 jobs:
-    deploy:
-        name: Deploy to staging server
-        runs-on: ubuntu-latest
-
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
-
-            - name: Deploy everything through SFTP
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-              with:
-                  server: ${{ secrets.STAGING_SFTP_HOST }}
-                  username: ${{ secrets.STAGING_SFTP_USER }}
-                  password: ${{ secrets.STAGING_SFTP_PASS }}
-                  protocol: sftp
-                  port: 22
-                  local-dir: ./
-                  server-dir: /${{ secrets.STAGING_SFTP_DIR }}
-                  dangerous-clean-slate: true
-                  exclude: .git,node_modules,vendor,*.map,*.log,*.md,*.txt,*.json,*.yml,*.yaml,*.xml,*.zip,*.tar.gz,*.tgz,*.bak,*.swp,*.DS_Store,.env,.env.local,.env.development,.env.production,.env.staging
+  run_pull:
+    name: run pull
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: install ssh keys
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    - name: connect and pull
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
+    - name: cleanup
+      run: rm -rf ~/.ssh/id_rsa
