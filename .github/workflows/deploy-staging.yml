@@ -22,5 +22,5 @@ jobs:
           port: 22
           localDir: "."
           remoteDir: ${{ secrets.SFTP_REMOTE_DIR }}
-          options: '--delete --verbose --only-newer --no-empty-dirs --parallel=1 -e "set ssl:verify-certificate no"'
+          options: '--delete --verbose --only-newer --no-empty-dirs --parallel=1 --exclude .git* --exclude .github/'
 
