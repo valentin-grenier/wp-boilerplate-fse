@@ -7,10 +7,19 @@
 			"allowCustomContentAndWideSize": true,
 			"allowEditing": true
 		},
+		"color": {
+			"text": true,
+			"background": true,
+			"link": true,
+			"caption": true,
+			"button": true,
+			"heading": true
+		},
 		"spacing": {
+			"blockGap": true,
+			"customSpacingSize": true,
 			"margin": true,
-			"padding": true,
-			"blockGap": true
+			"padding": true
 		},
 		"typography": {
 			"dropCap": true,
@@ -30,7 +39,12 @@
 			"style": true,
 			"radius": true
 		},
+		"background": {
+			"backgroundImage": true,
+			"backgroundSize": true
+		},
 		"dimensions": {
+			"aspectRatio": true,
 			"minHeight": true
 		},
 		"position": {
