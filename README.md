@@ -20,6 +20,7 @@ To enable deployment via GitHub Actions, add the following secrets to your new r
 - `STAGING_SFTP_HOST` – your SFTP server hostname (e.g., ftp.example.com)
 - `STAGING_SFTP_USER` – SFTP username
 - `STAGING_SFTP_PASS` – SFTP password
+- `STAGING_SFTP_DIR` – WordPress installation root directory
 
 ## 🚀 Quick Start
 
