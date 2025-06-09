@@ -1,4 +1,4 @@
-name: Deploy to staging
+name: Deploy to O2Switch via SFTP
 
 on:
   push:
@@ -10,13 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run git pull on server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server via SFTP
+        uses: pressidium/lftp-mirror-action@v1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ${{ secrets.SSH_DIR }}
-            git reset --hard
-            git pull origin staging
+          host: ${{ secrets.SFTP_HOST }}
+          user: ${{ secrets.SFTP_USERNAME }}
+          pass: ${{ secrets.SFTP_PASSWORD }}
+          port: 22
+          localDir: "."
+          remoteDir: ${{ secrets.SFTP_REMOTE_DIR }}
+          options: --delete --verbose
