@@ -1,6 +1,10 @@
 <?php
 
-# Remove block styles variations
+/**
+ * Remove block style variations in the editor
+ *
+ * @return void
+ */
 function studio_remove_block_style_variations()
 {
     wp_enqueue_script(
