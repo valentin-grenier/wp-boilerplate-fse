@@ -7,7 +7,7 @@
  */
 function studio_allow_svg_uploads($mimes)
 {
-    if (user_can_('manage_options')) {
+    if (current_user_can('manage_options')) {
         $mimes['svg'] = 'image/svg+xml';
     }
 
@@ -50,7 +50,7 @@ add_action('wp_handle_upload', function ($upload) {
  */
 function studio_allow_webp_uploads($mimes)
 {
-    if (user_can_('manage_options')) {
+    if (current_user_can('manage_options')) {
         $mimes['webp'] = 'image/webp';
     }
 
