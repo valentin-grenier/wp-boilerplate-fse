@@ -28,6 +28,6 @@ jobs:
           parallel: 1
           reverse: true
 
-          settings: 'sftp:auto-confirm=yes; set ssl:verify-certificate yes;'
+          settings: 'set ftp:ssl-force yes; set ssl:verify-certificate no; set sftp:auto-confirm yes;'
     
           options: '--delete --no-empty-dirs --verbose'
