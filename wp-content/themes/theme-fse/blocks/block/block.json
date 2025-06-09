@@ -1,0 +1,23 @@
+{
+	"name": "studioval/block",
+	"title": "Block",
+	"description": "Default ACF block for starter theme.",
+	"style": ["file:./block.css"],
+	"script": ["file:./block.js"],
+	"category": "layout",
+	"icon": "screenoptions",
+	"keywords": ["block"],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "block.php"
+	},
+	"supports": {
+		"anchor": false,
+		"jsx": false,
+		"inserter": false,
+		"spacing": {
+			"margin": false,
+			"padding": false
+		}
+	}
+}

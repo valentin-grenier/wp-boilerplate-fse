@@ -3,6 +3,6 @@
 		"sass": "^7.0.1"
 	},
 	"scripts": {
-		"dev": "sass --watch --no-source-map ./assets/css/sass/styles.scss:./assets/css/main.css ./assets/css/sass/block-editor/_index.scss:./assets/css/editor.css"
+		"dev": "sass --watch --no-source-map ./assets/css/sass/styles.scss:./assets/css/main.css ./assets/css/sass/block-editor/_index.scss:./assets/css/editor.css ./blocks:./blocks"
 	}
 }

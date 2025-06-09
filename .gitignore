@@ -76,6 +76,7 @@ wp-content/debug.log
 # =========================
 # PLUGINS
 # =========================
+wp-content/plugins/
 !wp-content/plugins/.gitkeep
 
 # =========================
