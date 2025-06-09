@@ -27,7 +27,5 @@ jobs:
           restoreMTime: true
           parallel: 1
           reverse: true
-
-          settings: 'set ftp:ssl-force yes; set ssl:verify-certificate no; set sftp:auto-confirm yes;'
-    
+          
           options: '--delete --no-empty-dirs --verbose'
