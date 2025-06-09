@@ -12,7 +12,7 @@ function studio_grant_admin_block_editor_capabilities($theme_json)
     }
 
     $new_data = json_decode(
-        file_get_contents(get_theme_file_path("admin.json")),
+        file_get_contents(get_theme_file_path("admin-caps.json")),
         true
     );
 
