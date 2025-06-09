@@ -54,23 +54,3 @@ add_action('wp_head', 'studio_add_head_meta');
  * Sanitize filenames by removing accents.
  */
 add_filter('sanitize_file_name', 'remove_accents');
-
-/**
- * Remove default dashboard widgets.
- *
- * @return void
- */
-function studio_remove_dashboard_widgets()
-{
-    // Core widgets.
-    remove_meta_box('dashboard_right_now', 'dashboard', 'normal');
-    remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
-
-    // Plugin widgets (if installed).
-    remove_meta_box('yoast_db_widget', 'dashboard', 'normal');
-    remove_meta_box('rg_forms_dashboard', 'dashboard', 'normal');
-    remove_meta_box('wpe_dify_news_feed', 'dashboard', 'normal');
-    remove_meta_box('jetpack_summary_widget', 'dashboard', 'normal');
-    remove_meta_box('woocommerce_dashboard_status', 'dashboard', 'normal');
-}
-add_action('wp_dashboard_setup', 'studio_remove_dashboard_widgets');

@@ -15,14 +15,22 @@ function studio_theme_assets()
         wp_get_theme()->get('Version')
     );
 
-    // Scripts
-    wp_enqueue_script(
-        'studio-theme-scripts',
-        get_template_directory_uri() . '/assets/js/app.js',
-        [],
-        wp_get_theme()->get('Version'),
-        true
-    );
+    // Enqueue all JS files in /assets/js/
+    $js_dir = get_template_directory() . '/assets/js/';
+    $js_uri = get_template_directory_uri() . '/assets/js/';
+
+    foreach (glob($js_dir . '*.js') as $index => $file) {
+        $handle = 'studio-js-' . basename($file, '.js');
+        $uri    = $js_uri . basename($file);
+
+        wp_enqueue_script(
+            $handle,
+            $uri,
+            [],
+            wp_get_theme()->get('Version'),
+            true
+        );
+    }
 
     // Remove dashicons for non-logged-in users.
     if (! is_user_logged_in()) {
