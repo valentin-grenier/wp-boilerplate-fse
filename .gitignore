@@ -1,4 +1,98 @@
-.DS_Store
-node_modules
-vendor
-.env
+# =========================
+# GLOBAL IGNORE PATTERNS
+# =========================
+*~
+.svn
+.git
+/vendor
+node_modules/
+package-lock.json
+composer.lock
+*.env
+/cgi-bin/
+
+# =========================
+# WORDPRESS CORE FILES
+# =========================
+wp-config.php
+public/wp-config.php
+wp-config-sample.php
+bb-config.php
+default.gitignore
+license.txt
+index.php
+readme.html
+xmlrpc.php
+
+# WordPress Core Scripts
+wp-activate.php
+wp-blog-header.php
+wp-comments-post.php
+wp-cron.php
+wp-links-opml.php
+wp-load.php
+wp-login.php
+wp-mail.php
+wp-settings.php
+wp-signup.php
+wp-trackback.php
+
+# =========================
+# WORDPRESS DIRECTORIES
+# =========================
+wp-admin/
+wp-includes/
+wp-content/languages/
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
+wp-content/cache/
+wp-content/blogs.dir/
+wp-content/gallery/
+wp-content/wp-rocket-config/
+wp-content/w3tc/
+wp-content/logs/
+wp-content/mu-plugins/*
+wp-content/updraft/*
+wp-content/themes/twenty*
+wp-content/themes/**/*/vendor/
+wp-content/themes/**/*/node_modules/
+wp-content/themes/**/*/package-lock.json
+wp-content/themes/**/*/composer.lock
+wp-content/umbrella-upgrade-backup/
+
+# =========================
+# WORDPRESS FILES
+# =========================
+wp-content/logs/system.log
+wp-content/advanced-cache.php
+wp-content/db-config.ini
+wp-content/db.php
+wp-content/index.php
+wp-content/object-cache.php
+wp-content/w3-total-cache-config.php
+wp-content/debug.log
+
+# =========================
+# PLUGINS
+# =========================
+!wp-content/plugins/.gitkeep
+
+# =========================
+# UPLOADS
+# =========================
+!wp-content/uploads/index.php
+
+# =========================
+# THEME
+# =========================
+!wp-content/themes/**/
+
+# =========================
+# LOCAL BY FLYWHEEL
+# =========================
+local-xdebuginfo.php
+
+# =========================
+# UPDRAFT
+# =========================
+wp-content/updraft/
