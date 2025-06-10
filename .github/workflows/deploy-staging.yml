@@ -17,6 +17,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           server: ${{ secrets.SSH_HOST }}
+          port: 22
           local_path: './'
           remote_path: ${{ secrets.SSH_PATH }}
           sftp_only: true
