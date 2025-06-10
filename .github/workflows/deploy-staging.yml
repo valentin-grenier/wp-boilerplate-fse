@@ -1,4 +1,4 @@
-name: Deploy to O2Switch via SFTP
+name: Deploy via SSH
 
 on:
   push:
@@ -10,22 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Deploy to server via SFTP
-        uses: pressidium/lftp-mirror-action@v1
-        with:
-          host: ${{ secrets.SFTP_HOST }}
-          user: ${{ secrets.SFTP_USERNAME }}
-          pass: ${{ secrets.SFTP_PASSWORD }}
-          port: 22
-          localDir: "."
-          remoteDir: ${{ secrets.SFTP_REMOTE_DIR }}
-
-          onlyNewer: true
-          restoreMTime: true
-          parallel: 1
-          reverse: true
-          
-          options: '--delete --no-empty-dirs --verbose'
+    - name: Deploy with rsync over SSH
+      uses: SamKirkland/web-deploy@v1
+      with:
+        target-server: ${{ secrets.SSH_HOST }}
+        remote-user: ${{ secrets.SSH_USER }}
+        ssh-port: 22
+        private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        destination-path: ${{ secrets.SSH_PATH }}
+        rsync-options: --archive --delete --verbose --compress --exclude='.git*'
+        source-path: ./
