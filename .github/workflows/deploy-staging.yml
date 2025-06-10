@@ -1,3 +1,5 @@
+name: Deploy to Staging via SSH
+
 on:
   push:
     branches:
@@ -6,20 +8,18 @@ on:
 jobs:
   deploy_job:
     runs-on: ubuntu-latest
-    name: Deploy Files
+    name: Deploy via SSH + rsync
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Deploy to Server
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+      - name: Deploy with rsync over SSH
+        uses: SamKirkland/web-deploy@v1
         with:
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          server: ${{ secrets.SSH_HOST }}
-          port: 22
-          local_path: './'
-          remote_path: ${{ secrets.SSH_PATH }}
-          sftp_only: true
-          sftpArgs: '-o ConnectTimeout=5'
-          delete_remote_files: false
+          target-server: ${{ secrets.SSH_HOST }}
+          remote-user: ${{ secrets.SSH_USER }}
+          ssh-port: 22
+          private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          destination-path: ${{ secrets.SSH_PATH }}
+          source-path: ./
+          rsync-options: --archive --delete --verbose --compress --exclude='.git*' --exclude='.github'
