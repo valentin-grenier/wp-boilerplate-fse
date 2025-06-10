@@ -49,7 +49,9 @@ add_action('wp_enqueue_scripts', 'studio_theme_assets');
  */
 function studio_theme_autoload_vendor()
 {
-    $vendor_dir = get_template_directory() . '/vendor/autoload.php';
+    if (!defined('ABSPATH')) return;
+
+    $vendor_dir = ABSPATH . 'vendor/autoload.php';
 
     if (file_exists($vendor_dir)) {
         require_once $vendor_dir;
