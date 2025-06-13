@@ -60,6 +60,7 @@ wp-content/themes/**/*/node_modules/
 wp-content/themes/**/*/package-lock.json
 wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
+wp-content/uploads/
 
 # =========================
 # WORDPRESS FILES
@@ -78,11 +79,6 @@ wp-content/debug.log
 # =========================
 wp-content/plugins/
 !wp-content/plugins/.gitkeep
-
-# =========================
-# UPLOADS
-# =========================
-!wp-content/uploads/index.php
 
 # =========================
 # THEME
