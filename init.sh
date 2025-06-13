@@ -10,7 +10,7 @@ SCRIPT_PATH="$CURRENT_DIR/$SCRIPT_NAME"
 echo "Moving everything from $CURRENT_DIR to $PARENT_DIR..."
 
 # Remove known conflicting files/directories in parent
-for item in wp-content .git .github .gitignore .editorconfig README.md; do
+for item in wp-content .git .github .gitignore .editorconfig README.md setup-plugins.sh; do
     TARGET="$PARENT_DIR/$item"
     if [ -e "$TARGET" ]; then
         echo "Removing existing $item..."
@@ -34,7 +34,7 @@ done
 cd "$PARENT_DIR"
 
 # Delete the script itself
-rm -- "$SCRIPT_PATH"
+# rm -- "$SCRIPT_PATH"
 
 # Remove the original folder
 rmdir "$CURRENT_DIR" || echo "⚠️ Could not remove $CURRENT_DIR — not empty?"
