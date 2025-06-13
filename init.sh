@@ -21,6 +21,7 @@ done
 # Build a safe list of items to move (excluding script itself)
 FILES_TO_MOVE=()
 while IFS= read -r -d '' file; do
+  [[ "$file" == "$SCRIPT_PATH" ]] && continue
   FILES_TO_MOVE+=("$file")
 done < <(find "$CURRENT_DIR" -mindepth 1 -maxdepth 1 -print0)
 
@@ -33,7 +34,7 @@ done
 cd "$PARENT_DIR"
 
 # Delete the script itself
-# rm -- "$SCRIPT_PATH"
+rm -- "$SCRIPT_PATH"
 
 # Remove the original folder
 rmdir "$CURRENT_DIR" || echo "⚠️ Could not remove $CURRENT_DIR — not empty?"
