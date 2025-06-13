@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eAdd commentMore actions
+set -e
 
 CURRENT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PARENT_DIR="$(dirname "$CURRENT_DIR")"
