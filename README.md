@@ -12,7 +12,15 @@ A modern, clean, and production-ready starter theme for building custom WordPres
 - **Console signature**: A developer-friendly signature logs in the browser console on every load.
 - **Security hardening**: XML-RPC disabled, file editor blocked, version info hidden, and more.
 - **Editor experience optimized**: Clean block inserter with only relevant styles and blocks.
--
+
+## Required GitHub Actions Secrets
+
+To enable deployment via GitHub Actions, add the following secrets to your new repo:
+
+- `STAGING_SFTP_HOST` – your SFTP server hostname (e.g., ftp.example.com)
+- `STAGING_SFTP_USER` – SFTP username
+- `STAGING_SFTP_PASS` – SFTP password
+- `STAGING_SFTP_DIR` – WordPress installation root directory
 
 ## 🚀 Quick Start
 
