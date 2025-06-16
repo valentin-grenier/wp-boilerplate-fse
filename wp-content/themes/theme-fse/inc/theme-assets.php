@@ -10,9 +10,9 @@ function studio_theme_assets()
     // Styles
     wp_enqueue_style(
         'studio-theme-styles',
-        get_template_directory_uri() . '/dist/css/theme.bundle.css',
+        get_template_directory_uri() . '/dist/css/theme.css',
         [],
-        filemtime(get_template_directory() . '/dist/css/theme.bundle.css'),
+        filemtime(get_template_directory() . '/dist/css/theme.css'),
     );
 
     // Enqueue bundled scripts
