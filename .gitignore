@@ -83,11 +83,12 @@ wp-content/plugins/
 # =========================
 # THEME
 # =========================
-!wp-content/themes/**/
-wp-content/themes/**/*/node_modules/
-wp-content/themes/**/*/vendor/
-wp-content/themes/**/*/package-lock.json
-wp-content/themes/**/*/composer.lock
+wp-content/themes/**/dist/
+wp-content/themes/**/dist/*
+wp-content/themes/**/node_modules/
+wp-content/themes/**/vendor/
+wp-content/themes/**/package-lock.json
+wp-content/themes/**/composer.lock
 
 # =========================
 # LOCAL BY FLYWHEEL
