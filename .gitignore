@@ -5,7 +5,7 @@
 .svn
 .git
 /vendor
-node_modules/
+**/node_modules
 package-lock.json
 composer.lock
 *.env
@@ -84,6 +84,10 @@ wp-content/plugins/
 # THEME
 # =========================
 !wp-content/themes/**/
+wp-content/themes/**/*/node_modules/
+wp-content/themes/**/*/vendor/
+wp-content/themes/**/*/package-lock.json
+wp-content/themes/**/*/composer.lock
 
 # =========================
 # LOCAL BY FLYWHEEL
