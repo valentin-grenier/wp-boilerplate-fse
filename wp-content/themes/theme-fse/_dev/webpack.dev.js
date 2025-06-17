@@ -1,3 +1,4 @@
+const path = require('path');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
@@ -9,14 +10,12 @@ module.exports = merge(common, {
 	plugins: [
 		new BrowserSyncPlugin(
 			{
-				proxy: 'http://wp-boilerplate-fse.local', // 👈 Change to your local WP domain
+				proxy: 'http://wp-boilerplate-fse.local',
 				files: ['../**/*.php', '../*.php', '../template-parts/**/*.php', '../**/*.html', '../theme.json', '../acf-json/**/*.json'],
-				open: false, // Prevent BrowserSync from opening a new tab
-				notify: false, // Disable the BrowserSync popup
+				open: false,
+				notify: false,
 			},
-			{
-				reload: true, // Reload on any non-CSS/JS change
-			}
+			{ reload: true }
 		),
 	],
 });
