@@ -1,12 +1,12 @@
 {
 	"name": "studioval/block",
-	"title": "Block",
+	"title": "Studio Val",
 	"description": "Default ACF block for starter theme.",
-	"style": ["file:./block.css"],
-	"script": ["file:./block.js"],
+	"style": ["file:../../../dist/blocks/block/block.css"],
+	"script": ["file:../../../dist/blocks/block/block.js"],
 	"category": "layout",
 	"icon": "screenoptions",
-	"keywords": ["block"],
+	"keywords": ["studio"],
 	"acf": {
 		"mode": "preview",
 		"renderTemplate": "block.php"
@@ -14,7 +14,7 @@
 	"supports": {
 		"anchor": false,
 		"jsx": false,
-		"inserter": false,
+		"inserter": true,
 		"spacing": {
 			"margin": false,
 			"padding": false

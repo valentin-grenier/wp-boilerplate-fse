@@ -5,7 +5,7 @@
 .svn
 .git
 /vendor
-node_modules/
+**/node_modules
 package-lock.json
 composer.lock
 *.env
@@ -60,6 +60,7 @@ wp-content/themes/**/*/node_modules/
 wp-content/themes/**/*/package-lock.json
 wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
+wp-content/uploads/
 
 # =========================
 # WORDPRESS FILES
@@ -80,14 +81,14 @@ wp-content/plugins/
 !wp-content/plugins/.gitkeep
 
 # =========================
-# UPLOADS
-# =========================
-!wp-content/uploads/index.php
-
-# =========================
 # THEME
 # =========================
-!wp-content/themes/**/
+wp-content/themes/**/dist/
+wp-content/themes/**/dist/*
+wp-content/themes/**/node_modules/
+wp-content/themes/**/vendor/
+wp-content/themes/**/package-lock.json
+wp-content/themes/**/composer.lock
 
 # =========================
 # LOCAL BY FLYWHEEL

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Enqueue frontend assets.
+ * Enqueue theme assets.
  *
  * @return void
  */
@@ -10,27 +10,19 @@ function studio_theme_assets()
     // Styles
     wp_enqueue_style(
         'studio-theme-styles',
-        get_template_directory_uri() . '/assets/css/main.css',
+        get_template_directory_uri() . '/dist/css/theme.css',
         [],
-        wp_get_theme()->get('Version')
+        filemtime(get_template_directory() . '/dist/css/theme.css'),
     );
 
-    // Enqueue all JS files in /assets/js/
-    $js_dir = get_template_directory() . '/assets/js/public/';
-    $js_uri = get_template_directory_uri() . '/assets/js/public/';
-
-    foreach (glob($js_dir . '*.js') as $index => $file) {
-        $handle = 'studio-js-' . basename($file, '.js');
-        $uri    = $js_uri . basename($file);
-
-        wp_enqueue_script(
-            $handle,
-            $uri,
-            [],
-            wp_get_theme()->get('Version'),
-            true
-        );
-    }
+    // Enqueue bundled scripts
+    wp_enqueue_script(
+        'studio-theme-scripts',
+        get_template_directory_uri() . '/dist/js/theme.bundle.js',
+        array(),
+        filemtime(get_template_directory() . '/dist/js/theme.bundle.js'),
+        true
+    );
 
     // Remove dashicons for non-logged-in users.
     if (! is_user_logged_in()) {
@@ -49,7 +41,9 @@ add_action('wp_enqueue_scripts', 'studio_theme_assets');
  */
 function studio_theme_autoload_vendor()
 {
-    $vendor_dir = get_template_directory() . '/vendor/autoload.php';
+    if (!defined('ABSPATH')) return;
+
+    $vendor_dir = ABSPATH . 'vendor/autoload.php';
 
     if (file_exists($vendor_dir)) {
         require_once $vendor_dir;
