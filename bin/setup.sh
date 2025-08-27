@@ -63,6 +63,47 @@ install_acf_pro() {
   fi
 }
 
+# Function to convert theme slug to display name
+# Example: "lemon-studio" → "Lemon Studio"
+slug_to_display_name() {
+  local slug="$1"
+  # Replace hyphens and underscores with spaces, then capitalize each word
+  echo "$slug" | sed 's/[-_]/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))} 1'
+}
+
+# Function to update theme information in style.css
+update_theme_info() {
+  local theme_path="$1"
+  local theme_slug="$2"
+  local style_css="$theme_path/style.css"
+  
+  if [ ! -f "$style_css" ]; then
+    echo "⚠️  style.css not found at $style_css - skipping theme info update"
+    return 1
+  fi
+  
+  # Convert slug to display name
+  local display_name
+  display_name=$(slug_to_display_name "$theme_slug")
+  
+  echo "📝 Updating theme information in style.css..."
+  echo "   Theme Name: WP Boilerplate FSE → $display_name"
+  echo "   Theme URI: ending with /$theme_slug"
+  
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would update theme name to '$display_name' in $style_css"
+    echo "[DRY RUN] Would update theme URI to end with '/$theme_slug'"
+  else
+    # Update Theme Name
+    sed -i "s/^Theme Name: WP Boilerplate FSE/Theme Name: $display_name/" "$style_css"
+    
+    # Update Theme URI to end with the theme slug
+    sed -i "s|^Theme URI: .*|Theme URI: https://github.com/valentin-grenier/$theme_slug|" "$style_css"
+    
+    echo "✅ Theme information updated successfully"
+  fi
+}
+
 # Function for manual git setup (fallback when GitHub CLI is not available)
 manual_git_setup() {
   echo ""
@@ -163,6 +204,10 @@ for arg in "$@"; do
       echo ""
       echo "This script moves the boilerplate content to the WordPress root directory,"
       echo "activates the theme, installs dependencies, and sets up the development environment."
+      echo ""
+      echo "Theme customization:"
+      echo "  • Automatically updates theme name in style.css (e.g., 'lemon-studio' → 'Lemon Studio')"
+      echo "  • Updates theme URI to match the chosen theme name"
       exit 0
       ;;
     *)               # ignore other flags
@@ -285,6 +330,9 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
       mv "$THEME_SOURCE" "$THEME_TARGET"
       echo "✅ Theme moved (and renamed) to: $THEME_DEST"
     fi
+    
+    # Update theme information in style.css
+    update_theme_info "$THEME_TARGET" "$THEME_DEST"
   else
     echo "⚠️  Source theme '$THEME_SRC' not found — skipping"
   fi
