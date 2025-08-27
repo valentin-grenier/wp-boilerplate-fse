@@ -24,9 +24,48 @@ To enable deployment via GitHub Actions, add the following secrets to your new r
 
 ## 🚀 Quick Start
 
+### Option 1: With ACF Pro License
+
 ```bash
+# Set up with ACF Pro license key
+./bin/setup.sh --acf-license=YOUR_LICENSE_KEY
+
+# Or use environment variable
+export ACF_PRO_LICENSE="your_license_key"
+./bin/setup.sh
+
+# Or add to auth.json (copy from auth.example.json)
+./bin/setup.sh
+```
+
+### Option 2: Without ACF Pro
+
+```bash
+# Basic setup without ACF Pro
+./bin/setup.sh
+
+# Development workflow
 npm install
 npm run watch       # Watch SCSS for changes
+```
+
+## ACF Pro Configuration
+
+To automatically install ACF Pro during setup, provide your license key using one of these methods:
+
+1. **Command line flag**: `--acf-license=YOUR_KEY`
+2. **Environment variable**: `export ACF_PRO_LICENSE="YOUR_KEY"`
+3. **auth.json file**: Copy `auth.example.json` to `auth.json` and add your license key as the password
+
+```json
+{
+	"http-basic": {
+		"connect.advancedcustomfields.com": {
+			"username": "",
+			"password": "YOUR_LICENSE_KEY_HERE"
+		}
+	}
+}
 ```
 
 ## Plugins
