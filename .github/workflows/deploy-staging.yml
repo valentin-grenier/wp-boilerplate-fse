@@ -1,0 +1,56 @@
+name: Deploy to Staging (FTP)
+
+on:
+    push:
+        branches:
+            - staging
+
+jobs:
+    ftp-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            # 1) Push root files (README.md, composer.json, .gitignore, etc)
+            - name: Deploy Root Files
+              uses: SamKirkland/FTP-Deploy-Action@4.3.0
+              with:
+                  server: ${{ secrets.STAGING_FTP_HOST }}
+                  port: ${{ secrets.STAGING_FTP_PORT }}
+                  protocol: ftp # "ftp" or "ftps"
+                  username: ${{ secrets.STAGING_FTP_USER }}
+                  password: ${{ secrets.STAGING_FTP_PASSWORD }}
+                  local-dir: ./
+                  server-dir: ${{ secrets.STAGING_FTP_SERVER_DIR }}
+                  # exclude everything under wp-content (we do that in the next steps)
+                  exclude: |
+                      wp-content/**
+                      .git/**
+                      .github/**
+                      node_modules/**
+                      vendor/**
+
+            # 2) Push only your theme
+            - name: Deploy Theme
+              uses: SamKirkland/FTP-Deploy-Action@4.3.0
+              with:
+                  server: ${{ secrets.FTP_HOST }}
+                  port: ${{ secrets.FTP_PORT }}
+                  protocol: ${{ secrets.FTP_PROTOCOL }}
+                  username: ${{ secrets.FTP_USER }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  local-dir: wp-content/themes/wp-boilerplate-fse/
+                  server-dir: ${{ secrets.FTP_SERVER_DIR }}/wp-content/themes/wp-boilerplate-fse/
+
+            # 3) Push all plugins
+            - name: Deploy Plugins
+              uses: SamKirkland/FTP-Deploy-Action@4.3.0
+              with:
+                  server: ${{ secrets.FTP_HOST }}
+                  port: ${{ secrets.FTP_PORT }}
+                  protocol: ${{ secrets.FTP_PROTOCOL }}
+                  username: ${{ secrets.FTP_USER }}
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  local-dir: wp-content/plugins/
+                  server-dir: ${{ secrets.FTP_SERVER_DIR }}/wp-content/plugins/

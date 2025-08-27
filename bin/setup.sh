@@ -166,6 +166,7 @@ DRY_RUN=false
 SKIP_PLUGINS=false
 SKIP_FILE_MOVEMENT=false
 SKIP_GIT=false
+SKIP_BRANCHES=false
 THEME_SLUG=""
 GITHUB_USERNAME="valentin-grenier"
 ACF_LICENSE_KEY="NTgyYmIyN2FjYjQyMjE0MDU4YzIxMDQ1ZjliMzYxOTliYzdiZTFiNzUwNWFhYTFkZTA1NDQ4"
@@ -176,6 +177,7 @@ for arg in "$@"; do
     --dry-run)       DRY_RUN=true;        shift ;;
     --skip-plugins)  SKIP_PLUGINS=true;   shift ;;
     --skip-git)      SKIP_GIT=true;       shift ;;
+    --skip-branches) SKIP_BRANCHES=true;  shift ;;
     --theme=*)       THEME_SLUG="${arg#*=}"; shift ;;
     --github-user=*) GITHUB_USERNAME="${arg#*=}"; shift ;;
     --acf-license=*) ACF_LICENSE_KEY="${arg#*=}"; shift ;;
@@ -188,6 +190,7 @@ for arg in "$@"; do
       echo "  --dry-run             Show what would be done without making changes"
       echo "  --skip-plugins        Skip automatic plugin installation"
       echo "  --skip-git            Skip git repository initialization"
+      echo "  --skip-branches       Skip creating additional git branches (staging, development)"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
       echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
@@ -310,8 +313,8 @@ fi
 # 2) Determine destination slug
 if [ "$SKIP_FILE_MOVEMENT" = false ]; then
   if [ -z "$THEME_DEST" ]; then
-    read -p "Enter target theme folder name (default: $THEME_SRC): " input_dest
-    THEME_DEST="${input_dest:-$THEME_SRC}"
+    read -p "Enter target theme folder name (default: wp-boilerplate-fse): " input_dest
+    THEME_DEST="${input_dest:-wp-boilerplate-fse}"
     echo "🎨 Will rename theme to: $THEME_DEST"
   else
     echo "🎨 Using provided target theme slug: $THEME_DEST"
@@ -557,6 +560,45 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_GIT" = false ]; then
   # Create initial commit
   echo "💾 Creating initial commit..."
   git commit -m "Initial commit: WordPress FSE theme setup"
+  
+  # Create additional branches for development workflow
+  if [ "$SKIP_BRANCHES" = false ]; then
+    echo "🌿 Creating development branches..."
+    
+    if [ "$DRY_RUN" = true ]; then
+      echo "[DRY RUN] Would create 'staging' branch"
+      echo "[DRY RUN] Would create 'development' branch"
+      echo "[DRY RUN] Would create 'feature/initial-setup' branch"
+      echo "[DRY RUN] Would switch back to 'main' branch"
+    else
+      # Create staging branch
+      git checkout -b staging
+      echo "✅ Created 'staging' branch"
+      
+      # Create development branch
+      git checkout -b development
+      echo "✅ Created 'development' branch"
+      
+      # Create feature branch template
+      git checkout -b feature/initial-setup
+      echo "✅ Created 'feature/initial-setup' branch"
+      
+      # Switch back to main branch
+      git checkout main
+      echo "🔄 Switched back to 'main' branch"
+    fi
+    
+    echo ""
+    echo "📋 Available branches:"
+    echo "   • main (current) - production-ready code"
+    echo "   • staging - pre-production testing"
+    echo "   • development - active development"
+    echo "   • feature/initial-setup - example feature branch"
+    echo ""
+  else
+    echo "⏭️  Skipping branch creation (--skip-branches flag used)"
+    echo ""
+  fi
   
   # Prompt for repository name and setup remote
   echo ""

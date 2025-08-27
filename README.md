@@ -1,6 +1,28 @@
 # FSE Boilerplate WordPress Theme
 
-A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes — powered by Sass and modular PHP.
+A modern, clean, and produ### Setup Notes
+
+-   **Theme folder name**: The setup script defaults the theme folder to `wp-boilerplate-fse` to align with the GitHub Actions deployment workflow
+-   **Customization**: You can override the theme name using `--theme-dest=your-custom-name` if needed
+-   **Directory structure**: The script moves all boilerplate content to your WordPress root directory
+-   **Git workflow**: Automatically creates development branches (`staging`, `development`, `feature/initial-setup`) for a complete Git workflow
+
+## 🌿 Git Workflow
+
+The setup script creates a complete branching strategy:
+
+-   **`main`** - Production-ready code (protected branch)
+-   **`staging`** - Pre-production testing and QA
+-   **`dev`** - Active development and integration
+-   **`feature/initial-setup`** - Example feature branch template
+
+**Deployment flow:**
+
+```text
+feature/xxx → development → staging → main
+```
+
+**Skip branch creation:** Use `--skip-branches` if you prefer a simpler Git setup.-ready starter theme for building custom WordPress Full Site Editing (FSE) themes — powered by Sass and modular PHP.
 
 ## 🧩 Features
 
@@ -17,10 +39,22 @@ A modern, clean, and production-ready starter theme for building custom WordPres
 
 To enable deployment via GitHub Actions, add the following secrets to your new repo:
 
--   `STAGING_SFTP_HOST` – your SFTP server hostname (e.g., ftp.example.com)
--   `STAGING_SFTP_USER` – SFTP username
--   `STAGING_SFTP_PASS` – SFTP password
--   `STAGING_SFTP_DIR` – WordPress installation root directory
+**For staging deployment (FTP):**
+
+-   `STAGING_FTP_HOST` – your FTP server hostname (e.g., ftp.example.com)
+-   `STAGING_FTP_PORT` – FTP port (usually 21)
+-   `STAGING_FTP_USER` – FTP username
+-   `STAGING_FTP_PASSWORD` – FTP password
+-   `STAGING_FTP_SERVER_DIR` – WordPress installation root directory
+
+**For production deployment (if different from staging):**
+
+-   `FTP_HOST` – production FTP server hostname
+-   `FTP_PORT` – production FTP port
+-   `FTP_PROTOCOL` – protocol ("ftp" or "ftps")
+-   `FTP_USER` – production FTP username
+-   `FTP_PASSWORD` – production FTP password
+-   `FTP_SERVER_DIR` – production WordPress installation root directory
 
 ## 🚀 Quick Start
 
@@ -48,6 +82,12 @@ export ACF_PRO_LICENSE="your_license_key"
 npm install
 npm run watch       # Watch SCSS for changes
 ```
+
+### Setup Notes
+
+-   **Theme folder name**: The setup script defaults the theme folder to `wp-boilerplate-fse` to align with the GitHub Actions deployment workflow
+-   **Customization**: You can override the theme name using `--theme-dest=your-custom-name` if needed
+-   **Directory structure**: The script moves all boilerplate content to your WordPress root directory
 
 ## ACF Pro Configuration
 
