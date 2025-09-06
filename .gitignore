@@ -79,7 +79,11 @@ wp-content/debug.log
 # PLUGINS
 # =========================
 wp-content/plugins/
-!wp-content/plugins/.gitkeep
+
+# =========================
+# MU-PLUGINS
+# =========================
+!wp-content/mu-plugins/theme-name-blocks/
 
 # =========================
 # THEME
