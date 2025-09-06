@@ -1,0 +1,72 @@
+{
+	"name": "studio-val/wp-boilerplate-fse",
+	"description": "A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes",
+	"type": "wordpress-theme",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Studio Val",
+			"email": "valentin@studio-val.fr",
+			"homepage": "https://studio-val.fr",
+			"role": "WordPress Developer"
+		}
+	],
+	"keywords": [
+		"wordpress",
+		"theme",
+		"fse",
+		"full-site-editing",
+		"boilerplate",
+		"starter",
+		"scss",
+		"webpack"
+	],
+	"homepage": "https://github.com/valentin-grenier/wp-boilerplate-fse",
+	"support": {
+		"issues": "https://github.com/valentin-grenier/wp-boilerplate-fse/issues",
+		"source": "https://github.com/valentin-grenier/wp-boilerplate-fse"
+	},
+	"require": {
+		"php": ">=8.0",
+		"composer/installers": "^2.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^9.0",
+		"wp-coding-standards/wpcs": "^3.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1"
+	},
+	"config": {
+		"optimize-autoloader": true,
+		"sort-packages": true,
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"lint": "phpcs --standard=WordPress wp-content/themes/",
+		"lint:fix": "phpcbf --standard=WordPress wp-content/themes/",
+		"test": "phpunit",
+		"post-install-cmd": [
+			"@php -r \"if (!file_exists('auth.json') && file_exists('auth.example.json')) { copy('auth.example.json', 'auth.json'); echo 'Created auth.json from example. Please update with your credentials.\\n'; }\""
+		]
+	},
+	"extra": {
+		"installer-paths": {
+			"wp-content/plugins/{$name}/": [
+				"type:wordpress-plugin"
+			],
+			"wp-content/themes/{$name}/": [
+				"type:wordpress-theme"
+			]
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"StudioVal\\WPBoilerplate\\": "wp-content/themes/theme-fse/inc/"
+		}
+	},
+	"minimum-stability": "stable",
+	"prefer-stable": true
+}

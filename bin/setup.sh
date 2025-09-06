@@ -86,19 +86,29 @@ update_theme_info() {
   local display_name
   display_name=$(slug_to_display_name "$theme_slug")
   
+  # Convert slug to text domain (WordPress standard: lowercase with hyphens)
+  local text_domain
+  text_domain=$(echo "$theme_slug" | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')
+  
   echo "📝 Updating theme information in style.css..."
-  echo "   Theme Name: WP Boilerplate FSE → $display_name"
+  echo "   Theme Name: WP FSE Boilerplate → $display_name"
   echo "   Theme URI: ending with /$theme_slug"
+  echo "   Text Domain: fse-boilerplate → $text_domain"
   
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would update theme name to '$display_name' in $style_css"
     echo "[DRY RUN] Would update theme URI to end with '/$theme_slug'"
+    echo "[DRY RUN] Would update text domain to '$text_domain'"
   else
-    # Update Theme Name
+    # Update Theme Name (handle both possible current names)
     sed -i "s/^Theme Name: WP Boilerplate FSE/Theme Name: $display_name/" "$style_css"
+    sed -i "s/^Theme Name: WP FSE Boilerplate/Theme Name: $display_name/" "$style_css"
     
     # Update Theme URI to end with the theme slug
     sed -i "s|^Theme URI: .*|Theme URI: https://github.com/valentin-grenier/$theme_slug|" "$style_css"
+    
+    # Update Text Domain
+    sed -i "s/^Text Domain: .*/Text Domain: $text_domain/" "$style_css"
     
     echo "✅ Theme information updated successfully"
   fi

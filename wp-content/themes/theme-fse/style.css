@@ -1,17 +1,16 @@
 /*
-Theme Name: WP Boilerplate FSE
-Theme URI: https://github.com/valentin-grenier/boilerplate-fse
-Author: Valentin Grenier • Studio Val
+Theme Name: WP FSE Boilerplate
+Theme URI: https://github.com/valentin-grenier/wp-boilerplate-fse
+Author: Studio Val
 Author URI: https://studio-val.fr
 Version: 1.0.0
-Description: A Full Site Editing boilerplate theme created by Valentin Grenier from Studio Val.
-Requires at least: 6.7
+Description: A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes — powered by Sass and modular PHP.
+Requires at least: 6.0
 Tested up to: 6.7
-Requires PHP: 5.7
-Version: 
-License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: studio-val
-Tags: 
+Requires PHP: 8.0
+License: MIT
+License URI: https://opensource.org/licenses/MIT
+Text Domain: fse-boilerplate
+Tags: full-site-editing, block-theme, custom-colors, custom-spacing, editor-style, featured-images, rtl-language-support, threaded-comments, translation-ready
 */
 
