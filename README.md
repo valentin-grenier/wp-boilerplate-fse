@@ -85,9 +85,10 @@ npm run watch       # Watch SCSS for changes
 
 ### Setup Notes
 
--   **Theme folder name**: The setup script defaults the theme folder to `wp-boilerplate-fse` to align with the GitHub Actions deployment workflow
--   **Customization**: You can override the theme name using `--theme-dest=your-custom-name` if needed
--   **Directory structure**: The script moves all boilerplate content to your WordPress root directory
+- **Theme folder name**: The setup script defaults the theme folder to `wp-boilerplate-fse` to align with the GitHub Actions deployment workflow
+- **Customization**: You can override the theme name using `--theme-dest=your-custom-name` if needed
+- **Directory structure**: The script moves all boilerplate content to your WordPress root directory
+- **Deployment sync**: Automatically updates GitHub workflow files with the chosen theme name for seamless deployment
 
 ## ACF Pro Configuration
 

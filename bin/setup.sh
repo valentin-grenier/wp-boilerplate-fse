@@ -104,6 +104,40 @@ update_theme_info() {
   fi
 }
 
+# Function to update GitHub workflow files with the correct theme name
+update_workflow_files() {
+  local theme_slug="$1"
+  local target_root="$2"
+  
+  echo "⚙️  Updating GitHub workflow files..."
+  
+  local staging_workflow="$target_root/.github/workflows/deploy-staging.yml"
+  local production_workflow="$target_root/.github/workflows/deploy-production.yml"
+  
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would update theme paths in GitHub workflow files:"
+    echo "[DRY RUN]   theme-fse → $theme_slug in deploy-staging.yml"
+    echo "[DRY RUN]   theme-fse → $theme_slug in deploy-production.yml"
+    return 0
+  fi
+  
+  # Update staging workflow
+  if [ -f "$staging_workflow" ]; then
+    sed -i "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$staging_workflow"
+    echo "✅ Updated deploy-staging.yml with theme name: $theme_slug"
+  else
+    echo "⚠️  deploy-staging.yml not found - skipping"
+  fi
+  
+  # Update production workflow
+  if [ -f "$production_workflow" ]; then
+    sed -i "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$production_workflow"
+    echo "✅ Updated deploy-production.yml with theme name: $theme_slug"
+  else
+    echo "⚠️  deploy-production.yml not found - skipping"
+  fi
+}
+
 # Function for manual git setup (fallback when GitHub CLI is not available)
 manual_git_setup() {
   echo ""
@@ -336,6 +370,9 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
     
     # Update theme information in style.css
     update_theme_info "$THEME_TARGET" "$THEME_DEST"
+    
+    # Update GitHub workflow files with the new theme name
+    update_workflow_files "$THEME_DEST" "$TARGET_ROOT"
   else
     echo "⚠️  Source theme '$THEME_SRC' not found — skipping"
   fi
