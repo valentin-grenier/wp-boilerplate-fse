@@ -61,6 +61,7 @@ wp-content/themes/**/*/package-lock.json
 wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
 wp-content/uploads/
+wp-content/uploads-webpc/
 
 # =========================
 # WORDPRESS FILES
@@ -99,3 +100,8 @@ local-xdebuginfo.php
 # UPDRAFT
 # =========================
 wp-content/updraft/
+
+# =========================
+# OTHERS
+# =========================
+roadmap.md

@@ -19,6 +19,109 @@ log_step() {
   echo "=========================================="
 }
 
+# Enhanced logging functions
+setup_logging() {
+  # Create logs directory if it doesn't exist
+  local log_dir="$TARGET_ROOT/logs"
+  if [ "$DRY_RUN" = false ]; then
+    mkdir -p "$log_dir"
+  fi
+  
+  # Set log file path with timestamp
+  LOG_FILE="$log_dir/setup-$(date +%Y%m%d-%H%M%S).log"
+  
+  if [ "$DRY_RUN" = false ]; then
+    touch "$LOG_FILE"
+    echo "📝 Logging setup process to: $LOG_FILE"
+  else
+    echo "[DRY RUN] Would create log file: $LOG_FILE"
+  fi
+}
+
+log_info() {
+  local message="$1"
+  echo "ℹ️  $message"
+  if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] INFO: $message" >> "$LOG_FILE"
+  fi
+}
+
+log_success() {
+  local message="$1"
+  echo "✅ $message"
+  if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] SUCCESS: $message" >> "$LOG_FILE"
+  fi
+}
+
+log_warning() {
+  local message="$1"
+  echo "⚠️  $message"
+  if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] WARNING: $message" >> "$LOG_FILE"
+  fi
+}
+
+log_error() {
+  local message="$1"
+  echo "❌ $message" >&2
+  if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $message" >> "$LOG_FILE"
+  fi
+}
+
+# Summary logging functions
+setup_summary() {
+  SETUP_START_TIME=$(date +%s)
+  SETUP_ERRORS=0
+  SETUP_WARNINGS=0
+  SETUP_SUCCESS_COUNT=0
+}
+
+increment_errors() {
+  SETUP_ERRORS=$((SETUP_ERRORS + 1))
+}
+
+increment_warnings() {
+  SETUP_WARNINGS=$((SETUP_WARNINGS + 1))
+}
+
+increment_success() {
+  SETUP_SUCCESS_COUNT=$((SETUP_SUCCESS_COUNT + 1))
+}
+
+show_setup_summary() {
+  local end_time=$(date +%s)
+  local duration=$((end_time - SETUP_START_TIME))
+  local minutes=$((duration / 60))
+  local seconds=$((duration % 60))
+  
+  echo ""
+  echo "=========================================="
+  echo "🎉 SETUP COMPLETED"
+  echo "=========================================="
+  echo "⏱️  Duration: ${minutes}m ${seconds}s"
+  echo "✅ Successful operations: $SETUP_SUCCESS_COUNT"
+  echo "⚠️  Warnings: $SETUP_WARNINGS"
+  echo "❌ Errors: $SETUP_ERRORS"
+  
+  if [ "$SETUP_ERRORS" -eq 0 ] && [ "$SETUP_WARNINGS" -eq 0 ]; then
+    echo ""
+    echo "🚀 Perfect setup! No issues encountered."
+  elif [ "$SETUP_ERRORS" -eq 0 ]; then
+    echo ""
+    echo "✅ Setup completed successfully with minor warnings."
+  else
+    echo ""
+    echo "⚠️  Setup completed with some errors. Check the log for details."
+  fi
+  
+  if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
+    echo "📝 Full log available at: $LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] SUMMARY: Setup completed - Duration: ${minutes}m ${seconds}s - Success: $SETUP_SUCCESS_COUNT - Warnings: $SETUP_WARNINGS - Errors: $SETUP_ERRORS" >> "$LOG_FILE"
+  fi
+}
+
 # Function to install ACF Pro
 install_acf_pro() {
   local license_key="$1"
@@ -211,6 +314,7 @@ SKIP_PLUGINS=false
 SKIP_FILE_MOVEMENT=false
 SKIP_GIT=false
 SKIP_BRANCHES=false
+SKIP_CLEANUP=false
 THEME_SLUG=""
 GITHUB_USERNAME="valentin-grenier"
 ACF_LICENSE_KEY="NTgyYmIyN2FjYjQyMjE0MDU4YzIxMDQ1ZjliMzYxOTliYzdiZTFiNzUwNWFhYTFkZTA1NDQ4"
@@ -222,6 +326,7 @@ for arg in "$@"; do
     --skip-plugins)  SKIP_PLUGINS=true;   shift ;;
     --skip-git)      SKIP_GIT=true;       shift ;;
     --skip-branches) SKIP_BRANCHES=true;  shift ;;
+    --skip-cleanup)  SKIP_CLEANUP=true;   shift ;;
     --theme=*)       THEME_SLUG="${arg#*=}"; shift ;;
     --github-user=*) GITHUB_USERNAME="${arg#*=}"; shift ;;
     --acf-license=*) ACF_LICENSE_KEY="${arg#*=}"; shift ;;
@@ -235,6 +340,7 @@ for arg in "$@"; do
       echo "  --skip-plugins        Skip automatic plugin installation"
       echo "  --skip-git            Skip git repository initialization"
       echo "  --skip-branches       Skip creating additional git branches (staging, development)"
+      echo "  --skip-cleanup        Skip automatic cleanup of boilerplate directory"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
       echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
@@ -289,6 +395,10 @@ fi
 if ! command -v $WP &> /dev/null; then
   error_exit "WP-CLI not found in this shell. Run from Local's Site Shell or install WP-CLI globally."
 fi
+
+# ========== INITIALIZE LOGGING AND SUMMARY ==========
+setup_summary
+setup_logging
 
 # ========== VALIDATION ==========
 log_step "🔍 VALIDATING ENVIRONMENT"
@@ -416,6 +526,49 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
     fi
   else
     echo "ℹ️ No plugins or .gitkeep to move"
+  fi
+
+  # ========== MOVE MU-PLUGINS DIRECTORY ==========
+  log_step "📁 MOVING MU-PLUGINS"
+
+  MU_PLUGINS_SOURCE="$REPO_WP_CONTENT/mu-plugins"
+  MU_PLUGINS_TARGET="$TARGET_WP_CONTENT/mu-plugins"
+
+  if [ -d "$MU_PLUGINS_SOURCE" ]; then
+    echo "📁 Preparing mu-plugins directory at $MU_PLUGINS_TARGET..."
+    if [ "$DRY_RUN" = false ]; then
+      mkdir -p "$MU_PLUGINS_TARGET"
+    else
+      echo "[DRY RUN] Would mkdir -p $MU_PLUGINS_TARGET"
+    fi
+
+    # Check if there are any files to move (excluding just .gitkeep)
+    mu_files_count=$(find "$MU_PLUGINS_SOURCE" -type f ! -name '.gitkeep' 2>/dev/null | wc -l)
+    
+    if [ "$mu_files_count" -gt 0 ]; then
+      echo "📦 Moving mu-plugins files..."
+      if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] Would move $mu_files_count mu-plugin files to $MU_PLUGINS_TARGET/"
+      else
+        # Move all files from mu-plugins directory
+        find "$MU_PLUGINS_SOURCE" -type f ! -name '.gitkeep' -exec mv {} "$MU_PLUGINS_TARGET/" \; 2>/dev/null
+        echo "✅ Moved $mu_files_count mu-plugin files"
+      fi
+    fi
+
+    # Handle .gitkeep file
+    GITKEEP_FILE="$MU_PLUGINS_SOURCE/.gitkeep"
+    if [ -f "$GITKEEP_FILE" ]; then
+      echo "📦 Moving .gitkeep from mu-plugins/"
+      if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] Would move $GITKEEP_FILE → $MU_PLUGINS_TARGET/.gitkeep"
+      else
+        mv "$GITKEEP_FILE" "$MU_PLUGINS_TARGET/.gitkeep"
+        echo "✅ .gitkeep moved to mu-plugins/"
+      fi
+    fi
+  else
+    echo "ℹ️ No mu-plugins directory found - skipping"
   fi
 
   # ========== MOVE ROOT FILES ==========
@@ -552,35 +705,116 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   echo "👉 Install these manually when ready for production"
 fi
 
+# ========== ACTIVATE THEME ==========
+if [ "$DRY_RUN" = false ] && [ "$SKIP_FILE_MOVEMENT" = false ]; then
+  log_step "🎨 ACTIVATING THEME"
+  
+  cd "$WP_PATH"
+  
+  echo "🎨 Activating theme: $THEME_DEST..."
+  
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would activate theme: $THEME_DEST"
+  else
+    if $WP theme activate "$THEME_DEST" 2>/dev/null; then
+      echo "✅ Theme '$THEME_DEST' activated successfully"
+      
+      # Verify theme activation
+      active_theme=$($WP theme list --status=active --field=name 2>/dev/null)
+      if [ "$active_theme" = "$THEME_DEST" ]; then
+        echo "✅ Theme activation verified"
+      else
+        echo "⚠️  Theme activation may not have completed properly"
+        echo "💡 Active theme: $active_theme"
+      fi
+    else
+      echo "⚠️  Failed to activate theme '$THEME_DEST'"
+      echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
+      echo "👉 Or run: wp theme activate $THEME_DEST"
+    fi
+  fi
+elif [ "$SKIP_FILE_MOVEMENT" = true ]; then
+  echo "⏭️  Skipping theme activation (no theme files were moved)"
+fi
+
 # ========== CLEANUP BOILERPLATE DIRECTORY ==========
-if [ "$DRY_RUN" = false ]; then
+if [ "$DRY_RUN" = false ] && [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$SKIP_CLEANUP" = false ]; then
   log_step "🧹 CLEANING UP"
   
   echo "🧹 Cleaning up boilerplate directory..."
+  echo ""
+  echo "⚠️  This will permanently delete the boilerplate directory:"
+  echo "   📁 $REPO_DIR"
+  echo ""
+  echo "   All files have been successfully moved to your WordPress installation."
+  echo "   The boilerplate directory is no longer needed."
+  echo ""
   
-  # After successful setup, we can safely remove the boilerplate directory
-  # since all files have been moved to the WordPress installation
-  echo "  Removing boilerplate directory: $REPO_DIR"
-  
-  # Change to parent directory to avoid issues when deleting current directory
-  cd "$TARGET_ROOT"
-  
-  # Force removal of the entire boilerplate directory
-  rm -rf "$REPO_DIR"
-  echo "✅ Boilerplate directory cleaned up"
-  
-  # Also remove cleanup.sh if it exists in the target directory
-  if [ -f "$TARGET_ROOT/cleanup.sh" ]; then
-    echo "  Removing separate cleanup.sh script..."
-    rm -f "$TARGET_ROOT/cleanup.sh"
-    echo "✅ cleanup.sh removed"
+  # Ask for confirmation unless running non-interactively
+  if [ -t 0 ]; then  # Check if running interactively
+    read -p "   🗑️  Proceed with cleanup? (y/n): " confirm_cleanup
+    echo ""
+  else
+    confirm_cleanup="y"
+    echo "   🤖 Non-interactive mode: proceeding with cleanup"
   fi
+  
+  if [[ "$confirm_cleanup" =~ ^[Yy]$ ]]; then
+    # After successful setup, we can safely remove the boilerplate directory
+    log_info "Removing boilerplate directory: $REPO_DIR"
+    
+    # Change to parent directory to avoid issues when deleting current directory
+    cd "$TARGET_ROOT"
+    
+    # Safety check: make sure we're not deleting something important
+    if [[ "$REPO_DIR" == *"wp-boilerplate-fse"* ]] && [ -d "$REPO_DIR" ]; then
+      # Force removal of the entire boilerplate directory
+      if rm -rf "$REPO_DIR" 2>/dev/null; then
+        log_success "Boilerplate directory cleaned up successfully"
+        increment_success
+      else
+        log_error "Failed to remove boilerplate directory"
+        increment_errors
+      fi
+    else
+      log_error "Safety check failed: refusing to delete directory $REPO_DIR"
+      increment_errors
+    fi
+    
+    # Also remove cleanup.sh if it exists in the target directory
+    if [ -f "$TARGET_ROOT/cleanup.sh" ]; then
+      log_info "Removing separate cleanup.sh script"
+      if rm -f "$TARGET_ROOT/cleanup.sh" 2>/dev/null; then
+        log_success "cleanup.sh removed"
+        increment_success
+      else
+        log_warning "Failed to remove cleanup.sh"
+        increment_warnings
+      fi
+    fi
+  else
+    echo "   ⏹️  Cleanup cancelled"
+    echo "   💡 You can manually delete the boilerplate directory later:"
+    echo "      rm -rf $REPO_DIR"
+    echo ""
+    echo "   🔧 Or use the standalone cleanup script:"
+    echo "      ./cleanup.sh"
+  fi
+elif [ "$SKIP_FILE_MOVEMENT" = true ]; then
+  echo "⏭️  Skipping cleanup (no files were moved)"
+elif [ "$SKIP_CLEANUP" = true ]; then
+  echo "⏭️  Skipping cleanup (--skip-cleanup flag used)"
+  echo "   💡 You can clean up manually later using:"
+  echo "      ./bin/cleanup.sh"
+  echo "   🗂️  Boilerplate directory: $REPO_DIR"
 else
   echo ""
   echo "[DRY RUN] Would clean up boilerplate directory:"
-  echo "  1. Change to parent directory: $TARGET_ROOT"
-  echo "  2. Remove boilerplate directory: $REPO_DIR"
-  echo "  3. Remove cleanup.sh if present"
+  echo "  1. Ask for user confirmation"
+  echo "  2. Change to parent directory: $TARGET_ROOT"
+  echo "  3. Safety check directory name contains 'wp-boilerplate-fse'"
+  echo "  4. Remove boilerplate directory: $REPO_DIR"
+  echo "  5. Remove cleanup.sh if present"
 fi
 
 # ========== GIT REPOSITORY INITIALIZATION ==========
@@ -759,3 +993,6 @@ else
   echo "🔍 DRY RUN completed - no actual changes made"
   echo "   Remove --dry-run flag to execute the setup"
 fi
+
+# ========== SHOW SETUP SUMMARY ==========
+show_setup_summary
