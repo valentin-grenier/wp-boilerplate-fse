@@ -14,7 +14,7 @@ add_filter('the_generator', '__return_empty_string');
 /**
  * Disable file editing in the admin.
  */
-if (is_admin()) {
+if (is_admin() && !defined('DISALLOW_FILE_EDIT')) {
     define('DISALLOW_FILE_EDIT', true);
 }
 
