@@ -91,6 +91,7 @@ function studio_custom_admin_logo()
 }
 add_action('admin_head', 'studio_custom_admin_logo');
 add_action('login_head', 'studio_custom_admin_logo');
+add_action('wp_head', 'studio_custom_admin_logo');
 
 /**
  * Customize WordPress logo submenu in admin bar
