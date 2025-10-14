@@ -778,7 +778,9 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
     "updraftplus"
     "admin-site-enhancements"
     "contact-form-7"
-    "flamingo"
+    "contact-form-7-honeypot"
+    "wp-mail-smtp"
+    "better-wp-security"
   )
   
   for plugin in "${DEV_PLUGINS[@]}"; do
