@@ -412,6 +412,7 @@ SKIP_FILE_MOVEMENT=false
 SKIP_GIT=false
 SKIP_BRANCHES=false
 SKIP_CLEANUP=false
+THEME_ONLY=false
 THEME_SLUG=""
 GITHUB_USERNAME="valentin-grenier"
 ACF_LICENSE_KEY="NTgyYmIyN2FjYjQyMjE0MDU4YzIxMDQ1ZjliMzYxOTliYzdiZTFiNzUwNWFhYTFkZTA1NDQ4"
@@ -424,6 +425,7 @@ for arg in "$@"; do
     --skip-git)      SKIP_GIT=true;       shift ;;
     --skip-branches) SKIP_BRANCHES=true;  shift ;;
     --skip-cleanup)  SKIP_CLEANUP=true;   shift ;;
+    --theme-only)    THEME_ONLY=true;     shift ;;
     --theme=*)       THEME_SLUG="${arg#*=}"; shift ;;
     --github-user=*) GITHUB_USERNAME="${arg#*=}"; shift ;;
     --acf-license=*) ACF_LICENSE_KEY="${arg#*=}"; shift ;;
@@ -438,6 +440,7 @@ for arg in "$@"; do
       echo "  --skip-git            Skip git repository initialization"
       echo "  --skip-branches       Skip creating additional git branches (staging, development)"
       echo "  --skip-cleanup        Skip automatic cleanup of boilerplate directory"
+      echo "  --theme-only          Move only the theme (skip plugins, mu-plugins, root files)"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
       echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
@@ -603,7 +606,7 @@ else
 fi
 
 # ========== MOVE PLUGINS DIRECTORY CONTENT ==========
-if [ "$SKIP_FILE_MOVEMENT" = false ]; then
+if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
   log_step "📁 MOVING PLUGINS"
 
   PLUGINS_SOURCE="$REPO_WP_CONTENT/plugins"
@@ -629,8 +632,12 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
   else
     echo "ℹ️ No plugins or .gitkeep to move"
   fi
+elif [ "$THEME_ONLY" = true ]; then
+  echo "⏭️  Skipping plugins movement (--theme-only flag used)"
+fi
 
-  # ========== MOVE MU-PLUGINS DIRECTORY ==========
+# ========== MOVE MU-PLUGINS DIRECTORY ==========
+if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
   log_step "📁 MOVING MU-PLUGINS"
 
   MU_PLUGINS_SOURCE="$REPO_WP_CONTENT/mu-plugins"
@@ -672,8 +679,12 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
   else
     echo "ℹ️ No mu-plugins directory found - skipping"
   fi
+elif [ "$THEME_ONLY" = true ]; then
+  echo "⏭️  Skipping mu-plugins movement (--theme-only flag used)"
+fi
 
-  # ========== MOVE ROOT FILES ==========
+# ========== MOVE ROOT FILES ==========
+if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
   log_step "📁 MOVING ROOT FILES"
 
   echo "📁 Moving root files to $TARGET_ROOT..."
@@ -698,6 +709,8 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
       fi
     fi
   done
+elif [ "$THEME_ONLY" = true ]; then
+  echo "⏭️  Skipping root files movement (--theme-only flag used)"
 else
   echo "⏭️  Skipping file movement (already completed)"
 fi
