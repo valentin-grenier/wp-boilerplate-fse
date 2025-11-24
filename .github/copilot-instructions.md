@@ -1,210 +1,180 @@
 # Copilot Instructions for WordPress Boilerplate FSE
 
 ## Project Overview
-This is a modern WordPress Full Site Editing (FSE) theme boilerplate with automated setup, deployment workflows, and development tools.
-Core Principles
-Code Style
+Modern WordPress FSE boilerplate with automated setup (`bin/setup.sh`), modular PHP architecture, Webpack build pipeline, and FTP deployment via GitHub Actions. Designed for custom client sites by Studio Val.
 
-## PHP: Follow WordPress coding standards
+**Tech Stack:** WordPress 6.0+, PHP 8.0+, Webpack 5, Sass, Local by Flywheel
 
-- Use snake_case for functions
-- Prefix all functions with studio_
-- Comment every function with PHPDoc blocks
-- Security first: escape, sanitize, validate
+## Architecture & Key Patterns
 
-## JavaScript: ES6+ syntax
+### Modular PHP Structure
+- **`functions.php`** does ONE thing: auto-loads all files from `inc/` using `glob()`
+- Each `inc/*.php` file handles a single concern (theme setup, security, assets, blocks, etc.)
+- All functions prefixed with `studio_` to avoid conflicts
+- Security guard at top of every file: `if (!defined('ABSPATH')) exit;`
 
-- Use modern imports/exports
-- Avoid jQuery when possible
-- Comment complex logic
-
-
-## SCSS: Modern module syntax
-
-- Use @use and @forward, never @import
-- Keep files modular in organized directories
-- Mobile-first approach
-
-
-## Shell Scripts
-
-- Compatibility: Must work on macOS, Linux, and Windows (Git Bash/WSL)
-- Safety: Always use set -e to exit on errors
-- User feedback: Log every important step with emojis for clarity
-- Dry-run: Support --dry-run flag for testing
-- Error handling: Clear error messages with helpful suggestions
-
-## WordPress Best Practices
-
-### Security
-
-- Never trust user input
-- Use nonces for forms
-- Escape output: esc_html(), esc_attr(), esc_url()
-- Sanitize input: sanitize_text_field(), etc.
-
-
-### Performance
-
-- Lazy-load assets when possible
-- Only enqueue what's needed
-- Use filemtime() for cache busting
-- Leverage WordPress transients for caching
-
-### FSE Specifics
-
-- Use theme.json for all design tokens
-- Keep templates minimal (use template parts)
-- Prefer block patterns over custom PHP templates
-
-
-## File Organization
-
-```
-wp-boilerplate-fse/
-├── bin/                    # Setup and automation scripts
-├── wp-content/
-│   ├── themes/theme-fse/
-│   │   ├── _dev/          # Source files (SCSS, JS, Webpack)
-│   │   ├── dist/          # Compiled assets
-│   │   ├── inc/           # PHP functionality (modular)
-│   │   ├── blocks/        # ACF blocks (if ACF is used)
-│   │   ├── parts/         # Template parts
-│   │   ├── templates/     # Page templates
-│   │   └── theme.json     # FSE configuration
-│   ├── mu-plugins/        # Must-use plugins
-│   └── plugins/           # Regular plugins
-└── .github/workflows/     # CI/CD automation
-```
-
-## Specific Instructions
-
-### When creating shell scripts
-
-- Check if running in correct environment (WordPress root)
-- Validate WP-CLI availability
-- Provide clear progress indicators
-- Support both interactive and non-interactive modes
-- Always log operations to a timestamped log file
-- Clean up after yourself (remove temporary files)
-
-### When working with theme PHP
-
-- All functionality goes in /inc/ as modular files
-- functions.php should only load files from /inc/
-- One function = one responsibility
-- Prefix everything: functions, hooks, scripts, styles
-- Security: think like an attacker, code defensively
-- Use BEM for CSS classes
-- Escape all outputs, sanitize all inputs
-- Use i18n functions for strings with the theme text domain
-
-### When creating blocks
-
-- Use ACF block.json registration
-- Each block gets its own folder in _dev/blocks/
-- Structure: block.php, block.scss, block.js, block.json
-- Webpack automatically compiles theme assets
-- Use semantic HTML, accessible markup with ARIA roles and attributes
-
-### When updating workflows
-
-- Test in staging environment first
-- Use GitHub Secrets for credentials (never hardcode)
-- Exclude development files from deployment
-- Add health checks after deployment
-- Provide deployment summaries
-
-## Common Patterns
-
-### Adding a new PHP module
-
+**Example from `inc/theme-assets.php`:**
 ```php
-<?php
-/**
- * Brief description of what this file does
- * 
- * @package StudioVal_Boilerplate
- */
-
-// Exit if accessed directly
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-/**
- * Function description
- *
- * @param string $param Description
- * @return void
- */
-function studio_my_function($param) {
-    // Implementation
-}
-add_action('hook_name', 'studio_my_function');
+// Cache-busted assets using filemtime()
+wp_enqueue_style('studio-theme-styles', 
+    get_template_directory_uri() . '/dist/css/theme.css',
+    [], filemtime(get_template_directory() . '/dist/css/theme.css')
+);
 ```
 
-### Adding a setup script feature:
+### Webpack Build Pipeline
+- **Source:** `wp-content/themes/theme-fse/_dev/` (SCSS, JS, blocks)
+- **Output:** `wp-content/themes/theme-fse/dist/` (compiled CSS/JS)
+- **Auto-discovers blocks:** Webpack scans `_dev/blocks/*/` and bundles each `block.js` + `block.scss`
+- **Commands:** `npm run dev` (dev build) or `npm run build` (production)
+- Blocks output to `dist/blocks/{blockName}/block.{js,css}`
 
+### ACF Block Registration
+Blocks live in `_dev/blocks/{blockName}/` with this structure:
+```
+block.json    # Block metadata (title, category, supports)
+block.php     # PHP template
+block.scss    # Block styles
+block.js      # Block editor scripts
+```
+Registration happens automatically via `inc/block-acf.php` which globs all `block.json` files:
+```php
+register_block_type($block_json_file); // For each found block.json
+```
+
+### FSE Configuration (`theme.json`)
+- **All design tokens** (colors, spacing, typography) defined here
+- Disables most WordPress defaults for regular users (`defaultPalette: false`, `defaultGradients: false`)
+- `admin-caps.json` enables full editor capabilities (spacing, typography, borders) for administrators
+- Custom palette with slugs: `primary`, `secondary`, `accent`, `contrast`, `white`
+- Spacing scale: `xs` (1rem), `sm` (1.5rem), `md` (2rem), `lg` (4rem), `xl` (6rem)
+- **Strict layout settings:** Fixed contentSize (760px) and wideSize (1140px)
+
+**Variable Syntax (CRITICAL):**
+- ✅ **USE:** `wp:preset|color|primary` or `wp:custom|spacing|small`
+- ❌ **NEVER:** `var(--wp--preset--color--primary)` or `var(--wp--custom--spacing--small)`
+- WordPress FSE uses colon-pipe notation, not CSS custom properties in theme.json
+
+### Security Hardening (`inc/security.php`)
+- XML-RPC disabled (`xmlrpc_enabled` filter)
+- File editor blocked via `DISALLOW_FILE_EDIT` constant
+- WordPress version hidden from source (`wp_generator` action removed)
+- Login error messages sanitized to prevent user enumeration
+- Author archives redirect to home (prevents user scanning)
+
+## Development Workflows
+
+### Initial Setup
 ```bash
-# 1. Add flag parsing
-case $arg in
-    --my-flag)    MY_FLAG=true;    shift ;;
-esac
-
-# 2. Add to help text
-echo "  --my-flag         Description of flag"
-
-# 3. Add logging
-log_step "🚀 DOING SOMETHING"
-echo "Detailed info about the step..."
-
-if [ "$DRY_RUN" = true ]; then
-    echo "[DRY RUN] Would perform action"
-else
-    # Actual implementation
-    log_success "Action completed"
-fi
+./bin/setup.sh --acf-license=YOUR_KEY  # Full setup with ACF Pro
+./bin/setup.sh --skip-plugins          # Skip plugin installation
+./bin/setup.sh --dry-run               # Preview changes
 ```
+**What it does:**
+1. Detects/creates WordPress installation
+2. Installs/activates theme
+3. Installs plugins via WP-CLI
+4. Creates Git branches (`staging`, `development`, `feature/initial-setup`)
+5. Updates workflow files with theme name
+6. Logs everything to timestamped `logs/setup-*.log`
 
-## What to Avoid
+### Asset Development
+```bash
+cd wp-content/themes/theme-fse/_dev
+npm install
+npm run dev      # Development build
+npm run build    # Production build (minified)
+```
+**Watch for:** Webpack clears `dist/` on each build (configured with `clean: true`)
 
-- ❌ Inline styles or scripts in PHP
-- ❌ Hardcoded URLs, paths, or credentials
-- ❌ Modifying WordPress core files
-- ❌ Using deprecated WordPress functions
-- ❌ Adding unnecessary dependencies
-- ❌ Breaking changes without major version bump
-- ❌ Shell scripts without error handling
-- ❌ Copying code without understanding it
+### Deployment Flow
+```
+feature/xxx → development → staging → main
+```
+- **Staging:** Push to `staging` branch → deploys via `.github/workflows/deploy-staging.yml`
+- **Production:** Push to `main` → deploys via `.github/workflows/deploy-production.yml`
+- Uses FTP-Deploy-Action with separate steps for root files, theme, and plugins
+- Excludes: `node_modules/`, `vendor/`, `.git/`, development files
 
-## Testing Checklist
+### Required GitHub Secrets
+**Staging:** `STAGING_FTP_HOST`, `STAGING_FTP_PORT`, `STAGING_FTP_USER`, `STAGING_FTP_PASSWORD`, `STAGING_FTP_SERVER_DIR`  
+**Production:** `FTP_HOST`, `FTP_PORT`, `FTP_PROTOCOL`, `FTP_USER`, `FTP_PASSWORD`, `FTP_SERVER_DIR`
 
-Before suggesting code changes, verify:
+## Code Style & Conventions
 
-- Code follows WordPress coding standards
-- Security: all user input is sanitized/escaped
-- Shell scripts work in dry-run mode
-- No hardcoded values (use variables/constants)
-- Proper error handling
-- Clear user feedback/logging
-- Documentation updated if needed
+### PHP
+- **Naming:** `snake_case` functions, `studio_` prefix mandatory
+- **Security:** Escape ALL output (`esc_html()`, `esc_attr()`, `esc_url()`), sanitize ALL input
+- **PHPDoc:** Every function documented with `@param`, `@return`
+- **Performance:** Use `filemtime()` for cache busting, enable selective block CSS loading (`should_load_separate_core_block_assets`)
 
-## Questions to Ask
-When unsure about implementation:
+### SCSS
+- **Modern syntax:** Use `@use` and `@forward`, NEVER `@import`
+- **Organization:** Modular files in `scss/blocks/`, `scss/parts/`, `scss/templates/`, etc.
+- **Mobile-first:** Base styles for mobile, use `@media` for larger screens
 
-- "Is this for development or production?"
-- "Should this be optional or mandatory?"
-- "What happens if X fails?"
-- "Do we need to support legacy WordPress/PHP versions?"
-- "Should this be logged?"
-- "Is there a simpler way to achieve this?"
+### JavaScript
+- **ES6+:** Modern syntax, avoid jQuery
+- **Block editor scripts:** Enqueue with dependencies like `['wp-blocks', 'wp-dom-ready']`
+- Example pattern from `inc/block-settings.php`: Unregister blocks/styles via editor scripts
 
-## Helpful Context
+### Shell Scripts (`bin/*.sh`)
+- **Cross-platform:** Test on macOS, Linux, Windows Git Bash
+- **Error handling:** Always `set -e` at top
+- **Logging:** Use `log_step()`, `log_success()`, `log_error()` with emojis
+- **Dry-run support:** Check `$DRY_RUN` before executing
+- **User feedback:** Progress indicators, summary at end with elapsed time
 
-- Primary user: WordPress developers (including the author)
-- Target WP version: 6.0+
-- PHP version: 8.0+
-- Development tools: Local by Flywheel, WP-CLI, NPM
-- Deployment: GitHub Actions → FTP
-- Main use: Custom client sites by Studio Val
+## Adding New Features
+
+When adding new features:
+- Always update `copilot-instructions.md` to reflect new patterns or workflows.
+- Always update relevant documentation sections if needed.
+
+### New PHP Module
+1. Create `inc/new-feature.php`
+2. Add security guard and PHPDoc
+3. Prefix functions with `studio_`
+4. Auto-loads via `functions.php` glob
+
+### New ACF Block
+1. Create folder: `_dev/blocks/my-block/`
+2. Add files: `block.json`, `block.php`, `block.scss`, `block.js`
+3. Webpack auto-discovers and compiles
+4. Registration happens via `inc/block-acf.php`
+5. New block can be created with `npm run make-block MyBlock` when in _dev directory
+
+### Workflow Modification
+1. Test in staging first
+2. Never hardcode credentials (use secrets)
+3. Update health check URLs if needed
+4. Add deployment summary output
+
+### Git commit messages pattern
+- Use clear, descriptive and complete phrase with a maximum of two phrases.
+- Always start a commit with the common prefix of the area being changed:
+  - `chore`: for general maintenance tasks
+  - `feat`: for new features
+  - `fix`: for bug fixes
+  - `docs`: for documentation changes
+  - `style`: for code style changes (formatting, missing semi-colons, etc.)
+
+## Critical "Don'ts"
+- ❌ **Don't modify** `functions.php` (only for glob auto-loading)
+- ❌ **Don't use** `@import` in SCSS (use `@use`/`@forward`)
+- ❌ **Don't hardcode** theme name in workflows (setup script handles this)
+- ❌ **Don't skip** security escaping/sanitization
+- ❌ **Don't add** files directly to `dist/` (Webpack manages this)
+
+## Key Files to Reference
+- **Theme structure:** `wp-content/themes/theme-fse/`
+- **Build config:** `_dev/webpack.common.js` (entry points, output paths)
+- **Block patterns:** `_dev/blocks/block/` (example ACF block)
+- **Setup automation:** `bin/setup.sh` (lines 1-100 show logging/error handling patterns)
+- **Deployment:** `.github/workflows/deploy-staging.yml` (3-step FTP deploy)
+
+## Questions to Ask Before Acting
+- "Does this affect theme.json configuration?" (coordinate with design tokens)
+- "Will this change require `npm run build`?" (any SCSS/JS modifications)
+- "Should this be configurable via setup.sh flags?" (for reusability)
+- "Does this need to work in both Local and production environments?"
