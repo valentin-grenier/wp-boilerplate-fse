@@ -30,7 +30,6 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Linux
-*~
 .directory
 .Trash-*
 
@@ -55,10 +54,8 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 *.swn
-*~
 
 # Emacs
-*~
 \#*\#
 .\#*
 
@@ -149,8 +146,8 @@ wp-content/plugins/
 # THEME
 # =========================
 # Ignore dist for all themes except theme-fse (which needs it)
-wp-content/themes/*/dist/
-wp-content/themes/*/dist/*
+wp-content/themes/**/dist/
+wp-content/themes/**/dist/*
 !wp-content/themes/theme-fse/dist/
 !wp-content/themes/theme-fse/dist/**
 wp-content/themes/**/node_modules/
