@@ -2,6 +2,7 @@
 Contact: mailto:security@studio-val.fr
 
 # Our security policy expires one year from now
+# NOTE: Update this date annually to maintain security contact availability
 Expires: 2026-12-13T13:43:37.000Z
 
 # Our preferred languages
