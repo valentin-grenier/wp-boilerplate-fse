@@ -13,6 +13,71 @@ composer.lock
 .htaccess
 
 # =========================
+# OS-SPECIFIC FILES
+# =========================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =========================
+# EDITOR & IDE FILES
+# =========================
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (PhpStorm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.swn
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Visual Studio
+.vs/
+
+# =========================
+# BACKUP & TEMPORARY FILES
+# =========================
+*.bak
+*.tmp
+*.temp
+*.old
+*.orig
+*.rej
+*.log
+*.cache
+
+# =========================
 # WORDPRESS CORE FILES
 # =========================
 wp-config.php
@@ -83,8 +148,11 @@ wp-content/plugins/
 # =========================
 # THEME
 # =========================
-wp-content/themes/**/dist/
-wp-content/themes/**/dist/*
+# Ignore dist for all themes except theme-fse (which needs it)
+wp-content/themes/*/dist/
+wp-content/themes/*/dist/*
+!wp-content/themes/theme-fse/dist/
+!wp-content/themes/theme-fse/dist/**
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
 wp-content/themes/**/package-lock.json
