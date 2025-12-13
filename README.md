@@ -210,3 +210,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## 🔒 Security
+
+We take security seriously. If you discover a security vulnerability, please report it responsibly.
+
+### Reporting a Vulnerability
+
+To report a security issue, please email **security@studio-val.fr**. We appreciate responsible disclosure and will respond promptly to security reports.
+
+For more information, see our [security.txt](/.well-known/security.txt) file, which follows the [RFC 9116](https://www.rfc-editor.org/rfc/rfc9116.html) standard for security contact information.
