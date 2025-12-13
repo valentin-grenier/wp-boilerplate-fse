@@ -4,7 +4,6 @@
 *~
 .svn
 .git
-/vendor
 **/vendor/
 **/node_modules
 package-lock.json
