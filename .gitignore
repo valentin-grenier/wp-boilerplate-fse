@@ -4,7 +4,7 @@
 *~
 .svn
 .git
-**/vendor/
+/vendor
 **/node_modules
 package-lock.json
 composer.lock
@@ -12,67 +12,13 @@ composer.lock
 /cgi-bin/
 .htaccess
 
-# =========================
-# OS-SPECIFIC FILES
-# =========================
-# macOS
+# OS files
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
-
-# Windows
 Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-Desktop.ini
-$RECYCLE.BIN/
 
-# Linux
-.directory
-.Trash-*
-
-# =========================
-# EDITOR & IDE FILES
-# =========================
-# VSCode
+# Editor files
 .vscode/
-*.code-workspace
-
-# JetBrains IDEs (PhpStorm, WebStorm, etc.)
 .idea/
-*.iml
-*.iws
-*.ipr
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-*.swp
-*.swo
-*.swn
-
-# Emacs
-\#*\#
-.\#*
-
-# Visual Studio
-.vs/
-
-# =========================
-# BACKUP & TEMPORARY FILES
-# =========================
-*.bak
-*.tmp
-*.temp
-*.old
-*.orig
-*.rej
-*.log
-*.cache
 
 # =========================
 # WORDPRESS CORE FILES
@@ -117,6 +63,10 @@ wp-content/logs/
 wp-content/mu-plugins/*
 wp-content/updraft/*
 wp-content/themes/twenty*
+wp-content/themes/**/*/vendor/
+wp-content/themes/**/*/node_modules/
+wp-content/themes/**/*/package-lock.json
+wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
 wp-content/uploads/
 
@@ -141,9 +91,12 @@ wp-content/plugins/
 # =========================
 # THEME
 # =========================
-# Ignore dist for all themes except theme-fse (which needs it)
 wp-content/themes/**/dist/
 !wp-content/themes/theme-fse/dist/
+wp-content/themes/**/node_modules/
+wp-content/themes/**/vendor/
+wp-content/themes/**/package-lock.json
+wp-content/themes/**/composer.lock
 
 # =========================
 # LOCAL BY FLYWHEEL
