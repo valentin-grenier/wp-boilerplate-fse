@@ -147,9 +147,7 @@ wp-content/plugins/
 # =========================
 # Ignore dist for all themes except theme-fse (which needs it)
 wp-content/themes/**/dist/
-wp-content/themes/**/dist/*
 !wp-content/themes/theme-fse/dist/
-!wp-content/themes/theme-fse/dist/**
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
 wp-content/themes/**/package-lock.json
