@@ -5,6 +5,7 @@
 .svn
 .git
 /vendor
+**/vendor/
 **/node_modules
 package-lock.json
 composer.lock
@@ -144,10 +145,6 @@ wp-content/plugins/
 # Ignore dist for all themes except theme-fse (which needs it)
 wp-content/themes/**/dist/
 !wp-content/themes/theme-fse/dist/
-wp-content/themes/**/node_modules/
-wp-content/themes/**/vendor/
-wp-content/themes/**/package-lock.json
-wp-content/themes/**/composer.lock
 
 # =========================
 # LOCAL BY FLYWHEEL
