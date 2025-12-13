@@ -12,6 +12,14 @@ composer.lock
 /cgi-bin/
 .htaccess
 
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
 # =========================
 # WORDPRESS CORE FILES
 # =========================
@@ -89,7 +97,7 @@ wp-content/plugins/
 # THEME
 # =========================
 wp-content/themes/**/dist/
-wp-content/themes/**/dist/*
+!wp-content/themes/theme-fse/dist/
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
 wp-content/themes/**/package-lock.json
