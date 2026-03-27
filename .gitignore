@@ -9,6 +9,7 @@
 package-lock.json
 composer.lock
 *.env
+auth.json
 /cgi-bin/
 .htaccess
 

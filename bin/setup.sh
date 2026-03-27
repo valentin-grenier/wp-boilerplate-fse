@@ -415,7 +415,7 @@ SKIP_CLEANUP=false
 THEME_ONLY=false
 THEME_SLUG=""
 GITHUB_USERNAME="valentin-grenier"
-ACF_LICENSE_KEY="NTgyYmIyN2FjYjQyMjE0MDU4YzIxMDQ1ZjliMzYxOTliYzdiZTFiNzUwNWFhYTFkZTA1NDQ4"
+ACF_LICENSE_KEY=""
 
 # ========== FLAGS ==========
 for arg in "$@"; do
