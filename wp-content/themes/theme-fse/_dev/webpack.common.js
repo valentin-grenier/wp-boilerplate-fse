@@ -26,6 +26,7 @@ glob.sync('blocks/*/', { cwd: devRoot }).forEach((blockFolder) => {
 module.exports = {
 	entry: {
 		theme: ['./js/theme.js', './scss/theme.scss'],
+		editor: ['./js/editor.js', './scss/editor.scss'],
 		...blockEntries,
 	},
 	output: {
