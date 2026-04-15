@@ -32,7 +32,7 @@ add_action('wp_dashboard_setup', 'studio_remove_dashboard_widgets');
  */
 function studio_custom_admin_logo()
 {
-    $icon_url = get_stylesheet_directory_uri() . '/dist/theme/admin-logo.svg';
+    $icon_url = get_stylesheet_directory_uri() . '/dist/assets/theme/admin-logo.svg';
 
     echo '<style type="text/css">
         /* WordPress Admin Bar Logo */

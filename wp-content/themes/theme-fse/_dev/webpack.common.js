@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 const themeRoot = path.resolve(__dirname, '..');
 const devRoot = path.resolve(__dirname);
@@ -65,6 +66,14 @@ module.exports = {
 				}
 				return `css/${chunk.name}.css`;
 			},
+		}),
+		new CopyPlugin({
+			patterns: [
+				{
+					from: path.resolve(devRoot, 'assets/theme'),
+					to: path.resolve(themeRoot, 'dist/assets/theme'),
+				},
+			],
 		}),
 	],
 };
