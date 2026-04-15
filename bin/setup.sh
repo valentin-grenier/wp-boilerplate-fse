@@ -198,10 +198,15 @@ update_theme_info() {
   echo "   Theme URI: ending with /$theme_slug"
   echo "   Text Domain: fse-boilerplate → $text_domain"
   
+  local block_categories="$theme_path/inc/block-categories.php"
+  local make_block="$theme_path/_dev/scripts/make-block.js"
+
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would update theme name to '$display_name' in $style_css"
     echo "[DRY RUN] Would update theme URI to end with '/$theme_slug'"
     echo "[DRY RUN] Would update text domain to '$text_domain'"
+    echo "[DRY RUN] Would update block categories slugs and labels in $block_categories"
+    echo "[DRY RUN] Would update make-block script placeholders in $make_block"
   else
     # Update Theme Name (handle both possible current names)
     sed -i "s/^Theme Name: WP Boilerplate FSE/Theme Name: $display_name/" "$style_css"
@@ -214,6 +219,24 @@ update_theme_info() {
     sed -i "s/^Text Domain: .*/Text Domain: $text_domain/" "$style_css"
     
     echo "✅ Theme information updated successfully"
+
+    # Update block categories file
+    if [ -f "$block_categories" ]; then
+      sed -i "s/'theme-name'/'$text_domain'/g" "$block_categories"
+      sed -i "s/'Theme Name'/'$display_name'/g" "$block_categories"
+      echo "✅ Block categories updated successfully"
+    else
+      echo "⚠️  block-categories.php not found - skipping"
+    fi
+
+    # Update make-block script
+    if [ -f "$make_block" ]; then
+      sed -i "s/'theme-name'/'$text_domain'/g" "$make_block"
+      sed -i "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
+      echo "✅ make-block script updated successfully"
+    else
+      echo "⚠️  make-block.js not found - skipping"
+    fi
   fi
 }
 

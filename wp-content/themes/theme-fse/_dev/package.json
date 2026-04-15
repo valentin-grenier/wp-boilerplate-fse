@@ -22,6 +22,7 @@
 	},
 	"scripts": {
 		"dev": "webpack --config webpack.dev.js",
-		"build": "webpack --config webpack.prod.js"
+		"build": "webpack --config webpack.prod.js",
+		"make-block": "node scripts/make-block.js"
 	}
 }
