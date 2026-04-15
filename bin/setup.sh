@@ -251,103 +251,6 @@ update_workflow_files() {
   fi
 }
 
-# Function to update MU-plugin with theme name
-update_mu_plugin_theme_name() {
-  local theme_slug="$1"
-  local target_root="$2"
-  
-  echo "🔌 Updating MU-plugin with theme name..."
-  
-  local mu_plugin_dir="$target_root/wp-content/mu-plugins"
-  local old_plugin_dir="$mu_plugin_dir/theme-name-blocks"
-  local new_plugin_dir="$mu_plugin_dir/${theme_slug}-blocks"
-  
-  if [ ! -d "$old_plugin_dir" ]; then
-    echo "ℹ️  No theme-name-blocks plugin found - skipping MU-plugin update"
-    return 0
-  fi
-  
-  # Convert theme slug to different formats
-  local theme_display_name
-  theme_display_name=$(slug_to_display_name "$theme_slug")
-  local theme_text_domain="${theme_slug}-blocks"
-  local theme_function_prefix=$(echo "$theme_slug" | sed 's/-/_/g')
-  
-  echo "   Plugin Name: Theme Name Blocks → ${theme_display_name} Blocks"
-  echo "   Text Domain: theme-name-blocks → $theme_text_domain"
-  echo "   Directory: theme-name-blocks → ${theme_slug}-blocks"
-  
-  if [ "$DRY_RUN" = true ]; then
-    echo "[DRY RUN] Would rename plugin directory and update all references"
-    echo "[DRY RUN]   Old: $old_plugin_dir"
-    echo "[DRY RUN]   New: $new_plugin_dir"
-    return 0
-  fi
-  
-  # First, update file contents before renaming directory
-  log_info "Updating MU-plugin file contents with theme name"
-  
-  # Update main plugin file
-  local main_plugin_file="$old_plugin_dir/theme-name-blocks.php"
-  if [ -f "$main_plugin_file" ]; then
-    # Update plugin header
-    sed -i "s/Plugin Name:.*Theme Name Blocks/Plugin Name:       ${theme_display_name} Blocks/" "$main_plugin_file"
-    sed -i "s/Text Domain:.*theme-name-blocks/Text Domain:       $theme_text_domain/" "$main_plugin_file"
-    
-    # Update function names
-    sed -i "s/theme_name_blocks_/${theme_function_prefix}_blocks_/g" "$main_plugin_file"
-    
-    log_success "Updated main plugin file"
-  fi
-  
-  # Update package.json
-  local package_json="$old_plugin_dir/package.json"
-  if [ -f "$package_json" ]; then
-    sed -i "s/\"name\": \"theme-name-blocks\"/\"name\": \"$theme_text_domain\"/" "$package_json"
-    sed -i "s/\"description\": \"Example block scaffolded with Create Block tool.\"/\"description\": \"Custom blocks for ${theme_display_name} theme.\"/" "$package_json"
-    
-    log_success "Updated package.json"
-  fi
-  
-  # Update source files (JS, JSON, PHP files in src directory)
-  if [ -d "$old_plugin_dir/src" ]; then
-    find "$old_plugin_dir/src" -type f \( -name "*.js" -o -name "*.json" -o -name "*.php" \) -exec sed -i "s/theme-name-blocks/$theme_text_domain/g" {} \;
-    find "$old_plugin_dir/src" -type f \( -name "*.js" -o -name "*.json" -o -name "*.php" \) -exec sed -i "s/theme_name_blocks/${theme_function_prefix}_blocks/g" {} \;
-    
-    log_success "Updated source files"
-  fi
-  
-  # Update any build files if they exist
-  if [ -d "$old_plugin_dir/build" ]; then
-    find "$old_plugin_dir/build" -type f \( -name "*.js" -o -name "*.json" -o -name "*.css" \) -exec sed -i "s/theme-name-blocks/$theme_text_domain/g" {} \; 2>/dev/null || true
-    
-    log_success "Updated build files"
-  fi
-  
-  # Update readme.txt if it exists
-  if [ -f "$old_plugin_dir/readme.txt" ]; then
-    sed -i "s/Theme Name Blocks/${theme_display_name} Blocks/g" "$old_plugin_dir/readme.txt"
-    
-    log_success "Updated readme.txt"
-  fi
-  
-  # Finally, rename the directory
-  if mv "$old_plugin_dir" "$new_plugin_dir" 2>/dev/null; then
-    log_success "Renamed plugin directory to ${theme_slug}-blocks"
-    
-    # Rename the main plugin file
-    local old_main_file="$new_plugin_dir/theme-name-blocks.php"
-    local new_main_file="$new_plugin_dir/${theme_slug}-blocks.php"
-    if [ -f "$old_main_file" ]; then
-      mv "$old_main_file" "$new_main_file"
-      log_success "Renamed main plugin file to ${theme_slug}-blocks.php"
-    fi
-  else
-    log_error "Failed to rename plugin directory"
-    increment_errors
-  fi
-}
-
 # Function for manual git setup (fallback when GitHub CLI is not available)
 manual_git_setup() {
   echo ""
@@ -440,7 +343,7 @@ for arg in "$@"; do
       echo "  --skip-git            Skip git repository initialization"
       echo "  --skip-branches       Skip creating additional git branches (staging, development)"
       echo "  --skip-cleanup        Skip automatic cleanup of boilerplate directory"
-      echo "  --theme-only          Move only the theme (skip plugins, mu-plugins, root files)"
+      echo "  --theme-only          Move only the theme (skip plugins, root files)"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
       echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
@@ -461,8 +364,7 @@ for arg in "$@"; do
       echo "Theme customization:"
       echo "  • Automatically updates theme name in style.css (e.g., 'lemon-studio' → 'Lemon Studio')"
       echo "  • Updates theme URI to match the chosen theme name"
-      echo "  • Updates text domain throughout theme and MU-plugin files"
-      echo "  • Renames MU-plugin directory and files (theme-name-blocks → theme-slug-blocks)"
+      echo "  • Updates text domain throughout theme files"
       exit 0
       ;;
     *)               # ignore other flags
@@ -595,9 +497,6 @@ if [ "$SKIP_FILE_MOVEMENT" = false ]; then
     
     # Update GitHub workflow files with the new theme name
     update_workflow_files "$THEME_DEST" "$TARGET_ROOT"
-    
-    # Update MU-plugin with theme name
-    update_mu_plugin_theme_name "$THEME_DEST" "$TARGET_ROOT"
   else
     echo "⚠️  Source theme '$THEME_SRC' not found — skipping"
   fi
@@ -634,53 +533,6 @@ if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
   fi
 elif [ "$THEME_ONLY" = true ]; then
   echo "⏭️  Skipping plugins movement (--theme-only flag used)"
-fi
-
-# ========== MOVE MU-PLUGINS DIRECTORY ==========
-if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
-  log_step "📁 MOVING MU-PLUGINS"
-
-  MU_PLUGINS_SOURCE="$REPO_WP_CONTENT/mu-plugins"
-  MU_PLUGINS_TARGET="$TARGET_WP_CONTENT/mu-plugins"
-
-  if [ -d "$MU_PLUGINS_SOURCE" ]; then
-    echo "📁 Preparing mu-plugins directory at $MU_PLUGINS_TARGET..."
-    if [ "$DRY_RUN" = false ]; then
-      mkdir -p "$MU_PLUGINS_TARGET"
-    else
-      echo "[DRY RUN] Would mkdir -p $MU_PLUGINS_TARGET"
-    fi
-
-    # Check if there are any files to move (excluding just .gitkeep)
-    mu_files_count=$(find "$MU_PLUGINS_SOURCE" -type f ! -name '.gitkeep' 2>/dev/null | wc -l)
-    
-    if [ "$mu_files_count" -gt 0 ]; then
-      echo "📦 Moving mu-plugins files..."
-      if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would move $mu_files_count mu-plugin files to $MU_PLUGINS_TARGET/"
-      else
-        # Move all files from mu-plugins directory
-        find "$MU_PLUGINS_SOURCE" -type f ! -name '.gitkeep' -exec mv {} "$MU_PLUGINS_TARGET/" \; 2>/dev/null
-        echo "✅ Moved $mu_files_count mu-plugin files"
-      fi
-    fi
-
-    # Handle .gitkeep file
-    GITKEEP_FILE="$MU_PLUGINS_SOURCE/.gitkeep"
-    if [ -f "$GITKEEP_FILE" ]; then
-      echo "📦 Moving .gitkeep from mu-plugins/"
-      if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would move $GITKEEP_FILE → $MU_PLUGINS_TARGET/.gitkeep"
-      else
-        mv "$GITKEEP_FILE" "$MU_PLUGINS_TARGET/.gitkeep"
-        echo "✅ .gitkeep moved to mu-plugins/"
-      fi
-    fi
-  else
-    echo "ℹ️ No mu-plugins directory found - skipping"
-  fi
-elif [ "$THEME_ONLY" = true ]; then
-  echo "⏭️  Skipping mu-plugins movement (--theme-only flag used)"
 fi
 
 # ========== MOVE ROOT FILES ==========
