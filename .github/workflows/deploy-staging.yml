@@ -11,7 +11,7 @@ jobs:
         environment: staging
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Deploy Root Files
               uses: SamKirkland/FTP-Deploy-Action@v4.3.5
