@@ -105,9 +105,9 @@ wp-content/themes/**/package-lock.json
 wp-content/themes/**/composer.lock
 
 # =========================
-# LOCAL BY FLYWHEEL
+# DDEV
 # =========================
-local-xdebuginfo.php
+wp-config-ddev.php
 
 # =========================
 # UPDRAFT
