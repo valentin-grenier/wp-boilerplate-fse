@@ -14,7 +14,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Deploy Root Files
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.6
               with:
                   server: ${{ secrets.FTP_HOST }}
                   port: ${{ secrets.FTP_PORT }}
@@ -33,7 +33,7 @@ jobs:
                       vendor/**
 
             - name: Deploy Theme
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.6
               with:
                   server: ${{ secrets.FTP_HOST }}
                   port: ${{ secrets.FTP_PORT }}
@@ -46,7 +46,7 @@ jobs:
                   security: strict
 
             - name: Deploy Plugins
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.6
               with:
                   server: ${{ secrets.FTP_HOST }}
                   port: ${{ secrets.FTP_PORT }}
