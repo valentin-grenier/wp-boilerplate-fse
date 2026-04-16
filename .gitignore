@@ -12,6 +12,7 @@ composer.lock
 auth.json
 /cgi-bin/
 .htaccess
+logs/
 
 # OS files
 .DS_Store

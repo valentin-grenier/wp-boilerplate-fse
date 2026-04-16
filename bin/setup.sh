@@ -6,18 +6,39 @@
 
 set -e  # Exit on any error
 
+# ========== COLORS ==========
+if [[ -t 1 ]]; then
+  C_RED='\033[0;31m'
+  C_GREEN='\033[0;32m'
+  C_YELLOW='\033[0;33m'
+  C_BLUE='\033[0;34m'
+  C_MAGENTA='\033[0;35m'
+  C_CYAN='\033[0;36m'
+  C_BOLD='\033[1m'
+  C_RESET='\033[0m'
+else
+  C_RED='' C_GREEN='' C_YELLOW='' C_BLUE=''
+  C_MAGENTA='' C_CYAN='' C_BOLD='' C_RESET=''
+fi
+
+# Delay between log lines (seconds). Set to 0 to disable.
+LOG_DELAY=0.05
+
 # ========== FUNCTIONS ==========
 error_exit() {
-  echo "❌ Error: $1" >&2
-  echo "💡 Use --dry-run to test the setup without making changes" >&2
+  echo -e "${C_RED}❌ Error: $1${C_RESET}" >&2
+  echo -e "${C_YELLOW}💡 Use --dry-run to test the setup without making changes${C_RESET}" >&2
   exit 1
 }
 
 log_step() {
   echo ""
-  echo "=========================================="
-  echo "$1"
-  echo "=========================================="
+  sleep "$LOG_DELAY"
+  echo -e "${C_BOLD}${C_CYAN}==========================================${C_RESET}"
+  sleep "$LOG_DELAY"
+  echo -e "${C_BOLD}${C_CYAN}$1${C_RESET}"
+  sleep "$LOG_DELAY"
+  echo -e "${C_BOLD}${C_CYAN}==========================================${C_RESET}"
 }
 
 # Enhanced logging functions
@@ -41,7 +62,8 @@ setup_logging() {
 
 log_info() {
   local message="$1"
-  echo "ℹ️  $message"
+  sleep "$LOG_DELAY"
+  echo -e "${C_BLUE}ℹ️  $message${C_RESET}"
   if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] INFO: $message" >> "$LOG_FILE"
   fi
@@ -49,7 +71,8 @@ log_info() {
 
 log_success() {
   local message="$1"
-  echo "✅ $message"
+  sleep "$LOG_DELAY"
+  echo -e "${C_GREEN}✅ $message${C_RESET}"
   if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] SUCCESS: $message" >> "$LOG_FILE"
   fi
@@ -57,7 +80,8 @@ log_success() {
 
 log_warning() {
   local message="$1"
-  echo "⚠️  $message"
+  sleep "$LOG_DELAY"
+  echo -e "${C_YELLOW}⚠️  $message${C_RESET}"
   if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] WARNING: $message" >> "$LOG_FILE"
   fi
@@ -65,9 +89,35 @@ log_warning() {
 
 log_error() {
   local message="$1"
-  echo "❌ $message" >&2
+  sleep "$LOG_DELAY"
+  echo -e "${C_RED}❌ $message${C_RESET}" >&2
   if [ "$DRY_RUN" = false ] && [ -n "$LOG_FILE" ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $message" >> "$LOG_FILE"
+  fi
+}
+
+# Spinner
+SPINNER_PID=""
+
+start_spinner() {
+  [[ -t 1 ]] || return
+  local message="$1"
+  local frames=('⣾' '⣽' '⣻' '⢿' '⡿' '⣟' '⣯' '⣷')
+  local i=0
+  while true; do
+    printf "\r${C_CYAN}%s${C_RESET}  %s" "${frames[i]}" "$message"
+    i=$(( (i + 1) % 8 ))
+    sleep 0.08
+  done &
+  SPINNER_PID=$!
+}
+
+stop_spinner() {
+  if [ -n "$SPINNER_PID" ]; then
+    kill "$SPINNER_PID" 2>/dev/null
+    wait "$SPINNER_PID" 2>/dev/null
+    SPINNER_PID=""
+    printf "\r\033[K"
   fi
 }
 
@@ -387,6 +437,7 @@ fi
 # ========== INITIALIZE LOGGING AND SUMMARY ==========
 setup_summary
 setup_logging
+trap 'stop_spinner' EXIT
 
 # ========== VALIDATION ==========
 log_step "🔍 VALIDATING ENVIRONMENT"
@@ -496,24 +547,28 @@ THEME_DEV_DIR="$WP_CONTENT/themes/$THEME_DEST/_dev"
 if [ "$DRY_RUN" = false ] && [ -d "$THEME_DEV_DIR" ] && [ -f "$THEME_DEV_DIR/package.json" ]; then
   log_step "📦 INSTALLING DEVELOPMENT DEPENDENCIES"
   
-  log_info "Installing theme development dependencies..."
   cd "$THEME_DEV_DIR"
   
   if command -v npm &> /dev/null; then
-    if npm install; then
+    start_spinner "Installing npm dependencies..."
+    if npm install >/dev/null 2>&1; then
+      stop_spinner
       log_success "NPM dependencies installed successfully"
       increment_success
       
       # Build assets
-      log_info "Building theme assets..."
-      if npm run build; then
+      start_spinner "Building theme assets..."
+      if npm run build >/dev/null 2>&1; then
+        stop_spinner
         log_success "Theme assets built successfully"
         increment_success
       else
+        stop_spinner
         log_warning "Failed to build assets - you may need to run 'npm run build' manually"
         increment_warnings
       fi
     else
+      stop_spinner
       log_warning "Failed to install NPM dependencies"
       increment_warnings
     fi
@@ -532,14 +587,16 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   
   # Install ACF Pro first if license key is provided
   if [ -n "$ACF_LICENSE_KEY" ]; then
-    log_info "Installing ACF Pro..."
     if [ "$DRY_RUN" = true ]; then
       echo "[DRY RUN] Would install ACF Pro with provided license key"
     else
-      if install_acf_pro "$ACF_LICENSE_KEY"; then
-        log_success "ACF Pro installation completed successfully"
+      start_spinner "Installing ACF Pro..."
+      if install_acf_pro "$ACF_LICENSE_KEY" >/dev/null 2>&1; then
+        stop_spinner
+        log_success "ACF Pro installed and activated successfully"
         increment_success
       else
+        stop_spinner
         log_warning "ACF Pro installation failed - continuing with other plugins"
         increment_warnings
         echo "💡 You can install ACF Pro manually later from the WordPress admin"
@@ -560,14 +617,16 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   )
   
   for plugin in "${DEV_PLUGINS[@]}"; do
-    echo "  Installing $plugin..."
     if [ "$DRY_RUN" = true ]; then
       echo "  [DRY RUN] Would install and activate $plugin"
     else
-      if $WP plugin install "$plugin" --activate 2>/dev/null; then
+      start_spinner "Installing $plugin..."
+      if $WP plugin install "$plugin" --activate >/dev/null 2>&1; then
+        stop_spinner
         log_success "$plugin installed and activated"
         increment_success
       else
+        stop_spinner
         log_warning "Failed to install $plugin - may already exist or network issue"
         increment_warnings
       fi
@@ -590,14 +649,16 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   log_info "Installing production plugins (not activated)..."
 
   for plugin in "${PROD_PLUGINS[@]}"; do
-    echo "  Installing $plugin..."
     if [ "$DRY_RUN" = true ]; then
       echo "  [DRY RUN] Would install $plugin (without activating)"
     else
-      if $WP plugin install "$plugin" 2>/dev/null; then
+      start_spinner "Installing $plugin..."
+      if $WP plugin install "$plugin" >/dev/null 2>&1; then
+        stop_spinner
         log_success "$plugin installed (not activated)"
         increment_success
       else
+        stop_spinner
         log_warning "Failed to install $plugin - may already exist or network issue"
         increment_warnings
       fi
@@ -614,9 +675,10 @@ if [ "$DRY_RUN" = false ]; then
   
   cd "$WP_PATH"
   
-  log_info "Activating theme: $THEME_DEST..."
+  start_spinner "Activating theme: $THEME_DEST..."
   
-  if $WP theme activate "$THEME_DEST" 2>/dev/null; then
+  if $WP theme activate "$THEME_DEST" >/dev/null 2>&1; then
+    stop_spinner
     log_success "Theme '$THEME_DEST' activated successfully"
     increment_success
     
@@ -631,6 +693,7 @@ if [ "$DRY_RUN" = false ]; then
       echo "💡 Active theme: $active_theme"
     fi
   else
+    stop_spinner
     log_warning "Failed to activate theme '$THEME_DEST'"
     increment_warnings
     echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
