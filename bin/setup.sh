@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # WordPress FSE Boilerplate Setup Script
-# Sets up the theme, installs dependencies, and initializes the git repository.
+# Sets up the theme and installs dependencies.
 # Designed for use with ddev (self-contained structure: WordPress = repo root).
 
 set -e  # Exit on any error
@@ -283,55 +283,6 @@ update_workflow_files() {
   fi
 }
 
-# Function for manual git setup (fallback when GitHub CLI is not available)
-manual_git_setup() {
-  echo ""
-  read -p "   GitHub username or organization (default: $GITHUB_USERNAME): " input_username
-  github_username="${input_username:-$GITHUB_USERNAME}"
-  
-  if [ -n "$github_username" ]; then
-    # Set up remote origin
-    remote_url="https://github.com/${github_username}/${repo_name}.git"
-    echo "🔗 Setting up remote origin: $remote_url"
-    git remote add origin "$remote_url"
-    
-    # Rename default branch to main (if needed)
-    current_branch=$(git branch --show-current)
-    if [ "$current_branch" != "main" ]; then
-      echo "🔄 Renaming branch to 'main'..."
-      git branch -M main
-    fi
-    
-    # Ask about pushing to remote
-    echo ""
-    echo "🚀 Ready to push to GitHub!"
-    echo "   ⚠️  Make sure you create the repository '$repo_name' on GitHub first:"
-    echo "   🔗 https://github.com/new"
-    echo ""
-    read -p "   Push to GitHub now? (y/n): " push_now
-    
-    if [[ "$push_now" =~ ^[Yy]$ ]]; then
-      echo "📤 Pushing to GitHub..."
-      if git push -u origin main; then
-        echo "✅ Successfully pushed to GitHub!"
-        echo "🔗 Repository URL: https://github.com/${github_username}/${repo_name}"
-      else
-        echo "⚠️  Push failed. Please:"
-        echo "   1. Create the repository '$repo_name' on GitHub: https://github.com/new"
-        echo "   2. Then run: git push -u origin main"
-      fi
-    else
-      echo "💡 To push later:"
-      echo "   1. Create repository on GitHub: https://github.com/new"
-      echo "   2. Run: git push -u origin main"
-    fi
-  else
-    echo "⏭️  Skipping remote setup. You can add it later with:"
-    echo "   git remote add origin https://github.com/USERNAME/${repo_name}.git"
-    echo "   git push -u origin main"
-  fi
-}
-
 # ========== CONFIG ==========
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
@@ -341,11 +292,8 @@ WP_PATH="$REPO_DIR"
 
 DRY_RUN=false
 SKIP_PLUGINS=false
-SKIP_GIT=false
-SKIP_BRANCHES=false
 THEME_SLUG=""
 THEME_DEST=""
-GITHUB_USERNAME="valentin-grenier"
 ACF_LICENSE_KEY=""
 
 # ========== FLAGS ==========
@@ -353,11 +301,8 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     --dry-run)       DRY_RUN=true ;;
     --skip-plugins)  SKIP_PLUGINS=true ;;
-    --skip-git)      SKIP_GIT=true ;;
-    --skip-branches) SKIP_BRANCHES=true ;;
     --theme=*)       THEME_SLUG="${1#*=}" ;;
     --theme-dest=*)  THEME_DEST="${1#*=}" ;;
-    --github-user=*) GITHUB_USERNAME="${1#*=}" ;;
     --acf-license=*) ACF_LICENSE_KEY="${1#*=}" ;;
     --help|-h)
       echo "WordPress FSE Boilerplate Setup Script"
@@ -367,11 +312,8 @@ while [[ $# -gt 0 ]]; do
       echo "Options:"
       echo "  --dry-run             Show what would be done without making changes"
       echo "  --skip-plugins        Skip automatic plugin installation"
-      echo "  --skip-git            Skip git repository initialization"
-      echo "  --skip-branches       Skip creating additional git branches (staging, development)"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
-      echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
       echo "  --acf-license=KEY     ACF Pro license key for installation"
       echo "  --help, -h            Show this help message"
       echo ""
@@ -384,7 +326,7 @@ while [[ $# -gt 0 ]]; do
       echo "  3. auth.json file (password field for connect.advancedcustomfields.com)"
       echo ""
       echo "Designed for ddev projects. Renames the theme in place, updates theme metadata,"
-      echo "installs dependencies, and sets up a fresh git repository."
+      echo "and installs dependencies."
       echo ""
       echo "Theme customization:"
       echo "  • Renames theme folder (e.g., theme-fse → my-project)"
@@ -526,12 +468,6 @@ else
   echo "⏭️  Skipping theme setup (already completed)"
 fi
 
-# ========== MOVE PLUGINS DIRECTORY CONTENT ==========
-# (Not needed in ddev structure — plugins dir is already in place)
-
-# ========== MOVE ROOT FILES ==========
-# (Not needed in ddev structure — root files are already in place)
-
 # ========== INSTALL DEVELOPMENT DEPENDENCIES ==========
 THEME_DEV_DIR="$WP_CONTENT/themes/$THEME_DEST/_dev"
 if [ "$DRY_RUN" = false ] && [ -d "$THEME_DEV_DIR" ] && [ -f "$THEME_DEV_DIR/package.json" ]; then
@@ -582,7 +518,7 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
     echo ""
   fi
   
-  echo "�🔌 Installing recommended development plugins..."
+  echo "🔌 Installing recommended development plugins..."
   
   # Development plugins
   DEV_PLUGINS=(
@@ -591,8 +527,6 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
     "admin-site-enhancements"
     "contact-form-7"
     "contact-form-7-honeypot"
-    "wp-mail-smtp"
-    "better-wp-security"
   )
   
   for plugin in "${DEV_PLUGINS[@]}"; do
@@ -646,152 +580,6 @@ if [ "$DRY_RUN" = false ]; then
   fi
 fi
 
-# ========== GIT REPOSITORY INITIALIZATION ==========
-if [ "$DRY_RUN" = false ] && [ "$SKIP_GIT" = false ]; then
-  log_step "🔄 INITIALIZING NEW GIT REPOSITORY"
-  
-  cd "$TARGET_ROOT"
-  
-  # Remove the old .git folder from boilerplate
-  if [ -d ".git" ]; then
-    echo "🗑️  Removing existing .git folder from boilerplate..."
-    rm -rf ".git"
-    echo "✅ Old git history removed"
-  fi
-  
-  # Initialize new git repository
-  echo "🆕 Initializing new git repository..."
-  git init
-  
-  # Add all files to staging
-  echo "📦 Adding files to git..."
-  git add .
-  
-  # Create initial commit
-  echo "💾 Creating initial commit..."
-  git commit -m "Initial commit: WordPress FSE theme setup"
-  
-  # Create additional branches for development workflow
-  if [ "$SKIP_BRANCHES" = false ]; then
-    echo "🌿 Creating development branches..."
-    
-    if [ "$DRY_RUN" = true ]; then
-      echo "[DRY RUN] Would create 'staging' branch"
-      echo "[DRY RUN] Would create 'development' branch"
-      echo "[DRY RUN] Would create 'feature/initial-setup' branch"
-      echo "[DRY RUN] Would switch back to 'main' branch"
-    else
-      # Create staging branch
-      git checkout -b staging
-      echo "✅ Created 'staging' branch"
-      
-      # Create development branch
-      git checkout -b development
-      echo "✅ Created 'development' branch"
-      
-      # Create feature branch template
-      git checkout -b feature/initial-setup
-      echo "✅ Created 'feature/initial-setup' branch"
-      
-      # Switch back to main branch
-      git checkout main
-      echo "🔄 Switched back to 'main' branch"
-    fi
-    
-    echo ""
-    echo "📋 Available branches:"
-    echo "   • main (current) - production-ready code"
-    echo "   • staging - pre-production testing"
-    echo "   • development - active development"
-    echo "   • feature/initial-setup - example feature branch"
-    echo ""
-  else
-    echo "⏭️  Skipping branch creation (--skip-branches flag used)"
-    echo ""
-  fi
-  
-  # Prompt for repository name and setup remote
-  echo ""
-  echo "🔗 Git Repository Setup"
-  echo "   Please provide your GitHub repository details:"
-  echo ""
-  read -p "   Repository name: " repo_name
-  
-  if [ -n "$repo_name" ]; then
-    # Check if GitHub CLI is available
-    if command -v gh &> /dev/null; then
-      echo "✅ GitHub CLI detected"
-      
-      # Check if user is authenticated with GitHub CLI
-      if gh auth status &> /dev/null; then
-        echo "✅ GitHub authentication verified"
-        
-        # Ask for repository visibility
-        echo ""
-        echo "� Repository Visibility:"
-        echo "   1. Public (recommended for open source)"
-        echo "   2. Private"
-        echo ""
-        read -p "   Choose visibility (1 or 2, default: 1): " visibility_choice
-        
-        if [ "$visibility_choice" = "2" ]; then
-          visibility_flag="--private"
-          visibility_text="private"
-        else
-          visibility_flag="--public"
-          visibility_text="public"
-        fi
-        
-        # Create repository on GitHub using gh CLI
-        echo "🆕 Creating $visibility_text repository '$repo_name' on GitHub..."
-        if gh repo create "$repo_name" $visibility_flag --description "WordPress FSE theme project" --source=. --remote=origin --push; then
-          echo "✅ Repository created and pushed to GitHub successfully!"
-          echo "🔗 Repository URL: https://github.com/$(gh api user --jq .login)/${repo_name}"
-        else
-          echo "⚠️  Failed to create repository on GitHub"
-          echo "💡 You can create it manually or run: gh repo create $repo_name"
-        fi
-      else
-        echo "⚠️  GitHub CLI not authenticated"
-        echo "💡 Please run: gh auth login"
-        echo ""
-        echo "� Falling back to manual setup..."
-        manual_git_setup
-      fi
-    else
-      echo "ℹ️  GitHub CLI not found"
-      echo "💡 For automatic repo creation, install GitHub CLI: https://cli.github.com/"
-      echo ""
-      echo "🔄 Using manual setup..."
-      manual_git_setup
-    fi
-  else
-    echo "⏭️  No repository name provided. You can set up git manually later."
-  fi
-  
-  echo ""
-  echo "✅ Git repository initialized successfully!"
-elif [ "$SKIP_GIT" = true ]; then
-  echo ""
-  echo "⏭️  Skipping git repository initialization (--skip-git flag used)"
-else
-  echo ""
-  echo "[DRY RUN] Would initialize new git repository:"
-  echo "  1. Remove existing .git folder"
-  echo "  2. git init"
-  echo "  3. git add ."
-  echo "  4. git commit -m 'Initial commit: WordPress FSE theme setup'"
-  echo "  5. Prompt for repository name"
-  if command -v gh &> /dev/null; then
-    echo "  6. [GitHub CLI] Automatically create repository on GitHub"
-    echo "  7. [GitHub CLI] Set up remote origin and push"
-  else
-    echo "  6. [Manual] Prompt for GitHub username"
-    echo "  7. [Manual] Set up remote origin"
-    echo "  8. [Manual] Push to GitHub (after manual repo creation)"
-  fi
-fi
-
 # ========== SUCCESS MESSAGE ==========
 if [ "$DRY_RUN" = false ]; then
   echo ""
@@ -805,11 +593,6 @@ if [ "$DRY_RUN" = false ]; then
   echo "   1. Visit your WordPress admin: $(ddev describe -j 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin)['raw']['primary_url'])" 2>/dev/null || echo "https://$(basename $WP_PATH).ddev.site")/wp-admin"
   echo "   2. Customize your theme in: $WP_CONTENT/themes/$THEME_DEST"
   echo "   3. Start dev: cd $WP_CONTENT/themes/$THEME_DEST/_dev && npm run watch"
-  echo ""
-  echo "📂 Git Repository:"
-  echo "   • New git repository initialized"
-  echo "   • Initial commit created"
-  echo "   • Ready for version control"
   echo ""
 else
   echo ""
