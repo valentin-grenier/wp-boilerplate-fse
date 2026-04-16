@@ -114,8 +114,8 @@ start_spinner() {
 
 stop_spinner() {
   if [ -n "$SPINNER_PID" ]; then
-    kill "$SPINNER_PID" 2>/dev/null
-    wait "$SPINNER_PID" 2>/dev/null
+    kill "$SPINNER_PID" 2>/dev/null || true
+    wait "$SPINNER_PID" 2>/dev/null || true
     SPINNER_PID=""
     printf "\r\033[K"
   fi
@@ -422,6 +422,8 @@ if [ -z "$ACF_LICENSE_KEY" ] && [ -f "$REPO_DIR/auth.json" ]; then
 fi
 
 # ========== ENV DETECTION & WP-CLI CHECK ==========
+cd "$WP_PATH"
+
 if [[ "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"NT"* ]]; then
   WP="cmd //c wp"
 elif command -v ddev &>/dev/null && ddev status 2>/dev/null | grep -q "running"; then
@@ -443,11 +445,39 @@ trap 'stop_spinner' EXIT
 log_step "🔍 VALIDATING ENVIRONMENT"
 
 if [ ! -f "$WP_PATH/wp-config.php" ]; then
-  error_exit "wp-config.php not found in $WP_PATH — check your WP_PATH."
+  echo -e "${C_RED}❌ Error: wp-config.php not found in $WP_PATH${C_RESET}" >&2
+  echo -e "${C_YELLOW}💡 Make sure you:${C_RESET}" >&2
+  echo -e "   1) Run 'ddev start' before executing this script" >&2
+  echo -e "   2) Run this script from the root of your WordPress installation" >&2
+  exit 1
 fi
 
 log_success "WordPress installation found at: $WP_PATH"
 increment_success
+
+# ========== WORDPRESS CORE FILES CHECK ==========
+log_step "🌐 WORDPRESS CORE"
+
+if [ ! -f "$WP_PATH/wp-includes/version.php" ]; then
+  error_exit "Fichiers core de WordPress introuvables.\n   Lancez ddev wp core download pour les installer, puis relancez ce script."
+else
+  log_success "Fichiers core de WordPress trouvés"
+  increment_success
+fi
+
+# Check if WordPress is installed in the database
+set +e
+$WP core is-installed >/dev/null 2>&1
+WP_IS_INSTALLED=$?
+set -e
+
+if [ $WP_IS_INSTALLED -ne 0 ]; then
+  log_warning "WordPress n'est pas installé en base de données"
+  echo "💡 Lancez: ddev wp core install --url=\$(ddev describe -j | python3 -c \"import sys,json; print(json.load(sys.stdin)['raw']['primary_url'])\") --title='Mon Site' --admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email"
+else
+  log_success "WordPress installé en base de données"
+  increment_success
+fi
 
 # ========== THEME AUTO-DETECT & RENAME ==========
 log_step "🎨 THEME SETUP"
@@ -542,43 +572,6 @@ else
   log_info "Skipping theme setup (already completed)"
 fi
 
-# ========== INSTALL DEVELOPMENT DEPENDENCIES ==========
-THEME_DEV_DIR="$WP_CONTENT/themes/$THEME_DEST/_dev"
-if [ "$DRY_RUN" = false ] && [ -d "$THEME_DEV_DIR" ] && [ -f "$THEME_DEV_DIR/package.json" ]; then
-  log_step "📦 INSTALLING DEVELOPMENT DEPENDENCIES"
-  
-  cd "$THEME_DEV_DIR"
-  
-  if command -v npm &> /dev/null; then
-    start_spinner "Installing npm dependencies..."
-    if npm install >/dev/null 2>&1; then
-      stop_spinner
-      log_success "NPM dependencies installed successfully"
-      increment_success
-      
-      # Build assets
-      start_spinner "Building theme assets..."
-      if npm run build >/dev/null 2>&1; then
-        stop_spinner
-        log_success "Theme assets built successfully"
-        increment_success
-      else
-        stop_spinner
-        log_warning "Failed to build assets - you may need to run 'npm run build' manually"
-        increment_warnings
-      fi
-    else
-      stop_spinner
-      log_warning "Failed to install NPM dependencies"
-      increment_warnings
-    fi
-  else
-    log_warning "NPM not found - skipping dependency installation"
-    increment_warnings
-    echo "👉 Run 'npm install && npm run build' in $THEME_DEV_DIR later"
-  fi
-fi
-
 # ========== INSTALL RECOMMENDED PLUGINS ==========
 if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   log_step "🔌 INSTALLING RECOMMENDED PLUGINS"
@@ -670,7 +663,7 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
 fi
 
 # ========== ACTIVATE THEME ==========
-if [ "$DRY_RUN" = false ]; then
+if [ "$DRY_RUN" = false ] && [ -n "$THEME_DEST" ]; then
   log_step "🎨 ACTIVATING THEME"
   
   cd "$WP_PATH"
@@ -712,8 +705,10 @@ if [ "$DRY_RUN" = false ]; then
   echo ""
   echo "🚀 Next steps:"
   echo "   1. Visit your WordPress admin: $(ddev describe -j 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin)['raw']['primary_url'])" 2>/dev/null || echo "https://$(basename $WP_PATH).ddev.site")/wp-admin"
-  echo "   2. Customize your theme in: $WP_CONTENT/themes/$THEME_DEST"
-  echo "   3. Start dev: cd $WP_CONTENT/themes/$THEME_DEST/_dev && npm run watch"
+  echo "   2. Install theme dependencies:"
+  echo "      cd $WP_CONTENT/themes/$THEME_DEST/_dev && npm install && npm run build"
+  echo "   3. Start dev server: npm run watch"
+  echo "   4. Customize your theme in: $WP_CONTENT/themes/$THEME_DEST"
   echo ""
 else
   echo ""
