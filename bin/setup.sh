@@ -128,12 +128,13 @@ install_acf_pro() {
   local license_key="$1"
   
   if [ -z "$license_key" ]; then
-    echo "⚠️  No ACF Pro license key provided - skipping ACF Pro installation"
+    log_warning "No ACF Pro license key provided - skipping ACF Pro installation"
     echo "💡 Use --acf-license=YOUR_KEY or set ACF_PRO_LICENSE environment variable"
+    increment_warnings
     return 1
   fi
   
-  echo "🔑 Installing ACF Pro with license key..."
+  log_info "Installing ACF Pro with license key..."
   
   # Use WP-CLI to install ACF Pro directly from the download URL
   local download_url="https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&s=plugin&k=${license_key}"
@@ -145,7 +146,8 @@ install_acf_pro() {
   set -e  # Re-enable exit on error
   
   if [ $install_result -eq 0 ]; then
-    echo "✅ ACF Pro installed and activated successfully"
+    log_success "ACF Pro installed and activated successfully"
+    increment_success
     
     # Set the license key in WordPress
     set +e  # Temporarily disable exit on error for license key setting
@@ -154,15 +156,18 @@ install_acf_pro() {
     set -e  # Re-enable exit on error
     
     if [ $license_result -eq 0 ]; then
-      echo "✅ ACF Pro license key configured"
+      log_success "ACF Pro license key configured"
+      increment_success
     else
-      echo "⚠️  ACF Pro installed but license key configuration failed"
+      log_warning "ACF Pro installed but license key configuration failed"
       echo "💡 You may need to enter the license key manually in WordPress admin"
+      increment_warnings
     fi
     
     return 0
   else
-    echo "❌ Failed to install ACF Pro - check your license key and internet connection"
+    log_error "Failed to install ACF Pro - check your license key and internet connection"
+    increment_errors
     return 1
   fi
 }
@@ -199,7 +204,7 @@ update_theme_info() {
   local block_categories="$theme_path/inc/block-categories.php"
   local make_block="$theme_path/_dev/scripts/make-block.js"
 
-  echo "📝 Updating theme information in style.css..."
+  log_info "Updating theme information in style.css..."
   echo "   Theme Name: WP FSE Boilerplate → $display_name"
   echo "   Theme URI: ending with /$theme_slug"
   echo "   Text Domain: fse-boilerplate → $text_domain"
@@ -214,7 +219,8 @@ update_theme_info() {
   fi
 
   if [ ! -f "$style_css" ]; then
-    echo "⚠️  style.css not found at $style_css - skipping theme info update"
+    log_warning "style.css not found at $style_css - skipping theme info update"
+    increment_warnings
     return 1
   fi
 
@@ -228,24 +234,29 @@ update_theme_info() {
   # Update Text Domain
   sed_inplace "s/^Text Domain: .*/Text Domain: $text_domain/" "$style_css"
 
-  echo "✅ Theme information updated successfully"
+  log_success "Theme information updated successfully"
+  increment_success
 
   # Update block categories file
   if [ -f "$block_categories" ]; then
     sed_inplace "s/'theme-name'/'$text_domain'/g" "$block_categories"
     sed_inplace "s/'Theme Name'/'$display_name'/g" "$block_categories"
-    echo "✅ Block categories updated successfully"
+    log_success "Block categories updated successfully"
+    increment_success
   else
-    echo "⚠️  block-categories.php not found - skipping"
+    log_warning "block-categories.php not found - skipping"
+    increment_warnings
   fi
 
   # Update make-block script
   if [ -f "$make_block" ]; then
     sed_inplace "s/'theme-name'/'$text_domain'/g" "$make_block"
     sed_inplace "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
-    echo "✅ make-block script updated successfully"
+    log_success "make-block script updated successfully"
+    increment_success
   else
-    echo "⚠️  make-block.js not found - skipping"
+    log_warning "make-block.js not found - skipping"
+    increment_warnings
   fi
 }
 
@@ -254,7 +265,7 @@ update_workflow_files() {
   local theme_slug="$1"
   local target_root="$2"
   
-  echo "⚙️  Updating GitHub workflow files..."
+  log_info "Updating GitHub workflow files..."
   
   local staging_workflow="$target_root/.github/workflows/deploy-staging.yml"
   local production_workflow="$target_root/.github/workflows/deploy-production.yml"
@@ -269,17 +280,21 @@ update_workflow_files() {
   # Update staging workflow
   if [ -f "$staging_workflow" ]; then
     sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$staging_workflow"
-    echo "✅ Updated deploy-staging.yml with theme name: $theme_slug"
+    log_success "Updated deploy-staging.yml with theme name: $theme_slug"
+    increment_success
   else
-    echo "⚠️  deploy-staging.yml not found - skipping"
+    log_warning "deploy-staging.yml not found - skipping"
+    increment_warnings
   fi
   
   # Update production workflow
   if [ -f "$production_workflow" ]; then
     sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$production_workflow"
-    echo "✅ Updated deploy-production.yml with theme name: $theme_slug"
+    log_success "Updated deploy-production.yml with theme name: $theme_slug"
+    increment_success
   else
-    echo "⚠️  deploy-production.yml not found - skipping"
+    log_warning "deploy-production.yml not found - skipping"
+    increment_warnings
   fi
 }
 
@@ -380,7 +395,8 @@ if [ ! -f "$WP_PATH/wp-config.php" ]; then
   error_exit "wp-config.php not found in $WP_PATH — check your WP_PATH."
 fi
 
-echo "✅ WordPress installation found at: $WP_PATH"
+log_success "WordPress installation found at: $WP_PATH"
+increment_success
 
 # ========== THEME AUTO-DETECT & RENAME ==========
 log_step "🎨 THEME SETUP"
@@ -391,11 +407,11 @@ while IFS= read -r slug; do
   SLUGS+=("$slug")
 done < <(find "$WP_CONTENT/themes" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 if    [ ${#SLUGS[@]} -eq 0 ]; then
-  echo "ℹ️  No theme folder found in $WP_CONTENT/themes/"
-  echo "🔍 Checking if setup has already been completed..."
+  log_info "No theme folder found in $WP_CONTENT/themes/"
+  log_info "Checking if setup has already been completed..."
   
   if [ -d "$WP_CONTENT/themes" ]; then
-    echo "✅ Found existing themes in WordPress installation"
+    log_success "Found existing themes in WordPress installation"
     echo "💡 It appears the setup may have already been completed"
     
     if [ "$DRY_RUN" = true ]; then
@@ -419,7 +435,7 @@ if    [ ${#SLUGS[@]} -eq 0 ]; then
   fi
 elif  [ ${#SLUGS[@]} -eq 1 ]; then
   THEME_SRC="${SLUGS[0]}"
-  echo "🎨 Auto-detected source theme: $THEME_SRC"
+  log_info "Auto-detected source theme: $THEME_SRC"
 else
   echo "🎨 Multiple themes found:"
   for s in "${SLUGS[@]}"; do echo "  – $s"; done
@@ -433,9 +449,14 @@ if [ "$SKIP_THEME" = false ]; then
   if [ -z "$THEME_DEST" ]; then
     read -p "Enter target theme folder name (default: $THEME_SRC): " input_dest
     THEME_DEST="${input_dest:-$THEME_SRC}"
-    echo "🎨 Will rename theme to: $THEME_DEST"
+    log_info "Will rename theme to: $THEME_DEST"
   else
-    echo "🎨 Using provided target theme slug: $THEME_DEST"
+    log_info "Using provided target theme slug: $THEME_DEST"
+  fi
+
+  # Validate theme slug (only allow lowercase letters, numbers, and hyphens)
+  if [[ ! "$THEME_DEST" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+    error_exit "Invalid theme slug '$THEME_DEST'. Use only lowercase letters, numbers, and hyphens (e.g., 'my-theme')."
   fi
 
   # 3) Paths
@@ -450,10 +471,11 @@ if [ "$SKIP_THEME" = false ]; then
         echo "[DRY RUN] mv \"$THEME_SOURCE\" \"$THEME_TARGET\""
       else
         mv "$THEME_SOURCE" "$THEME_TARGET"
-        echo "✅ Theme renamed to: $THEME_DEST"
+        log_success "Theme renamed to: $THEME_DEST"
+        increment_success
       fi
     else
-      echo "ℹ️  Theme slug unchanged: $THEME_DEST"
+      log_info "Theme slug unchanged: $THEME_DEST"
     fi
 
     # Update theme information in style.css
@@ -462,10 +484,11 @@ if [ "$SKIP_THEME" = false ]; then
     # Update GitHub workflow files with the new theme name
     update_workflow_files "$THEME_DEST" "$TARGET_ROOT"
   else
-    echo "⚠️  Source theme '$THEME_SRC' not found — skipping"
+    log_warning "Source theme '$THEME_SRC' not found — skipping"
+    increment_warnings
   fi
 else
-  echo "⏭️  Skipping theme setup (already completed)"
+  log_info "Skipping theme setup (already completed)"
 fi
 
 # ========== INSTALL DEVELOPMENT DEPENDENCIES ==========
@@ -473,25 +496,30 @@ THEME_DEV_DIR="$WP_CONTENT/themes/$THEME_DEST/_dev"
 if [ "$DRY_RUN" = false ] && [ -d "$THEME_DEV_DIR" ] && [ -f "$THEME_DEV_DIR/package.json" ]; then
   log_step "📦 INSTALLING DEVELOPMENT DEPENDENCIES"
   
-  echo "📦 Installing theme development dependencies..."
+  log_info "Installing theme development dependencies..."
   cd "$THEME_DEV_DIR"
   
   if command -v npm &> /dev/null; then
     if npm install; then
-      echo "✅ NPM dependencies installed successfully"
+      log_success "NPM dependencies installed successfully"
+      increment_success
       
       # Build assets
-      echo "🔨 Building theme assets..."
+      log_info "Building theme assets..."
       if npm run build; then
-        echo "✅ Theme assets built successfully"
+        log_success "Theme assets built successfully"
+        increment_success
       else
-        echo "⚠️  Failed to build assets - you may need to run 'npm run build' manually"
+        log_warning "Failed to build assets - you may need to run 'npm run build' manually"
+        increment_warnings
       fi
     else
-      echo "⚠️  Failed to install NPM dependencies"
+      log_warning "Failed to install NPM dependencies"
+      increment_warnings
     fi
   else
-    echo "⚠️  NPM not found - skipping dependency installation"
+    log_warning "NPM not found - skipping dependency installation"
+    increment_warnings
     echo "👉 Run 'npm install && npm run build' in $THEME_DEV_DIR later"
   fi
 fi
@@ -504,21 +532,23 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   
   # Install ACF Pro first if license key is provided
   if [ -n "$ACF_LICENSE_KEY" ]; then
-    echo "� Installing ACF Pro..."
+    log_info "Installing ACF Pro..."
     if [ "$DRY_RUN" = true ]; then
       echo "[DRY RUN] Would install ACF Pro with provided license key"
     else
       if install_acf_pro "$ACF_LICENSE_KEY"; then
-        echo "✅ ACF Pro installation completed successfully"
+        log_success "ACF Pro installation completed successfully"
+        increment_success
       else
-        echo "⚠️  ACF Pro installation failed - continuing with other plugins"
+        log_warning "ACF Pro installation failed - continuing with other plugins"
+        increment_warnings
         echo "💡 You can install ACF Pro manually later from the WordPress admin"
       fi
     fi
     echo ""
   fi
   
-  echo "🔌 Installing recommended development plugins..."
+  log_info "Installing recommended development plugins..."
   
   # Development plugins
   DEV_PLUGINS=(
@@ -535,9 +565,11 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
       echo "  [DRY RUN] Would install and activate $plugin"
     else
       if $WP plugin install "$plugin" --activate 2>/dev/null; then
-        echo "  ✅ $plugin installed and activated"
+        log_success "$plugin installed and activated"
+        increment_success
       else
-        echo "  ⚠️  Failed to install $plugin - may already exist or network issue"
+        log_warning "Failed to install $plugin - may already exist or network issue"
+        increment_warnings
       fi
     fi
   done
@@ -549,13 +581,13 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
     "complianz-gdpr"
     "webp-converter-for-media"
     "simple-history"
-    "plausible-analytics",
+    "plausible-analytics"
     "wp-mail-smtp"
     "better-wp-security"
   )
 
   echo ""
-  echo "🔌 Installing production plugins (not activated)..."
+  log_info "Installing production plugins (not activated)..."
 
   for plugin in "${PROD_PLUGINS[@]}"; do
     echo "  Installing $plugin..."
@@ -563,9 +595,11 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
       echo "  [DRY RUN] Would install $plugin (without activating)"
     else
       if $WP plugin install "$plugin" 2>/dev/null; then
-        echo "  ✅ $plugin installed (not activated)"
+        log_success "$plugin installed (not activated)"
+        increment_success
       else
-        echo "  ⚠️  Failed to install $plugin - may already exist or network issue"
+        log_warning "Failed to install $plugin - may already exist or network issue"
+        increment_warnings
       fi
     fi
   done
@@ -580,21 +614,25 @@ if [ "$DRY_RUN" = false ]; then
   
   cd "$WP_PATH"
   
-  echo "🎨 Activating theme: $THEME_DEST..."
+  log_info "Activating theme: $THEME_DEST..."
   
   if $WP theme activate "$THEME_DEST" 2>/dev/null; then
-    echo "✅ Theme '$THEME_DEST' activated successfully"
+    log_success "Theme '$THEME_DEST' activated successfully"
+    increment_success
     
     # Verify theme activation
     active_theme=$($WP theme list --status=active --field=name 2>/dev/null)
     if [ "$active_theme" = "$THEME_DEST" ]; then
-      echo "✅ Theme activation verified"
+      log_success "Theme activation verified"
+      increment_success
     else
-      echo "⚠️  Theme activation may not have completed properly"
+      log_warning "Theme activation may not have completed properly"
+      increment_warnings
       echo "💡 Active theme: $active_theme"
     fi
   else
-    echo "⚠️  Failed to activate theme '$THEME_DEST'"
+    log_warning "Failed to activate theme '$THEME_DEST'"
+    increment_warnings
     echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
     echo "👉 Or run: $WP theme activate $THEME_DEST"
   fi
