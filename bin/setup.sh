@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # WordPress FSE Boilerplate Setup Script
-# Moves boilerplate content to WordPress root and sets up development environment
+# Sets up the theme, installs dependencies, and initializes the git repository.
+# Designed for use with ddev (self-contained structure: WordPress = repo root).
 
 set -e  # Exit on any error
 
@@ -166,6 +167,15 @@ install_acf_pro() {
   fi
 }
 
+# Cross-platform in-place sed (BSD/macOS requires -i '', GNU/Linux uses -i)
+sed_inplace() {
+  if [[ "$(uname)" == "Darwin" ]]; then
+    sed -i '' "$@"
+  else
+    sed -i "$@"
+  fi
+}
+
 # Function to convert theme slug to display name
 # Example: "lemon-studio" → "Lemon Studio"
 slug_to_display_name() {
@@ -179,27 +189,20 @@ update_theme_info() {
   local theme_path="$1"
   local theme_slug="$2"
   local style_css="$theme_path/style.css"
-  
-  if [ ! -f "$style_css" ]; then
-    echo "⚠️  style.css not found at $style_css - skipping theme info update"
-    return 1
-  fi
-  
-  # Convert slug to display name
+
+  # Compute names regardless of dry-run so they can be printed
   local display_name
   display_name=$(slug_to_display_name "$theme_slug")
-  
-  # Convert slug to text domain (WordPress standard: lowercase with hyphens)
   local text_domain
   text_domain=$(echo "$theme_slug" | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')
-  
+
+  local block_categories="$theme_path/inc/block-categories.php"
+  local make_block="$theme_path/_dev/scripts/make-block.js"
+
   echo "📝 Updating theme information in style.css..."
   echo "   Theme Name: WP FSE Boilerplate → $display_name"
   echo "   Theme URI: ending with /$theme_slug"
   echo "   Text Domain: fse-boilerplate → $text_domain"
-  
-  local block_categories="$theme_path/inc/block-categories.php"
-  local make_block="$theme_path/_dev/scripts/make-block.js"
 
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would update theme name to '$display_name' in $style_css"
@@ -207,36 +210,42 @@ update_theme_info() {
     echo "[DRY RUN] Would update text domain to '$text_domain'"
     echo "[DRY RUN] Would update block categories slugs and labels in $block_categories"
     echo "[DRY RUN] Would update make-block script placeholders in $make_block"
+    return 0
+  fi
+
+  if [ ! -f "$style_css" ]; then
+    echo "⚠️  style.css not found at $style_css - skipping theme info update"
+    return 1
+  fi
+
+  # Update Theme Name (handle both possible current names)
+  sed_inplace "s/^Theme Name: WP Boilerplate FSE/Theme Name: $display_name/" "$style_css"
+  sed_inplace "s/^Theme Name: WP FSE Boilerplate/Theme Name: $display_name/" "$style_css"
+
+  # Update Theme URI to end with the theme slug
+  sed_inplace "s|^Theme URI: .*|Theme URI: https://github.com/valentin-grenier/$theme_slug|" "$style_css"
+
+  # Update Text Domain
+  sed_inplace "s/^Text Domain: .*/Text Domain: $text_domain/" "$style_css"
+
+  echo "✅ Theme information updated successfully"
+
+  # Update block categories file
+  if [ -f "$block_categories" ]; then
+    sed_inplace "s/'theme-name'/'$text_domain'/g" "$block_categories"
+    sed_inplace "s/'Theme Name'/'$display_name'/g" "$block_categories"
+    echo "✅ Block categories updated successfully"
   else
-    # Update Theme Name (handle both possible current names)
-    sed -i "s/^Theme Name: WP Boilerplate FSE/Theme Name: $display_name/" "$style_css"
-    sed -i "s/^Theme Name: WP FSE Boilerplate/Theme Name: $display_name/" "$style_css"
-    
-    # Update Theme URI to end with the theme slug
-    sed -i "s|^Theme URI: .*|Theme URI: https://github.com/valentin-grenier/$theme_slug|" "$style_css"
-    
-    # Update Text Domain
-    sed -i "s/^Text Domain: .*/Text Domain: $text_domain/" "$style_css"
-    
-    echo "✅ Theme information updated successfully"
+    echo "⚠️  block-categories.php not found - skipping"
+  fi
 
-    # Update block categories file
-    if [ -f "$block_categories" ]; then
-      sed -i "s/'theme-name'/'$text_domain'/g" "$block_categories"
-      sed -i "s/'Theme Name'/'$display_name'/g" "$block_categories"
-      echo "✅ Block categories updated successfully"
-    else
-      echo "⚠️  block-categories.php not found - skipping"
-    fi
-
-    # Update make-block script
-    if [ -f "$make_block" ]; then
-      sed -i "s/'theme-name'/'$text_domain'/g" "$make_block"
-      sed -i "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
-      echo "✅ make-block script updated successfully"
-    else
-      echo "⚠️  make-block.js not found - skipping"
-    fi
+  # Update make-block script
+  if [ -f "$make_block" ]; then
+    sed_inplace "s/'theme-name'/'$text_domain'/g" "$make_block"
+    sed_inplace "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
+    echo "✅ make-block script updated successfully"
+  else
+    echo "⚠️  make-block.js not found - skipping"
   fi
 }
 
@@ -259,7 +268,7 @@ update_workflow_files() {
   
   # Update staging workflow
   if [ -f "$staging_workflow" ]; then
-    sed -i "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$staging_workflow"
+    sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$staging_workflow"
     echo "✅ Updated deploy-staging.yml with theme name: $theme_slug"
   else
     echo "⚠️  deploy-staging.yml not found - skipping"
@@ -267,7 +276,7 @@ update_workflow_files() {
   
   # Update production workflow
   if [ -f "$production_workflow" ]; then
-    sed -i "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$production_workflow"
+    sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$production_workflow"
     echo "✅ Updated deploy-production.yml with theme name: $theme_slug"
   else
     echo "⚠️  deploy-production.yml not found - skipping"
@@ -324,38 +333,33 @@ manual_git_setup() {
 }
 
 # ========== CONFIG ==========
-# Default: look one level up from the script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
-TARGET_ROOT="$(dirname "$REPO_DIR")"
-REPO_WP_CONTENT="$REPO_DIR/wp-content"
-TARGET_WP_CONTENT="$TARGET_ROOT/wp-content"
-WP_PATH="$TARGET_ROOT"
+TARGET_ROOT="$REPO_DIR"
+WP_CONTENT="$REPO_DIR/wp-content"
+WP_PATH="$REPO_DIR"
 
 DRY_RUN=false
 SKIP_PLUGINS=false
-SKIP_FILE_MOVEMENT=false
 SKIP_GIT=false
 SKIP_BRANCHES=false
-SKIP_CLEANUP=false
-THEME_ONLY=false
 THEME_SLUG=""
+THEME_DEST=""
 GITHUB_USERNAME="valentin-grenier"
 ACF_LICENSE_KEY=""
 
 # ========== FLAGS ==========
-for arg in "$@"; do
-  case $arg in
-    --dry-run)       DRY_RUN=true;        shift ;;
-    --skip-plugins)  SKIP_PLUGINS=true;   shift ;;
-    --skip-git)      SKIP_GIT=true;       shift ;;
-    --skip-branches) SKIP_BRANCHES=true;  shift ;;
-    --skip-cleanup)  SKIP_CLEANUP=true;   shift ;;
-    --theme-only)    THEME_ONLY=true;     shift ;;
-    --theme=*)       THEME_SLUG="${arg#*=}"; shift ;;
-    --github-user=*) GITHUB_USERNAME="${arg#*=}"; shift ;;
-    --acf-license=*) ACF_LICENSE_KEY="${arg#*=}"; shift ;;
-    --help|-h)       
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --dry-run)       DRY_RUN=true ;;
+    --skip-plugins)  SKIP_PLUGINS=true ;;
+    --skip-git)      SKIP_GIT=true ;;
+    --skip-branches) SKIP_BRANCHES=true ;;
+    --theme=*)       THEME_SLUG="${1#*=}" ;;
+    --theme-dest=*)  THEME_DEST="${1#*=}" ;;
+    --github-user=*) GITHUB_USERNAME="${1#*=}" ;;
+    --acf-license=*) ACF_LICENSE_KEY="${1#*=}" ;;
+    --help|-h)
       echo "WordPress FSE Boilerplate Setup Script"
       echo ""
       echo "Usage: $0 [OPTIONS]"
@@ -365,8 +369,6 @@ for arg in "$@"; do
       echo "  --skip-plugins        Skip automatic plugin installation"
       echo "  --skip-git            Skip git repository initialization"
       echo "  --skip-branches       Skip creating additional git branches (staging, development)"
-      echo "  --skip-cleanup        Skip automatic cleanup of boilerplate directory"
-      echo "  --theme-only          Move only the theme (skip plugins, root files)"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
       echo "  --github-user=USER    Override GitHub username (default: valentin-grenier)"
@@ -381,18 +383,18 @@ for arg in "$@"; do
       echo "  2. ACF_PRO_LICENSE environment variable"
       echo "  3. auth.json file (password field for connect.advancedcustomfields.com)"
       echo ""
-      echo "This script moves the boilerplate content to the WordPress root directory,"
-      echo "activates the theme, installs dependencies, and sets up the development environment."
+      echo "Designed for ddev projects. Renames the theme in place, updates theme metadata,"
+      echo "installs dependencies, and sets up a fresh git repository."
       echo ""
       echo "Theme customization:"
-      echo "  • Automatically updates theme name in style.css (e.g., 'lemon-studio' → 'Lemon Studio')"
-      echo "  • Updates theme URI to match the chosen theme name"
-      echo "  • Updates text domain throughout theme files"
+      echo "  • Renames theme folder (e.g., theme-fse → my-project)"
+      echo "  • Updates Theme Name, Theme URI, and Text Domain in style.css"
+      echo "  • Updates text domain in block categories and make-block script"
       exit 0
       ;;
-    *)               # ignore other flags
-                     ;;
+    *)  ;; # ignore unknown flags
   esac
+  shift
 done
 
 # Check for ACF license in environment variable if not provided via flag
@@ -415,12 +417,14 @@ fi
 # ========== ENV DETECTION & WP-CLI CHECK ==========
 if [[ "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"NT"* ]]; then
   WP="cmd //c wp"
+elif command -v ddev &>/dev/null && ddev status 2>/dev/null | grep -q "running"; then
+  WP="ddev wp"
 else
   WP="wp"
 fi
 
-if ! command -v $WP &> /dev/null; then
-  error_exit "WP-CLI not found in this shell. Run from Local's Site Shell or install WP-CLI globally."
+if ! command -v ${WP%% *} &> /dev/null; then
+  error_exit "WP-CLI introuvable. Lance 'ddev start' puis relance ce script, ou installe WP-CLI globalement."
 fi
 
 # ========== INITIALIZE LOGGING AND SUMMARY ==========
@@ -439,47 +443,37 @@ echo "✅ WordPress installation found at: $WP_PATH"
 # ========== THEME AUTO-DETECT & RENAME ==========
 log_step "🎨 THEME SETUP"
 
-# Flags for rename override
-THEME_DEST=""
-
-# If you passed --theme-dest=foo, pick that up
-for arg in "$@"; do
-  case $arg in
-    --theme-dest=*) THEME_DEST="${arg#*=}"; shift ;;
-  esac
-done
-
 # 1) Auto-detect the one source theme folder
-mapfile -t SLUGS < <(find "$REPO_WP_CONTENT/themes" -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
+SLUGS=()
+while IFS= read -r slug; do
+  SLUGS+=("$slug")
+done < <(find "$WP_CONTENT/themes" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
 if    [ ${#SLUGS[@]} -eq 0 ]; then
-  echo "ℹ️  No theme folder found in $REPO_WP_CONTENT/themes/"
+  echo "ℹ️  No theme folder found in $WP_CONTENT/themes/"
   echo "🔍 Checking if setup has already been completed..."
   
-  # Check if there are any themes in the target directory that might be from this boilerplate
-  if [ -d "$TARGET_WP_CONTENT/themes" ]; then
+  if [ -d "$WP_CONTENT/themes" ]; then
     echo "✅ Found existing themes in WordPress installation"
     echo "💡 It appears the setup may have already been completed"
-    echo "   If you need to re-run the setup, please restore the boilerplate files first"
     
     if [ "$DRY_RUN" = true ]; then
       echo ""
       echo "🔍 DRY RUN completed - setup appears to already be done"
-      echo "   No boilerplate files found to process"
       exit 0
     else
       echo ""
       echo "❓ Do you want to continue with plugin installation only? (y/n)"
       read -r continue_plugins
       if [[ "$continue_plugins" =~ ^[Yy]$ ]]; then
-        echo "⏭️  Skipping file movement, proceeding to plugin installation..."
-        SKIP_FILE_MOVEMENT=true
+        echo "⏭️  Skipping theme setup, proceeding to plugin installation..."
+        SKIP_THEME=true
       else
         echo "⏹️  Setup cancelled"
         exit 0
       fi
     fi
   else
-    error_exit "No theme folder found in $REPO_WP_CONTENT/themes/ and no target themes directory found"
+    error_exit "No theme folder found in $WP_CONTENT/themes/"
   fi
 elif  [ ${#SLUGS[@]} -eq 1 ]; then
   THEME_SRC="${SLUGS[0]}"
@@ -487,129 +481,59 @@ elif  [ ${#SLUGS[@]} -eq 1 ]; then
 else
   echo "🎨 Multiple themes found:"
   for s in "${SLUGS[@]}"; do echo "  – $s"; done
-  read -p "Enter the source theme to move: " input_src
+  read -p "Enter the source theme to rename: " input_src
   THEME_SRC="$input_src"
 fi
 
 # 2) Determine destination slug
-if [ "$SKIP_FILE_MOVEMENT" = false ]; then
+SKIP_THEME=${SKIP_THEME:-false}
+if [ "$SKIP_THEME" = false ]; then
   if [ -z "$THEME_DEST" ]; then
-    read -p "Enter target theme folder name (default: wp-boilerplate-fse): " input_dest
-    THEME_DEST="${input_dest:-wp-boilerplate-fse}"
+    read -p "Enter target theme folder name (default: $THEME_SRC): " input_dest
+    THEME_DEST="${input_dest:-$THEME_SRC}"
     echo "🎨 Will rename theme to: $THEME_DEST"
   else
     echo "🎨 Using provided target theme slug: $THEME_DEST"
   fi
 
   # 3) Paths
-  THEME_SOURCE="$REPO_WP_CONTENT/themes/$THEME_SRC"
-  THEME_TARGET="$TARGET_WP_CONTENT/themes/$THEME_DEST"
+  THEME_SOURCE="$WP_CONTENT/themes/$THEME_SRC"
+  THEME_TARGET="$WP_CONTENT/themes/$THEME_DEST"
 
-  # 4) Move
+  # 4) Rename
   if [ -d "$THEME_SOURCE" ]; then
-    echo "📦 Moving '$THEME_SRC' → '$THEME_TARGET' ..."
-    if [ "$DRY_RUN" = true ]; then
-      echo "[DRY RUN] mv \"$THEME_SOURCE\" \"$THEME_TARGET\""
+    if [ "$THEME_SRC" != "$THEME_DEST" ]; then
+      echo "📦 Renaming '$THEME_SRC' → '$THEME_DEST' ..."
+      if [ "$DRY_RUN" = true ]; then
+        echo "[DRY RUN] mv \"$THEME_SOURCE\" \"$THEME_TARGET\""
+      else
+        mv "$THEME_SOURCE" "$THEME_TARGET"
+        echo "✅ Theme renamed to: $THEME_DEST"
+      fi
     else
-      mv "$THEME_SOURCE" "$THEME_TARGET"
-      echo "✅ Theme moved (and renamed) to: $THEME_DEST"
+      echo "ℹ️  Theme slug unchanged: $THEME_DEST"
     fi
-    
+
     # Update theme information in style.css
     update_theme_info "$THEME_TARGET" "$THEME_DEST"
-    
+
     # Update GitHub workflow files with the new theme name
     update_workflow_files "$THEME_DEST" "$TARGET_ROOT"
   else
     echo "⚠️  Source theme '$THEME_SRC' not found — skipping"
   fi
 else
-  echo "⏭️  Skipping theme file movement (already completed)"
+  echo "⏭️  Skipping theme setup (already completed)"
 fi
 
 # ========== MOVE PLUGINS DIRECTORY CONTENT ==========
-if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
-  log_step "📁 MOVING PLUGINS"
-
-  PLUGINS_SOURCE="$REPO_WP_CONTENT/plugins"
-  PLUGINS_TARGET="$TARGET_WP_CONTENT/plugins"
-
-  echo "📁 Preparing plugins directory at $PLUGINS_TARGET..."
-  if [ "$DRY_RUN" = false ]; then
-    mkdir -p "$PLUGINS_TARGET"
-  else
-    echo "[DRY RUN] Would mkdir -p $PLUGINS_TARGET"
-  fi
-
-  # Check if there's a .gitkeep file to move
-  GITIGNORE_FILE="$PLUGINS_SOURCE/.gitkeep"
-  if [ -f "$GITIGNORE_FILE" ]; then
-    echo "📦 Moving .gitkeep from plugins/"
-    if [ "$DRY_RUN" = true ]; then
-      echo "[DRY RUN] Would move $GITIGNORE_FILE → $PLUGINS_TARGET/.gitkeep"
-    else
-      mv "$GITIGNORE_FILE" "$PLUGINS_TARGET/.gitkeep"
-      echo "✅ .gitkeep moved to plugins/"
-    fi
-  else
-    echo "ℹ️ No plugins or .gitkeep to move"
-  fi
-elif [ "$THEME_ONLY" = true ]; then
-  echo "⏭️  Skipping plugins movement (--theme-only flag used)"
-fi
+# (Not needed in ddev structure — plugins dir is already in place)
 
 # ========== MOVE ROOT FILES ==========
-if [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$THEME_ONLY" = false ]; then
-  log_step "📁 MOVING ROOT FILES"
-
-  echo "📁 Moving root files to $TARGET_ROOT..."
-
-  FILES_TO_MOVE=(
-    ".gitignore"
-    "README.md"
-    "composer.json"
-    "composer.lock"
-  )
-
-  for file in "${FILES_TO_MOVE[@]}"; do
-    SRC="$REPO_DIR/$file"
-    DEST="$TARGET_ROOT/$file"
-
-    if [ -e "$SRC" ]; then
-      if [ "$DRY_RUN" = true ]; then
-        echo "[DRY RUN] Would move $file → $TARGET_ROOT/"
-      else
-        mv "$SRC" "$DEST"
-        echo "✅ Moved $file"
-      fi
-    fi
-  done
-elif [ "$THEME_ONLY" = true ]; then
-  echo "⏭️  Skipping root files movement (--theme-only flag used)"
-else
-  echo "⏭️  Skipping file movement (already completed)"
-fi
-
-# ========== ACTIVATE THEME ==========
-if [ "$DRY_RUN" = false ] && [ -n "$THEME_DEST" ]; then
-  log_step "🎨 ACTIVATING THEME"
-  
-  echo "🎨 Activating theme '$THEME_DEST'..."
-  cd "$WP_PATH"
-  
-  if $WP theme is-installed "$THEME_DEST" 2>/dev/null; then
-    if $WP theme activate "$THEME_DEST"; then
-      echo "✅ Theme '$THEME_DEST' activated successfully"
-    else
-      echo "⚠️  Failed to activate theme '$THEME_DEST' - you may need to activate it manually"
-    fi
-  else
-    echo "⚠️  Theme '$THEME_DEST' not found - skipping activation"
-  fi
-fi
+# (Not needed in ddev structure — root files are already in place)
 
 # ========== INSTALL DEVELOPMENT DEPENDENCIES ==========
-THEME_DEV_DIR="$TARGET_WP_CONTENT/themes/$THEME_DEST/_dev"
+THEME_DEV_DIR="$WP_CONTENT/themes/$THEME_DEST/_dev"
 if [ "$DRY_RUN" = false ] && [ -d "$THEME_DEV_DIR" ] && [ -f "$THEME_DEV_DIR/package.json" ]; then
   log_step "📦 INSTALLING DEVELOPMENT DEPENDENCIES"
   
@@ -688,7 +612,6 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   echo "📝 Additional production plugins available (not auto-installed):"
   echo "  • broken-link-checker"
   echo "  • seo-by-rank-math"
-  echo "  • better-wp-security"
   echo "  • complianz-gdpr"
   echo "  • webp-converter-for-media"
   echo "  • simple-history"
@@ -698,115 +621,29 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
 fi
 
 # ========== ACTIVATE THEME ==========
-if [ "$DRY_RUN" = false ] && [ "$SKIP_FILE_MOVEMENT" = false ]; then
+if [ "$DRY_RUN" = false ]; then
   log_step "🎨 ACTIVATING THEME"
   
   cd "$WP_PATH"
   
   echo "🎨 Activating theme: $THEME_DEST..."
   
-  if [ "$DRY_RUN" = true ]; then
-    echo "[DRY RUN] Would activate theme: $THEME_DEST"
-  else
-    if $WP theme activate "$THEME_DEST" 2>/dev/null; then
-      echo "✅ Theme '$THEME_DEST' activated successfully"
-      
-      # Verify theme activation
-      active_theme=$($WP theme list --status=active --field=name 2>/dev/null)
-      if [ "$active_theme" = "$THEME_DEST" ]; then
-        echo "✅ Theme activation verified"
-      else
-        echo "⚠️  Theme activation may not have completed properly"
-        echo "💡 Active theme: $active_theme"
-      fi
+  if $WP theme activate "$THEME_DEST" 2>/dev/null; then
+    echo "✅ Theme '$THEME_DEST' activated successfully"
+    
+    # Verify theme activation
+    active_theme=$($WP theme list --status=active --field=name 2>/dev/null)
+    if [ "$active_theme" = "$THEME_DEST" ]; then
+      echo "✅ Theme activation verified"
     else
-      echo "⚠️  Failed to activate theme '$THEME_DEST'"
-      echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
-      echo "👉 Or run: wp theme activate $THEME_DEST"
-    fi
-  fi
-elif [ "$SKIP_FILE_MOVEMENT" = true ]; then
-  echo "⏭️  Skipping theme activation (no theme files were moved)"
-fi
-
-# ========== CLEANUP BOILERPLATE DIRECTORY ==========
-if [ "$DRY_RUN" = false ] && [ "$SKIP_FILE_MOVEMENT" = false ] && [ "$SKIP_CLEANUP" = false ]; then
-  log_step "🧹 CLEANING UP"
-  
-  echo "🧹 Cleaning up boilerplate directory..."
-  echo ""
-  echo "⚠️  This will permanently delete the boilerplate directory:"
-  echo "   📁 $REPO_DIR"
-  echo ""
-  echo "   All files have been successfully moved to your WordPress installation."
-  echo "   The boilerplate directory is no longer needed."
-  echo ""
-  
-  # Ask for confirmation unless running non-interactively
-  if [ -t 0 ]; then  # Check if running interactively
-    read -p "   🗑️  Proceed with cleanup? (y/n): " confirm_cleanup
-    echo ""
-  else
-    confirm_cleanup="y"
-    echo "   🤖 Non-interactive mode: proceeding with cleanup"
-  fi
-  
-  if [[ "$confirm_cleanup" =~ ^[Yy]$ ]]; then
-    # After successful setup, we can safely remove the boilerplate directory
-    log_info "Removing boilerplate directory: $REPO_DIR"
-    
-    # Change to parent directory to avoid issues when deleting current directory
-    cd "$TARGET_ROOT"
-    
-    # Safety check: make sure we're not deleting something important
-    if [[ "$REPO_DIR" == *"wp-boilerplate-fse"* ]] && [ -d "$REPO_DIR" ]; then
-      # Force removal of the entire boilerplate directory
-      if rm -rf "$REPO_DIR" 2>/dev/null; then
-        log_success "Boilerplate directory cleaned up successfully"
-        increment_success
-      else
-        log_error "Failed to remove boilerplate directory"
-        increment_errors
-      fi
-    else
-      log_error "Safety check failed: refusing to delete directory $REPO_DIR"
-      increment_errors
-    fi
-    
-    # Also remove cleanup.sh if it exists in the target directory
-    if [ -f "$TARGET_ROOT/cleanup.sh" ]; then
-      log_info "Removing separate cleanup.sh script"
-      if rm -f "$TARGET_ROOT/cleanup.sh" 2>/dev/null; then
-        log_success "cleanup.sh removed"
-        increment_success
-      else
-        log_warning "Failed to remove cleanup.sh"
-        increment_warnings
-      fi
+      echo "⚠️  Theme activation may not have completed properly"
+      echo "💡 Active theme: $active_theme"
     fi
   else
-    echo "   ⏹️  Cleanup cancelled"
-    echo "   💡 You can manually delete the boilerplate directory later:"
-    echo "      rm -rf $REPO_DIR"
-    echo ""
-    echo "   🔧 Or use the standalone cleanup script:"
-    echo "      ./cleanup.sh"
+    echo "⚠️  Failed to activate theme '$THEME_DEST'"
+    echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
+    echo "👉 Or run: $WP theme activate $THEME_DEST"
   fi
-elif [ "$SKIP_FILE_MOVEMENT" = true ]; then
-  echo "⏭️  Skipping cleanup (no files were moved)"
-elif [ "$SKIP_CLEANUP" = true ]; then
-  echo "⏭️  Skipping cleanup (--skip-cleanup flag used)"
-  echo "   💡 You can clean up manually later using:"
-  echo "      ./bin/cleanup.sh"
-  echo "   🗂️  Boilerplate directory: $REPO_DIR"
-else
-  echo ""
-  echo "[DRY RUN] Would clean up boilerplate directory:"
-  echo "  1. Ask for user confirmation"
-  echo "  2. Change to parent directory: $TARGET_ROOT"
-  echo "  3. Safety check directory name contains 'wp-boilerplate-fse'"
-  echo "  4. Remove boilerplate directory: $REPO_DIR"
-  echo "  5. Remove cleanup.sh if present"
 fi
 
 # ========== GIT REPOSITORY INITIALIZATION ==========
@@ -960,25 +797,19 @@ if [ "$DRY_RUN" = false ]; then
   echo ""
   echo "🎉 Setup completed successfully!"
   echo ""
-  echo "📍 Your WordPress site is ready at: $WP_PATH"
-  echo "🎨 Theme location: $TARGET_WP_CONTENT/themes/$THEME_DEST"
-  echo "⚙️  Development files: $TARGET_WP_CONTENT/themes/$THEME_DEST/_dev"
-  echo ""
-  echo "🧹 Cleanup:"
-  echo "   • Boilerplate directory removed"
-  echo "   • Fresh WordPress installation ready"
+  echo "📍 WordPress (ddev): $WP_PATH"
+  echo "🎨 Theme: $WP_CONTENT/themes/$THEME_DEST"
+  echo "⚙️  Dev files: $WP_CONTENT/themes/$THEME_DEST/_dev"
   echo ""
   echo "🚀 Next steps:"
-  echo "   1. Visit your WordPress admin to configure settings"
-  echo "   2. Customize your theme in: $TARGET_WP_CONTENT/themes/$THEME_DEST"
-  echo "   3. For development, run: cd $TARGET_WP_CONTENT/themes/$THEME_DEST/_dev && npm run watch"
+  echo "   1. Visit your WordPress admin: $(ddev describe -j 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin)['raw']['primary_url'])" 2>/dev/null || echo "https://$(basename $WP_PATH).ddev.site")/wp-admin"
+  echo "   2. Customize your theme in: $WP_CONTENT/themes/$THEME_DEST"
+  echo "   3. Start dev: cd $WP_CONTENT/themes/$THEME_DEST/_dev && npm run watch"
   echo ""
   echo "📂 Git Repository:"
   echo "   • New git repository initialized"
   echo "   • Initial commit created"
   echo "   • Ready for version control"
-  echo ""
-  echo "💡 Pro tip: Use 'npm run dev' for live SCSS compilation during development"
   echo ""
 else
   echo ""
