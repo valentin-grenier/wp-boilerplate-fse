@@ -542,16 +542,36 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
     fi
   done
   
+  # Production plugins (installed but not activated)
+  PROD_PLUGINS=(
+    "broken-link-checker"
+    "seo-by-rank-math"
+    "complianz-gdpr"
+    "webp-converter-for-media"
+    "simple-history"
+    "plausible-analytics",
+    "wp-mail-smtp"
+    "better-wp-security"
+  )
+
   echo ""
-  echo "📝 Additional production plugins available (not auto-installed):"
-  echo "  • broken-link-checker"
-  echo "  • seo-by-rank-math"
-  echo "  • complianz-gdpr"
-  echo "  • webp-converter-for-media"
-  echo "  • simple-history"
-  echo "  • plausible-analytics"
+  echo "🔌 Installing production plugins (not activated)..."
+
+  for plugin in "${PROD_PLUGINS[@]}"; do
+    echo "  Installing $plugin..."
+    if [ "$DRY_RUN" = true ]; then
+      echo "  [DRY RUN] Would install $plugin (without activating)"
+    else
+      if $WP plugin install "$plugin" 2>/dev/null; then
+        echo "  ✅ $plugin installed (not activated)"
+      else
+        echo "  ⚠️  Failed to install $plugin - may already exist or network issue"
+      fi
+    fi
+  done
+
   echo ""
-  echo "👉 Install these manually when ready for production"
+  echo "💡 Activate production plugins when ready: $WP plugin activate <plugin-name>"
 fi
 
 # ========== ACTIVATE THEME ==========
