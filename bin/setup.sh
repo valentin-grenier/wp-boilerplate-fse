@@ -196,7 +196,7 @@ update_theme_info() {
   echo "📝 Updating theme information in style.css..."
   echo "   Theme Name: WP FSE Boilerplate → $display_name"
   echo "   Theme URI: ending with /$theme_slug"
-  echo "   Text Domain: fse-boilerplate → $text_domain"
+  echo "   Text Domain: studioval-boilerplate → $text_domain"
   
   local block_categories="$theme_path/inc/block-categories.php"
   local make_block="$theme_path/_dev/scripts/make-block.js"
@@ -222,7 +222,7 @@ update_theme_info() {
 
     # Update block categories file
     if [ -f "$block_categories" ]; then
-      sed -i "s/'theme-name'/'$text_domain'/g" "$block_categories"
+      sed -i "s/'studioval-boilerplate'/'$text_domain'/g" "$block_categories"
       sed -i "s/'Theme Name'/'$display_name'/g" "$block_categories"
       echo "✅ Block categories updated successfully"
     else
@@ -231,7 +231,7 @@ update_theme_info() {
 
     # Update make-block script
     if [ -f "$make_block" ]; then
-      sed -i "s/'theme-name'/'$text_domain'/g" "$make_block"
+      sed -i "s/'studioval-boilerplate'/'$text_domain'/g" "$make_block"
       sed -i "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
       echo "✅ make-block script updated successfully"
     else

@@ -103,20 +103,19 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 ## Code conventions
 
 - **Language**: code, comments, **and all documentation** in English.
-- **Text-domain**: `fse-boilerplate` (declared in [`style.css`](wp-content/themes/theme-fse/style.css))
-  — `bin/setup.sh` substitutes it on client install. ⚠️ Current state: 4 different text-domains are
-  used in the code (`fse-boilerplate`, `studio-val`, `studio-theme`, `theme-name`) — to be
-  normalized.
+- **Text-domain**: `studioval-boilerplate` (declared in
+  [`style.css`](wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
+  `boilerplate` token with the client project slug on install. Normalized consistently across the
+  theme.
 - **Hook / function prefix**: `studio_` (e.g., `studio_register_blocks`, `studio_enqueue_assets`) —
   substituted on install.
 - **PHP namespace**: `StudioVal\WPBoilerplate\` (PSR-4, autoload configured in `composer.json` →
   `wp-content/themes/theme-fse/inc/`).
 - **Block namespace**: `studioval/{slug}` in `block.json` (already applied to the block template).
-- **WP security**: every `inc/*.php` **must** start with `if (!defined('ABSPATH')) exit;`.
-  ⚠️ Current state: 12 of 14 files lack this guard — to be fixed. All output must be escaped
-  (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), all input sanitized (`sanitize_text_field`,
-  `absint`, etc.), all SQL queries via `$wpdb->prepare`, all action/admin-post handlers protected
-  by nonce.
+- **WP security**: every `inc/*.php` starts with `if ( ! defined( 'ABSPATH' ) ) { exit; }` — guard
+  applied to all 14 files. All output must be escaped (`esc_html`, `esc_attr`, `esc_url`,
+  `wp_kses_post`), all input sanitized (`sanitize_text_field`, `absint`, etc.), all SQL queries via
+  `$wpdb->prepare`, all action/admin-post handlers protected by nonce.
 - **i18n**: systematic (`__()`, `esc_html__()`, `_e()`, `_x()`…).
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`. Each `block.json` is auto-discovered
   by [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.

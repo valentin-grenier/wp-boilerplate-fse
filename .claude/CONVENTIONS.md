@@ -8,13 +8,11 @@ text-domain, new prefix scheme) lives in [`IMPLEMENTATION.md`](IMPLEMENTATION.md
 
 ### Text-domain
 
-**`fse-boilerplate`** — declared in [`style.css`](../wp-content/themes/theme-fse/style.css) header
-(`Text Domain: fse-boilerplate`). `bin/setup.sh` substitutes it for the client slug on install.
-
-⚠️ **Current state:** the codebase is inconsistent. The `style.css` header says `fse-boilerplate`,
-but `inc/*.php` files use a mix of `studio-val`, `studio-theme`, `theme-name`, and `fse-boilerplate`
-in `__()` calls. Normalization is tracked in `IMPLEMENTATION.md` Batch 4. **For new code, use
-`fse-boilerplate`.**
+**`studioval-boilerplate`** — declared in [`style.css`](../wp-content/themes/theme-fse/style.css)
+header (`Text Domain: studioval-boilerplate`, `Domain Path: /languages`). Every `__()` /
+`esc_html__()` / `_x()` / `block.json` `textdomain` in the theme uses this exact value.
+`bin/setup.sh` substitutes the `boilerplate` token with the client project slug on install.
+Enforced by phpcs via the `WordPress.WP.I18n.TextDomainMismatch` sniff in `phpcs.xml.dist`.
 
 ### PHP function / hook prefix
 
@@ -57,17 +55,18 @@ The four blocking standards in code review:
 4. **Prepare every SQL query.** `$wpdb->prepare()` with placeholders — never interpolate user input
    into raw SQL.
 
-Every `inc/*.php` file should open with:
+Every `inc/*.php` file opens with:
 
 ```php
 <?php
+
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit; // Exit if accessed directly.
 }
 ```
 
-⚠️ **Current state:** only `block-categories.php` and `hooks.php` (2 of 14) have the guard. The
-other 12 are tracked for fixing in `IMPLEMENTATION.md` Batch 4.
+Applied uniformly across all 14 files. Enforced implicitly by code review (phpcs doesn't have a
+sniff for this specific pattern, but the convention is consistent).
 
 ## i18n
 
@@ -75,9 +74,9 @@ Every user-visible string goes through a translation function with the text-doma
 argument:
 
 ```php
-esc_html__( 'Read more', 'fse-boilerplate' )
-esc_attr__( 'Open menu', 'fse-boilerplate' )
-_x( 'Home', 'breadcrumb label', 'fse-boilerplate' )
+esc_html__( 'Read more', 'studioval-boilerplate' )
+esc_attr__( 'Open menu', 'studioval-boilerplate' )
+_x( 'Home', 'breadcrumb label', 'studioval-boilerplate' )
 ```
 
 ⚠️ **Current state:** mixed text-domains across files (see Naming → Text-domain above).

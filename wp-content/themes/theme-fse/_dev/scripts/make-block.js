@@ -58,8 +58,8 @@ import Icon from '../../shared/icon-site.jsx';
 
 registerBlockType('theme-name/${blockName}', {
 	apiVersion: 3,
-	title: __('${titleCase}', 'theme-name'),
-	description: __('Un bloc personnalisé nommé ${blockName}.', 'theme-name'),
+	title: __('${titleCase}', 'studioval-boilerplate'),
+	description: __('Un bloc personnalisé nommé ${blockName}.', 'studioval-boilerplate'),
 	category: 'theme-name',
 	icon: { src: Icon },
 	keywords: ['${blockName}'],${
@@ -88,7 +88,7 @@ registerBlockType('theme-name/${blockName}', {
 					tagName="p"
 					value={attributes.content}
 					onChange={(content) => setAttributes({ content })}
-					placeholder={__('Saisir le contenu...', 'theme-name')}
+					placeholder={__('Saisir le contenu...', 'studioval-boilerplate')}
 				/>
 			</div>
 		);

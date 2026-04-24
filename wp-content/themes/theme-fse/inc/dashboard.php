@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /**
  * Remove dashboard widgets
  *
@@ -115,7 +119,7 @@ function studio_custom_admin_bar_menu() {
 	$wp_admin_bar->add_menu(
 		array(
 			'parent' => 'wp-logo-external',
-			'id'     => 'studio-val',
+			'id'     => 'studioval-boilerplate',
 			'title'  => 'Studio Val',
 			'href'   => 'https://studio-val.fr',
 			'meta'   => array(

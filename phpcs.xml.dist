@@ -49,13 +49,13 @@
 
 	<!--
 		Text-domain sniff. Every __() / _e() / _x() / block.json textdomain must match
-		one of the values below. Currently fse-boilerplate (the style.css header value).
-		Batch 4 normalizes the codebase to this; Batch 5 may later rename the token.
+		one of the values below. studioval-boilerplate is the source default; bin/setup.sh
+		substitutes the `boilerplate` token with the client project slug on install.
 	-->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="fse-boilerplate"/>
+				<element value="studioval-boilerplate"/>
 			</property>
 		</properties>
 	</rule>

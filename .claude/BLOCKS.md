@@ -64,7 +64,7 @@ This is the literal content of `_dev/blocks/block/block.json` at HEAD:
 ⚠️ **Missing fields** (planned in `IMPLEMENTATION.md` Batch 6):
 
 - `$schema: https://schemas.wp.org/trunk/block.json` — for editor autocomplete and CI validation.
-- `textdomain: fse-boilerplate` — required for i18n string extraction. Without it, WP-CLI
+- `textdomain: studioval-boilerplate` — required for i18n string extraction. Without it, WP-CLI
   `i18n make-pot` won't catch block strings.
 
 **Category:** `layout` is currently used (a WP core category). A custom `studioval` category exists

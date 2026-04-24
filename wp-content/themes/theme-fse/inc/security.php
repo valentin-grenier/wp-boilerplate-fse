@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /**
  * Block XML-RPC requests for security
  */
@@ -25,7 +29,7 @@ if ( is_admin() && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
  * @return string
  */
 function studio_hide_login_errors( $error ) {
-	return __( 'Login failed. Please try again.', 'studio-theme' );
+	return __( 'Login failed. Please try again.', 'studioval-boilerplate' );
 }
 add_filter( 'login_errors', 'studio_hide_login_errors' );
 
