@@ -43,8 +43,8 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 
 ## Batches
 
-- [x] **1. Docs & reproducibility** — `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, `.claude/IMPLEMENTATION.md`, `CHANGELOG.md`, `.editorconfig`, `.nvmrc`, `.env.example`; docs-language note in `.claude/CLAUDE.md`.
-- [ ] **2. PHP tooling** — `phpcs.xml.dist`, `phpstan.neon.dist`, `phpunit.xml.dist`; update `composer.json` (platform 8.2, dev deps, scripts); bump `style.css` `Requires PHP`.
+- [x] **1. Docs & reproducibility** — `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, `.claude/IMPLEMENTATION.md`, `CHANGELOG.md`, `.editorconfig`, `.nvmrc`, `.env.example`; docs-language note in `.claude/CLAUDE.md`. Then realigned to current-state truth (each subsequent batch updates the relevant doc lines as it ships).
+- [ ] **2. PHP tooling** — `phpcs.xml.dist`, `phpstan.neon.dist`, `phpunit.xml.dist`; update `composer.json` (platform 8.2, dev deps, scripts); bump `style.css` `Requires PHP`. Doc updates: `.claude/CLAUDE.md` Stack + Pièges connus, `.claude/CONVENTIONS.md` PHP section, `.claude/ARCHITECTURE.md` Developer workflow.
 - [ ] **3. JS/CSS tooling** — `_dev/.eslintrc.json`, `.stylelintrc.json`, `.prettierrc`, `.prettierignore`; update `_dev/package.json` (deps + scripts).
 - [ ] **4. Fix pre-existing defects** — add `ABSPATH` guard to 12 files in `inc/`; normalize 4 text-domains to `studioval-boilerplate`; update `style.css` `Text Domain` + `Domain Path`.
 - [ ] **5. Prefix + namespace migration** — `studio_` → `sv_boilerplate_`; `StudioVal\WPBoilerplate\` → `StudioVal\Boilerplate\`; update block namespaces, `composer.json` autoload, `bin/setup.sh` substitutions, `.github/copilot-instructions.md`.

@@ -1,39 +1,51 @@
 # Architecture
 
-How the repository is laid out and why. This is the reference for agents and humans who need to
-understand where things live and what is safe to touch.
+How the repository is laid out and why. This document describes the **current** state of the repo at
+HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATION.md).
 
 ## Repository layout
 
-```
+```text
 .
 ├── .claude/                     # Claude Code config + team docs (Claude-only workflow)
 │   ├── CLAUDE.md                # Session-start context (French)
 │   ├── ARCHITECTURE.md          # This file
-│   ├── BLOCKS.md                # Block authoring guide
+│   ├── BLOCKS.md                # ACF block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
-│   ├── IMPLEMENTATION.md        # Modernization tracker (temporary — can be archived post-ship)
-│   ├── settings.json            # Permissions + hooks
-│   └── rules/ · agents/ · commands/ · skills/ · lessons.md
+│   ├── IMPLEMENTATION.md        # Modernization tracker (temporary)
+│   └── settings.json            # Permissions allow/deny (no hooks yet)
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
-├── bin/                         # Shell scripts: setup.sh, cleanup.sh, smoke.sh, session-banner.sh, …
+│   ├── workflows/
+│   │   ├── deploy-staging.yml   # FTP deploy on push to staging
+│   │   └── deploy-production.yml # FTP deploy on push to main
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── CODEOWNERS
+│   ├── copilot-instructions.md
+│   └── dependabot.yml
+├── bin/
+│   ├── setup.sh                 # Client-project bootstrap (placeholder substitution + WP install)
+│   └── cleanup.sh               # Post-setup cleanup
 ├── wp-content/themes/theme-fse/ # The theme — the only application code in this repo
 │   ├── style.css                # WP header + base styles (text-domain, version, author, PHP req)
-│   ├── theme.json               # FSE config: palette, typography, spacing, layout (WP schema)
+│   ├── theme.json               # FSE config: palette, typography, spacing, layout (with $schema)
 │   ├── functions.php            # require-only: glob(inc/*.php), no business logic
 │   ├── inc/                     # PHP modules split by concern — auto-loaded by functions.php
 │   ├── templates/               # FSE templates (.html): index, home, single, page, archive, 404
 │   ├── parts/                   # FSE template parts: header, footer
 │   ├── styles/                  # FSE style variations (.json)
-│   ├── patterns/                # Block patterns (.php with header docblock)
-│   ├── languages/               # .pot / .po / .mo translation files
-│   ├── assets/                  # (Legacy / miscellaneous non-compiled assets if any)
 │   ├── _dev/                    # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
 │   └── dist/                    # Webpack output — committed so FTP deploy works
-├── composer.json / composer.lock
-├── CHANGELOG.md · README.md (French) · LICENSE
-└── phpcs.xml.dist · phpstan.neon.dist · phpunit.xml.dist
+├── composer.json                # PHP deps + scripts (lockfile gitignored — known limitation)
+├── auth.json.example            # Template for ACF Pro credentials
+├── CHANGELOG.md                 # Keep-a-Changelog
+├── README.md                    # User-facing project overview (English)
+├── LICENSE
+├── .editorconfig
+├── .nvmrc                       # Node 20
+├── .env.example
+└── .gitignore
 ```
 
 WordPress core files (`wp-admin/`, `wp-includes/`, `wp-config*.php`, `wp-*.php` at root) exist locally
@@ -44,8 +56,9 @@ to run the site but are gitignored. They are never edited by hand.
 The theme is a single flat FSE theme; there is no parent/child relationship. Its public surface is
 defined by four top-level files:
 
-- `style.css` — the WP Theme header block (Theme Name, Text Domain, Requires PHP, etc.).
-- `theme.json` — global FSE settings + the Gutenberg features enabled by the theme.
+- `style.css` — the WP Theme header block (Theme Name, Text Domain, Requires PHP, etc.). Current
+  text-domain header value: `fse-boilerplate`. Current `Requires PHP`: `8.0`.
+- `theme.json` — global FSE settings. Has `$schema: https://schemas.wp.org/trunk/theme.json`.
 - `functions.php` — intentionally trivial: `foreach ( glob( …/inc/*.php ) as $f ) require_once $f;`.
 - `index.php` — WP fallback; not used in FSE rendering.
 
@@ -70,30 +83,29 @@ Every file is auto-loaded by `functions.php`. Each one owns one concern:
 | `comments.php`            | Comments UI / template overrides                                          |
 | `hooks.php`               | Catch-all for small hooks that don't warrant their own file               |
 
-Every file begins with `if ( ! defined( 'ABSPATH' ) ) { exit; }` to prevent direct HTTP access.
-`phpcs` enforces this (`WordPress.Files.FileName` + repo rules).
+**Convention:** every file should begin with `if ( ! defined( 'ABSPATH' ) ) { exit; }` to prevent
+direct HTTP access. ⚠️ **Current state:** only `block-categories.php` and `hooks.php` (2 of 14) have
+the guard. The other 12 are tracked for fixing in [`IMPLEMENTATION.md`](IMPLEMENTATION.md) Batch 4.
 
 ### `_dev/` — the build pipeline
 
-```
+```text
 _dev/
-├── blocks/{name}/       # One folder per custom block
-│   ├── block.json       # WP block metadata (with $schema ref)
+├── blocks/{name}/       # One folder per custom block — currently only the template `block/`
+│   ├── block.json       # WP block metadata
 │   ├── block.php        # Server render template (ACF)
-│   ├── block.js         # Editor-side script (can be empty)
+│   ├── block.js         # Editor-side script (intentionally empty in the template)
 │   └── block.scss       # Scoped styles
 ├── js/                  # theme.js (frontend) + editor.js (backend)
 ├── scss/                # theme.scss (frontend) + editor.scss + partials
 ├── scripts/make-block.js # Interactive block scaffolder (npm run make-block)
 ├── webpack.common.js
 ├── webpack.dev.js       # npm run dev — with BrowserSync
-├── webpack.prod.js      # npm run build — minified + hashed
-├── package.json
-├── .eslintrc.json       # @wordpress/eslint-plugin
-├── .stylelintrc.json    # @wordpress/stylelint-config
-├── .prettierrc
-└── .prettierignore
+├── webpack.prod.js      # npm run build — minified
+└── package.json         # devDeps: webpack 5, babel, sass, postcss, browser-sync
 ```
+
+No JS/CSS linter or formatter is wired in yet (planned for `IMPLEMENTATION.md` Batch 3).
 
 Compiled output goes to `../dist/` (committed). Deploy workflows FTP-upload that directory as-is.
 
@@ -109,28 +121,27 @@ Use `npm run make-block` to scaffold a new block folder (prompts for slug, title
 ### `dist/` — compiled output
 
 Committed because the deploy workflows are FTP-based and do not run a build step on the remote.
-**Never edit `dist/` directly.** The `.claude/settings.json` `permissions.deny` list blocks writes
-there for agents, and CI fails if it detects a source/dist drift.
+**Never edit `dist/` directly.** The [`.claude/settings.json`](settings.json) `permissions.deny` list
+blocks writes there for agents.
 
 ## Environments
 
-| Env        | Purpose                          | Branch           | Deploy           |
-|------------|----------------------------------|------------------|------------------|
-| Local      | Dev on DDEV                      | `feature/*`      | —                |
-| Staging    | Client preview / QA              | `staging`        | `.github/workflows/deploy-staging.yml` (FTP) |
-| Production | Live                             | `main`           | `.github/workflows/deploy-production.yml` (FTP) |
+| Env        | Purpose                          | Branch     | Deploy                                       |
+|------------|----------------------------------|------------|----------------------------------------------|
+| Local      | Dev on DDEV                      | `feature/*`| —                                            |
+| Staging    | Client preview / QA              | `staging`  | `.github/workflows/deploy-staging.yml` (FTP) |
+| Production | Live                             | `main`     | `.github/workflows/deploy-production.yml` (FTP) |
 
 Integration branch: `development`. Flow: `feature/* → development → staging → main`.
 
-## CI/CD
+## CI/CD (current)
 
-- **`.github/workflows/ci.yml`** — PR lint+stan+build: matrix PHP 8.2 (composer lint, stan, test) +
-  Node 20 (npm lint + build).
-- **`.github/workflows/claude-review.yml`** — Anthropic Claude Code Action reviews PRs against
-  `.claude/CLAUDE.md` + `.claude/CONVENTIONS.md`.
-- **`.github/workflows/deploy-*.yml`** — FTP deploy on push to `staging` / `main`.
-- **`dependabot.yml`** — weekly npm (`_dev/`) + GitHub Actions updates.
-- **Branch protection on `main`** — seeded by `bin/setup-branch-protection.sh` (uses `gh` CLI).
+- `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
+- `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
+- `.github/CODEOWNERS` — single owner: `@valentin-grenier`.
+
+⚠️ **No PR lint/test CI yet.** Planned in `IMPLEMENTATION.md` Batch 9 (`ci.yml` + `claude-review.yml`
++ branch protection helper).
 
 ## Developer workflow
 
@@ -144,10 +155,7 @@ cd wp-content/themes/theme-fse/_dev
 npm install && npm run dev            # watch + BrowserSync at https://wp-boilerplate-fse.ddev.site
 # In another shell:
 composer install
-
-# Before pushing
-composer ci
-bin/smoke.sh
+composer lint                          # phpcs WordPress (plain) — no .phpcs.xml.dist yet
 ```
 
 ## Design constraints to preserve
@@ -155,5 +163,5 @@ bin/smoke.sh
 - **`functions.php` stays a one-liner.** Logic belongs in `inc/*.php`.
 - **Webpack is the build, not `wp-scripts`** — do not propose a migration without explicit approval.
 - **ACF Pro** is the block content layer (install via `auth.json`, see `auth.json.example`).
-- **Text-domain is a single string everywhere.** `bin/setup.sh` replaces it on client install; the
-  source default is `studioval-boilerplate`.
+- **Single text-domain.** Source default is `fse-boilerplate` (per `style.css` header); `bin/setup.sh`
+  substitutes it on client install.

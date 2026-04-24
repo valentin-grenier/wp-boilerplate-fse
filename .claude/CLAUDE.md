@@ -53,15 +53,22 @@ Le thème vit dans [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 │   │   ├── scripts/make-block.js  # Scaffolder d'un nouveau block
 │   │   └── webpack.{common,dev,prod}.js
 │   └── dist/                      # Output du build (committé — voir .gitignore)
-├── .ddev/                         # Config DDEV versionnée (incluse dans git)
+├── .claude/                          # Config Claude Code + docs d'équipe
+│   ├── CLAUDE.md                     # Ce fichier (français)
+│   ├── ARCHITECTURE.md               # Map du dépôt + responsabilités (anglais)
+│   ├── BLOCKS.md                     # Authoring blocks ACF (anglais)
+│   ├── CONVENTIONS.md                # Préfixes, sécurité, i18n, git (anglais)
+│   ├── IMPLEMENTATION.md             # Tracker de modernisation Claude-Code-ready (anglais)
+│   └── settings.json                 # Permissions allow/deny
+├── .ddev/                            # Config DDEV versionnée (incluse dans git)
 ├── bin/
-│   ├── setup.sh                   # Install complet : renomme le thème, substitue les placeholders, active
+│   ├── setup.sh                      # Install complet : renomme le thème, substitue les placeholders, active
 │   └── cleanup.sh
 ├── .github/
-│   ├── workflows/                 # deploy-staging.yml + deploy-production.yml (FTP)
-│   ├── copilot-instructions.md    # Équivalent de ce fichier pour GitHub Copilot
+│   ├── workflows/                    # deploy-staging.yml + deploy-production.yml (FTP)
+│   ├── copilot-instructions.md       # Équivalent de ce fichier pour GitHub Copilot
 │   └── CODEOWNERS
-└── composer.json / auth.json.example / README.md
+└── composer.json / auth.json.example / README.md / CHANGELOG.md / LICENSE / .editorconfig / .nvmrc / .env.example
 ```
 
 ## Commandes essentielles
@@ -89,11 +96,11 @@ npm run make-block                 # Scaffold un nouveau block (prompts interact
 ## Conventions de code
 
 - **Langue** : code et commentaires **en anglais**. `CLAUDE.md` (ce fichier) et [`README.md`](../README.md) restent **en français**. Les docs techniques co-localisées dans `.claude/` pour servir de contexte à Claude Code — [`ARCHITECTURE.md`](ARCHITECTURE.md), [`BLOCKS.md`](BLOCKS.md), [`CONVENTIONS.md`](CONVENTIONS.md), [`IMPLEMENTATION.md`](IMPLEMENTATION.md) — sont **en anglais** (et [`../CHANGELOG.md`](../CHANGELOG.md) reste à la racine par convention GitHub).
-- **Text-domain** : `studioval-boilerplate` — sera renommé par `bin/setup.sh` lors de l'install sur un projet client (token `boilerplate` substitué).
-- **Hook / function prefix** : `sv_boilerplate_` (ex : `sv_boilerplate_register_blocks`, `sv_boilerplate_enqueue_assets`) — idem substitué à l'install.
-- **Namespace PHP** : `StudioVal\Boilerplate\` (PSR-4, autoload configuré dans `composer.json` → `wp-content/themes/theme-fse/inc/`).
-- **Namespace block** : `studioval/{slug}` dans `block.json`.
-- **Sécurité WP** : chaque `inc/*.php` commence par `if (!defined('ABSPATH')) exit;`. Toute sortie doit être escapée (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), toute entrée sanitize (`sanitize_text_field`, `absint`, etc.), toutes les requêtes SQL via `$wpdb->prepare`, toute action/admin-post protégée par nonce.
+- **Text-domain** : `fse-boilerplate` (déclaré dans [`style.css`](wp-content/themes/theme-fse/style.css)) — `bin/setup.sh` le substitue à l'install sur un projet client. ⚠️ État actuel : 4 text-domains différents utilisés dans le code (`fse-boilerplate`, `studio-val`, `studio-theme`, `theme-name`) — à normaliser.
+- **Hook / function prefix** : `studio_` (ex : `studio_register_blocks`, `studio_enqueue_assets`) — substitué à l'install.
+- **Namespace PHP** : `StudioVal\WPBoilerplate\` (PSR-4, autoload configuré dans `composer.json` → `wp-content/themes/theme-fse/inc/`).
+- **Namespace block** : `studioval/{slug}` dans `block.json` (déjà appliqué pour le block template).
+- **Sécurité WP** : chaque `inc/*.php` **doit** commencer par `if (!defined('ABSPATH')) exit;`. ⚠️ État actuel : 12/14 fichiers sans ce guard — à corriger. Toute sortie doit être escapée (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), toute entrée sanitize (`sanitize_text_field`, `absint`, etc.), toutes les requêtes SQL via `$wpdb->prepare`, toute action/admin-post protégée par nonce.
 - **i18n** : systématique (`__()`, `esc_html__()`, `_e()`, `_x()`…).
 - **Blocks** : un dossier par block dans `_dev/blocks/{name}/`. Chaque `block.json` est auto-découvert par [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php) qui glob récursivement.
 - **Cache-busting assets** : `filemtime()` sur le fichier compilé — ne **pas** mettre de version figée.
