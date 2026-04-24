@@ -164,9 +164,8 @@ composer stan                          # phpstan analyse (level 5, WP bootstrap)
 composer ci                            # lint + stan + test
 ```
 
-`composer ci` will be red at HEAD — by design. The PHP tooling is installed in Batch 2 but the
-codebase has 12 missing `ABSPATH` guards and 4 mixed text-domains (fixed in Batch 4) plus the
-prefix/namespace migration (Batch 5).
+`composer ci` is green at HEAD (0 errors across phpcs + phpstan + phpunit). 18 phpcs warnings
+remain and are non-blocking.
 
 ## Design constraints to preserve
 

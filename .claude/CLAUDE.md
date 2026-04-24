@@ -160,9 +160,8 @@ yet — to be added later.
 - **No lint/test CI on PRs** — current GitHub Actions workflows only run FTP deploys.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
-- **Lint/stan: 5 phpcs errors + 7 phpstan errors remain**: Batches 2–5 delivered the tooling and
-  the mass migrations (ABSPATH guards, text-domain normalization, prefix + namespace rename). The
-  residual 12 errors are narrow manual fixes tracked in the triage batch: 3 unescaped `$icon_url`
-  in `dashboard.php`, 2 Yoda conditions (`block-settings.php`, `comments.php`), 7 phpstan logic
-  issues (filter/action callbacks with wrong return-type or `accepted_args`). `composer ci` will
-  go green after the triage batch lands.
+- **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
+  reports 0 errors. ~18 phpcs warnings remain (non-blocking) — `file_get_contents` /
+  `file_put_contents` / `wp_redirect` alternative-fn suggestions, unused-param notes on hook
+  callbacks with required WP signatures, and commented-out code in `dashboard.php`. Raise one
+  phpstan level at a time as new code is added.

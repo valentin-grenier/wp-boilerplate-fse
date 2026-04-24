@@ -32,8 +32,8 @@ add_action( 'admin_menu', 'sv_boilerplate_remove_comments_menu' );
 function sv_boilerplate_redirect_comments_page() {
 	global $pagenow;
 
-	if ( $pagenow === 'edit-comments.php' ) {
-		wp_redirect( admin_url() );
+	if ( 'edit-comments.php' === $pagenow ) {
+		wp_safe_redirect( admin_url() );
 		exit;
 	}
 }
@@ -52,21 +52,29 @@ add_filter( 'manage_posts_columns', 'sv_boilerplate_remove_comment_columns' );
 add_filter( 'manage_pages_columns', 'sv_boilerplate_remove_comment_columns' );
 
 /**
- * Force comments to be closed on front-end
+ * Force comments to be closed on front-end.
+ *
+ * @param bool $open Whether the current post type supports comments.
+ * @return bool Always false.
  */
-function sv_boilerplate_disable_comments_status() {
+function sv_boilerplate_disable_comments_status( $open ) {
+	unset( $open );
 	return false;
 }
-add_filter( 'comments_open', 'sv_boilerplate_disable_comments_status', 20, 2 );
-add_filter( 'pings_open', 'sv_boilerplate_disable_comments_status', 20, 2 );
+add_filter( 'comments_open', 'sv_boilerplate_disable_comments_status', 20 );
+add_filter( 'pings_open', 'sv_boilerplate_disable_comments_status', 20 );
 
 /**
  * Hide all existing comments.
+ *
+ * @param array $comments Incoming comments.
+ * @return array Empty array.
  */
 function sv_boilerplate_hide_existing_comments( $comments ) {
+	unset( $comments );
 	return array();
 }
-add_filter( 'comments_array', 'sv_boilerplate_hide_existing_comments', 10, 2 );
+add_filter( 'comments_array', 'sv_boilerplate_hide_existing_comments', 10 );
 
 /**
  * Unregister recent comments widget.

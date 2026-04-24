@@ -36,18 +36,20 @@ function sv_boilerplate_unregister_comment_blocks_script() {
 add_action( 'enqueue_block_editor_assets', 'sv_boilerplate_unregister_comment_blocks_script' );
 
 /**
- * Remove heading levels from the Block Editor
+ * Remove heading levels from the Block Editor.
  *
+ * @param array  $args       Block args being filtered.
+ * @param string $block_type Block type name.
  * @return array
  */
 function sv_boilerplate_remove_heading_levels( $args, $block_type ) {
-	if ( $block_type !== 'core/heading' ) {
+	if ( 'core/heading' !== $block_type ) {
 		return $args;
 	}
 
-	// Allow only levels 1, 2, and 3
+	// Allow only levels 1, 2, and 3.
 	$args['attributes']['levelOptions']['default'] = array( 1, 2, 3 );
 
 	return $args;
 }
-add_action( 'register_block_type_args', 'sv_boilerplate_remove_heading_levels', 10, 2 );
+add_filter( 'register_block_type_args', 'sv_boilerplate_remove_heading_levels', 10, 2 );

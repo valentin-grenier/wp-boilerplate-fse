@@ -145,10 +145,10 @@ non-`.dist` version first (`phpcs.xml`, `phpstan.neon`, `phpunit.xml`) and falls
 The `.dist` file is the committed team default; a developer can copy it without the suffix and
 tweak locally (the non-`.dist` versions are gitignored so local overrides never leak).
 
-⚠️ **Lint/stan red at HEAD.** Tooling is in place (Batch 2) but the codebase still violates the
-rules in known ways: 12 missing `ABSPATH` guards, 4 mixed text-domains, pre-migration prefixes.
-Batch 4 fixes the guards + normalizes text-domains; Batch 5 migrates prefixes/namespaces.
-`composer ci` becomes green after Batch 5.
+✅ **`composer ci` is green.** phpcs (WordPress-Extra) reports 0 errors; phpstan level 5 reports
+0 errors; phpunit is a no-op with no tests. ~18 phpcs warnings remain (non-blocking alternative-fn
+suggestions, commented-out code, unused-param notes on hook callbacks with required signatures).
+Raise phpstan one level at a time when adding substantial new code.
 
 ## Files that must never be edited
 

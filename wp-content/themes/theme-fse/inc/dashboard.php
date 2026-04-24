@@ -48,7 +48,7 @@ function sv_boilerplate_custom_admin_logo() {
         }
 
         #wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {
-            background-image: url(' . $icon_url . ') !important;
+            background-image: url(' . esc_url( $icon_url ) . ') !important;
             background-size: 67px 20px !important;
             background-repeat: no-repeat !important;
             background-position: center !important;
@@ -60,7 +60,7 @@ function sv_boilerplate_custom_admin_logo() {
         
         /* Additional fallback for different WordPress versions */
         #wpadminbar #wp-admin-bar-wp-logo .ab-icon {
-            background-image: url(' . $icon_url . ') !important;
+            background-image: url(' . esc_url( $icon_url ) . ') !important;
             background-size: 20px !important;
             background-repeat: no-repeat !important;
             background-position: center !important;
@@ -75,7 +75,7 @@ function sv_boilerplate_custom_admin_logo() {
         
         /* Admin dashboard logo (WordPress 5.4+) */
         .wp-admin .wp-admin-bar-wp-logo > .ab-item .ab-icon:before {
-            background-image: url(' . $icon_url . ') !important;
+            background-image: url(' . esc_url( $icon_url ) . ') !important;
             background-size: 20px 20px !important;
             background-repeat: no-repeat !important;
             background-position: center !important;
