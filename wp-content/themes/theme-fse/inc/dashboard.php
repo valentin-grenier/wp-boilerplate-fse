@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function studio_remove_dashboard_widgets() {
+function sv_boilerplate_remove_dashboard_widgets() {
 	// Core WordPress widgets
 	// remove_meta_box('dashboard_activity',       'dashboard', 'normal'); // Activity
 	remove_meta_box( 'dashboard_right_now', 'dashboard', 'normal' ); // At a Glance
@@ -26,14 +26,14 @@ function studio_remove_dashboard_widgets() {
 	remove_meta_box( 'woocommerce_dashboard_status', 'dashboard', 'normal' ); // WooCommerce
 	// remove_meta_box('dashboard_browser_nag',    'dashboard', 'normal'); // Browser outdated notice
 }
-add_action( 'wp_dashboard_setup', 'studio_remove_dashboard_widgets' );
+add_action( 'wp_dashboard_setup', 'sv_boilerplate_remove_dashboard_widgets' );
 
 /**
  * Customize the WordPress admin logo
  *
  * @return void
  */
-function studio_custom_admin_logo() {
+function sv_boilerplate_custom_admin_logo() {
 	$icon_url = get_stylesheet_directory_uri() . '/dist/assets/theme/admin-logo.svg';
 
 	echo '<style type="text/css">
@@ -91,16 +91,16 @@ function studio_custom_admin_logo() {
         }
     </style>';
 }
-add_action( 'admin_head', 'studio_custom_admin_logo' );
-add_action( 'login_head', 'studio_custom_admin_logo' );
-add_action( 'wp_head', 'studio_custom_admin_logo' );
+add_action( 'admin_head', 'sv_boilerplate_custom_admin_logo' );
+add_action( 'login_head', 'sv_boilerplate_custom_admin_logo' );
+add_action( 'wp_head', 'sv_boilerplate_custom_admin_logo' );
 
 /**
  * Customize WordPress logo submenu in admin bar
  *
  * @return void
  */
-function studio_custom_admin_bar_menu() {
+function sv_boilerplate_custom_admin_bar_menu() {
 	global $wp_admin_bar;
 
 	if ( ! is_admin_bar_showing() ) {
@@ -155,4 +155,4 @@ function studio_custom_admin_bar_menu() {
 		)
 	);
 }
-add_action( 'wp_before_admin_bar_render', 'studio_custom_admin_bar_menu' );
+add_action( 'wp_before_admin_bar_render', 'sv_boilerplate_custom_admin_bar_menu' );

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function studio_register_patterns_categories() {
+function sv_boilerplate_register_patterns_categories() {
 	$icon = file_exists( get_template_directory() . '/dist/img/icon-site.svg' )
 		? file_get_contents( get_template_directory() . '/dist/img/icon-site.svg' )
 		: 'star-filled';
@@ -22,14 +22,14 @@ function studio_register_patterns_categories() {
 		)
 	);
 }
-add_filter( 'init', 'studio_register_patterns_categories' );
+add_filter( 'init', 'sv_boilerplate_register_patterns_categories' );
 
 /**
  * Add custom category for blocks in the Block Editor
  *
  * @return void
  */
-function studio_register_blocks_categories( $categories, $post ) {
+function sv_boilerplate_register_blocks_categories( $categories, $post ) {
 	$icon = file_exists( get_template_directory() . '/dist/img/icon-site.svg' )
 		? file_get_contents( get_template_directory() . '/dist/img/icon-site.svg' )
 		: 'star-filled';
@@ -45,4 +45,4 @@ function studio_register_blocks_categories( $categories, $post ) {
 		$categories
 	);
 }
-add_filter( 'block_categories_all', 'studio_register_blocks_categories', 10, 2 );
+add_filter( 'block_categories_all', 'sv_boilerplate_register_blocks_categories', 10, 2 );

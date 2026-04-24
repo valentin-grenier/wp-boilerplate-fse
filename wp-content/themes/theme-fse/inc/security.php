@@ -28,34 +28,34 @@ if ( is_admin() && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
  * @param string $error The default login error message.
  * @return string
  */
-function studio_hide_login_errors( $error ) {
+function sv_boilerplate_hide_login_errors( $error ) {
 	return __( 'Login failed. Please try again.', 'studioval-boilerplate' );
 }
-add_filter( 'login_errors', 'studio_hide_login_errors' );
+add_filter( 'login_errors', 'sv_boilerplate_hide_login_errors' );
 
 /**
  * Disable directory browsing via .htaccess fallback.
  *
  * @return void
  */
-function studio_disable_directory_browsing() {
+function sv_boilerplate_disable_directory_browsing() {
 	$htaccess = ABSPATH . '.htaccess';
 
 	if ( is_writable( $htaccess ) && strpos( file_get_contents( $htaccess ), 'Options -Indexes' ) === false ) {
 		file_put_contents( $htaccess, "Options -Indexes\n", FILE_APPEND );
 	}
 }
-add_action( 'init', 'studio_disable_directory_browsing' );
+add_action( 'init', 'sv_boilerplate_disable_directory_browsing' );
 
 /**
  * Disable author archive scans
  *
  * @return void
  */
-function studio_disable_author_archive_scans() {
+function sv_boilerplate_disable_author_archive_scans() {
 	if ( is_author() && ! is_user_logged_in() ) {
 		wp_redirect( home_url() );
 		exit;
 	}
 }
-add_action( 'template_redirect', 'studio_disable_author_archive_scans' );
+add_action( 'template_redirect', 'sv_boilerplate_disable_author_archive_scans' );

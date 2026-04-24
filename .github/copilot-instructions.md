@@ -3,20 +3,21 @@
 ## Project Overview
 Modern WordPress FSE boilerplate with automated setup (`bin/setup.sh`), modular PHP architecture, Webpack build pipeline, and FTP deployment via GitHub Actions. Designed for custom client sites by Studio Val.
 
-**Tech Stack:** WordPress 6.0+, PHP 8.0+, Webpack 5, Sass, Local by Flywheel
+**Tech Stack:** WordPress 6.0+, PHP 8.2+, Webpack 5, Sass, DDEV
 
 ## Architecture & Key Patterns
 
 ### Modular PHP Structure
 - **`functions.php`** does ONE thing: auto-loads all files from `inc/` using `glob()`
 - Each `inc/*.php` file handles a single concern (theme setup, security, assets, blocks, etc.)
-- All functions prefixed with `studio_` to avoid conflicts
-- Security guard at top of every file: `if (!defined('ABSPATH')) exit;`
+- All custom functions prefixed with `sv_boilerplate_` to avoid conflicts (substituted on install)
+- PHP namespace: `StudioVal\Boilerplate\` (PSR-4 via composer autoload)
+- Security guard at top of every file: `if ( ! defined( 'ABSPATH' ) ) { exit; }`
 
 **Example from `inc/theme-assets.php`:**
 ```php
 // Cache-busted assets using filemtime()
-wp_enqueue_style('studio-theme-styles', 
+wp_enqueue_style('studioval-boilerplate-styles',
     get_template_directory_uri() . '/dist/css/theme.css',
     [], filemtime(get_template_directory() . '/dist/css/theme.css')
 );
@@ -103,7 +104,9 @@ feature/xxx → development → staging → main
 ## Code Style & Conventions
 
 ### PHP
-- **Naming:** `snake_case` functions, `studio_` prefix mandatory
+- **Naming:** `snake_case` functions, `sv_boilerplate_` prefix mandatory on custom functions/hooks (substituted on client install by `bin/setup.sh`)
+- **Namespace:** PSR-4 classes under `StudioVal\Boilerplate\` in `wp-content/themes/theme-fse/inc/`
+- **Text domain:** `studioval-boilerplate` everywhere (enforced by phpcs `WordPress.WP.I18n.TextDomainMismatch`)
 - **Security:** Escape ALL output (`esc_html()`, `esc_attr()`, `esc_url()`), sanitize ALL input
 - **PHPDoc:** Every function documented with `@param`, `@return`
 - **Performance:** Use `filemtime()` for cache busting, enable selective block CSS loading (`should_load_separate_core_block_assets`)
@@ -134,7 +137,7 @@ When adding new features:
 ### New PHP Module
 1. Create `inc/new-feature.php`
 2. Add security guard and PHPDoc
-3. Prefix functions with `studio_`
+3. Prefix functions with `sv_boilerplate_`
 4. Auto-loads via `functions.php` glob
 
 ### New ACF Block

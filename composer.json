@@ -75,7 +75,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"StudioVal\\WPBoilerplate\\": "wp-content/themes/theme-fse/inc/"
+			"StudioVal\\Boilerplate\\": "wp-content/themes/theme-fse/inc/"
 		}
 	},
 	"minimum-stability": "stable",

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function studio_remove_block_style_variations() {
+function sv_boilerplate_remove_block_style_variations() {
 	wp_enqueue_script(
 		'studio-script-unregister-style-variations',
 		get_template_directory_uri() . '/assets/js/editor/unregister-style-variations.js',
@@ -17,14 +17,14 @@ function studio_remove_block_style_variations() {
 		'1.0'
 	);
 }
-add_action( 'enqueue_block_editor_assets', 'studio_remove_block_style_variations' );
+add_action( 'enqueue_block_editor_assets', 'sv_boilerplate_remove_block_style_variations' );
 
 /**
  * Remove blocks from the Block Editor
  *
  * @return void
  */
-function studio_unregister_comment_blocks_script() {
+function sv_boilerplate_unregister_comment_blocks_script() {
 	wp_enqueue_script(
 		'studio-unregister-comment-blocks',
 		get_template_directory_uri() . '/assets/js/editor/unregister-blocks.js',
@@ -33,14 +33,14 @@ function studio_unregister_comment_blocks_script() {
 		true
 	);
 }
-add_action( 'enqueue_block_editor_assets', 'studio_unregister_comment_blocks_script' );
+add_action( 'enqueue_block_editor_assets', 'sv_boilerplate_unregister_comment_blocks_script' );
 
 /**
  * Remove heading levels from the Block Editor
  *
  * @return array
  */
-function studio_remove_heading_levels( $args, $block_type ) {
+function sv_boilerplate_remove_heading_levels( $args, $block_type ) {
 	if ( $block_type !== 'core/heading' ) {
 		return $args;
 	}
@@ -50,4 +50,4 @@ function studio_remove_heading_levels( $args, $block_type ) {
 
 	return $args;
 }
-add_action( 'register_block_type_args', 'studio_remove_heading_levels', 10, 2 );
+add_action( 'register_block_type_args', 'sv_boilerplate_remove_heading_levels', 10, 2 );

@@ -230,9 +230,11 @@ update_theme_info() {
     fi
 
     # Update make-block script
+    # Only substitutes the text-domain. The block namespace (studioval/) and the
+    # CSS class prefix (.wp-block-studioval-) are the agency's brand — they stay
+    # constant across client installs per the project convention.
     if [ -f "$make_block" ]; then
       sed -i "s/'studioval-boilerplate'/'$text_domain'/g" "$make_block"
-      sed -i "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
       echo "✅ make-block script updated successfully"
     else
       echo "⚠️  make-block.js not found - skipping"

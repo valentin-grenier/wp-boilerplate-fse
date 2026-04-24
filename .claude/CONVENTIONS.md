@@ -16,23 +16,24 @@ Enforced by phpcs via the `WordPress.WP.I18n.TextDomainMismatch` sniff in `phpcs
 
 ### PHP function / hook prefix
 
-**`studio_`** — every function declared in `inc/*.php` and every custom `add_action` / `add_filter`
-hook name uses this prefix. Examples in the codebase:
+**`sv_boilerplate_`** — every function declared in `inc/*.php` and every custom `add_action` /
+`add_filter` hook name uses this prefix. Examples in the codebase:
 
 ```php
-function studio_register_post_types() { … }
-add_action( 'init', 'studio_register_post_types' );
+function sv_boilerplate_register_post_types() { … }
+add_action( 'init', 'sv_boilerplate_register_post_types' );
 ```
 
 WordPress-core hook names (`init`, `wp_head`, `enqueue_block_editor_assets`, …) are used as-is;
-the prefix only applies to custom code. `bin/setup.sh` substitutes `studio_` → client-specific
-prefix on install.
+the prefix only applies to custom code. `bin/setup.sh` substitutes the `boilerplate` token with
+the client project slug on install.
 
 ### PHP namespace
 
-**`StudioVal\WPBoilerplate\`** — declared in [`composer.json`](../composer.json) `autoload.psr-4`,
+**`StudioVal\Boilerplate\`** — declared in [`composer.json`](../composer.json) `autoload.psr-4`,
 maps to `wp-content/themes/theme-fse/inc/`. Currently no PSR-4 classes exist; the namespace is
-reserved for when class-based code is introduced.
+reserved for when class-based code is introduced. `bin/setup.sh` substitutes the `Boilerplate`
+segment with the client name on install.
 
 ### Block namespace
 

@@ -9,14 +9,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array
  */
-function studio_allow_svg_uploads( $mimes ) {
+function sv_boilerplate_allow_svg_uploads( $mimes ) {
 	if ( current_user_can( 'manage_options' ) ) {
 		$mimes['svg'] = 'image/svg+xml';
 	}
 
 	return $mimes;
 }
-add_filter( 'upload_mimes', 'studio_allow_svg_uploads' );
+add_filter( 'upload_mimes', 'sv_boilerplate_allow_svg_uploads' );
 
 /**
  * Sanitize SVG files by stripping scripts/styles/entities.
@@ -24,7 +24,7 @@ add_filter( 'upload_mimes', 'studio_allow_svg_uploads' );
  * @param string $file Path to the uploaded file.
  * @return void
  */
-function studio_sanitize_svg_file( $file ) {
+function sv_boilerplate_sanitize_svg_file( $file ) {
 	if (
 		pathinfo( $file, PATHINFO_EXTENSION ) === 'svg' &&
 		current_user_can( 'manage_options' )
@@ -45,7 +45,7 @@ function studio_sanitize_svg_file( $file ) {
 add_action(
 	'wp_handle_upload',
 	function ( $upload ) {
-		studio_sanitize_svg_file( $upload['file'] );
+		sv_boilerplate_sanitize_svg_file( $upload['file'] );
 		return $upload;
 	}
 );
@@ -53,14 +53,14 @@ add_action(
 /**
  * Allow WebP images to be uploaded securely
  */
-function studio_allow_webp_uploads( $mimes ) {
+function sv_boilerplate_allow_webp_uploads( $mimes ) {
 	if ( current_user_can( 'manage_options' ) ) {
 		$mimes['webp'] = 'image/webp';
 	}
 
 	return $mimes;
 }
-add_filter( 'upload_mimes', 'studio_allow_webp_uploads' );
+add_filter( 'upload_mimes', 'sv_boilerplate_allow_webp_uploads' );
 
 /**
  * Fix incorrect filetype detection for WebP images on some servers.
@@ -71,11 +71,11 @@ add_filter( 'upload_mimes', 'studio_allow_webp_uploads' );
  * @param array  $mimes    Allowed mime types.
  * @return array
  */
-function studio_fix_webp_filetype( $data, $file, $filename, $mimes ) {
+function sv_boilerplate_fix_webp_filetype( $data, $file, $filename, $mimes ) {
 	if ( false !== strpos( $filename, '.webp' ) ) {
 		$data['ext']  = 'webp';
 		$data['type'] = 'image/webp';
 	}
 	return $data;
 }
-add_filter( 'wp_check_filetype_and_ext', 'studio_fix_webp_filetype', 10, 4 );
+add_filter( 'wp_check_filetype_and_ext', 'sv_boilerplate_fix_webp_filetype', 10, 4 );

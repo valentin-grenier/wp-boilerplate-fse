@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function studio_theme_setup() {
+function sv_boilerplate_theme_setup() {
 	// Theme supports.
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
@@ -39,17 +39,17 @@ function studio_theme_setup() {
 	remove_action( 'wp_head', 'wlwmanifest_link' );
 	remove_action( 'wp_head', 'rsd_link' );
 }
-add_action( 'after_setup_theme', 'studio_theme_setup' );
+add_action( 'after_setup_theme', 'sv_boilerplate_theme_setup' );
 
 /**
  * Add custom <meta> tags to the head.
  *
  * @return void
  */
-function studio_add_head_meta() {
+function sv_boilerplate_add_head_meta() {
 	// echo '<meta name="google-site-verification" content="12345" />';
 }
-add_action( 'wp_head', 'studio_add_head_meta' );
+add_action( 'wp_head', 'sv_boilerplate_add_head_meta' );
 
 /**
  * Sanitize filenames by removing accents.

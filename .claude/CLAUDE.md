@@ -107,9 +107,10 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
   [`style.css`](wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
   `boilerplate` token with the client project slug on install. Normalized consistently across the
   theme.
-- **Hook / function prefix**: `studio_` (e.g., `studio_register_blocks`, `studio_enqueue_assets`) —
-  substituted on install.
-- **PHP namespace**: `StudioVal\WPBoilerplate\` (PSR-4, autoload configured in `composer.json` →
+- **Hook / function prefix**: `sv_boilerplate_` (e.g., `sv_boilerplate_register_blocks`,
+  `sv_boilerplate_enqueue_assets`) — `bin/setup.sh` substitutes the `boilerplate` token with the
+  client project slug on install.
+- **PHP namespace**: `StudioVal\Boilerplate\` (PSR-4, autoload configured in `composer.json` →
   `wp-content/themes/theme-fse/inc/`).
 - **Block namespace**: `studioval/{slug}` in `block.json` (already applied to the block template).
 - **WP security**: every `inc/*.php` starts with `if ( ! defined( 'ABSPATH' ) ) { exit; }` — guard
@@ -150,16 +151,18 @@ yet — to be added later.
 
 ## Known pitfalls
 
-- **Theme not directly activatable**: the source theme uses default names (`studio_`,
-  `fse-boilerplate`, `StudioVal\WPBoilerplate`). `bin/setup.sh` substitutes client project names on
-  install. **Do not** activate `theme-fse` directly on a project without first running setup.
+- **Theme not directly activatable**: the source theme uses default names (`sv_boilerplate_`,
+  `studioval-boilerplate`, `StudioVal\Boilerplate\`). `bin/setup.sh` substitutes the `boilerplate`
+  token with the client project slug on install. **Do not** activate `theme-fse` directly on a
+  project without first running setup.
 - **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
   not guaranteed — known limitation, to be fixed later.
 - **No lint/test CI on PRs** — current GitHub Actions workflows only run FTP deploys.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
-- **Lint/stan expected red until Batches 4–5 land**: phpcs (WordPress-Extra via `phpcs.xml.dist`)
-  and phpstan level 5 (via `phpstan.neon.dist`) are wired in Batch 2, but the codebase still has
-  the 12 missing `ABSPATH` guards and the 4 mixed text-domains. Running `composer ci` today will
-  fail on those — by design. Batch 4 fixes the guards + normalizes text-domains; Batch 5 migrates
-  prefixes/namespaces.
+- **Lint/stan: 5 phpcs errors + 7 phpstan errors remain**: Batches 2–5 delivered the tooling and
+  the mass migrations (ABSPATH guards, text-domain normalization, prefix + namespace rename). The
+  residual 12 errors are narrow manual fixes tracked in the triage batch: 3 unescaped `$icon_url`
+  in `dashboard.php`, 2 Yoda conditions (`block-settings.php`, `comments.php`), 7 phpstan logic
+  issues (filter/action callbacks with wrong return-type or `accepted_args`). `composer ci` will
+  go green after the triage batch lands.

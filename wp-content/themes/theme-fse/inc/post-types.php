@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register Custom Post Types
  *
  */
-function studio_register_post_types() {
+function sv_boilerplate_register_post_types() {
 	// CPT "CPT"
 	$labels = array(
 		'name'              => _x( 'CPTs', 'Post Type General Name', 'studioval-boilerplate' ),
@@ -82,4 +82,4 @@ function studio_register_post_types() {
 
 	register_taxonomy( 'cpt_category', 'cpt', $args );
 }
-add_action( 'init', 'studio_register_post_types' );
+add_action( 'init', 'sv_boilerplate_register_post_types' );

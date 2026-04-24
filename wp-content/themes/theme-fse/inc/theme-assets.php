@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function studio_theme_assets() {
+function sv_boilerplate_theme_assets() {
 	// Styles
 	wp_enqueue_style(
 		'studio-theme-styles',
@@ -35,14 +35,14 @@ function studio_theme_assets() {
 	// Optional: disable block CSS for performance.
 	// wp_dequeue_style( 'wp-block-columns' );
 }
-add_action( 'wp_enqueue_scripts', 'studio_theme_assets' );
+add_action( 'wp_enqueue_scripts', 'sv_boilerplate_theme_assets' );
 
 /**
  * Autoload Composer vendor files if available.
  *
  * @return void
  */
-function studio_theme_autoload_vendor() {
+function sv_boilerplate_theme_autoload_vendor() {
 	if ( ! defined( 'ABSPATH' ) ) {
 		return;
 	}
@@ -53,7 +53,7 @@ function studio_theme_autoload_vendor() {
 		require_once $vendor_dir;
 	}
 }
-add_action( 'after_setup_theme', 'studio_theme_autoload_vendor' );
+add_action( 'after_setup_theme', 'sv_boilerplate_theme_autoload_vendor' );
 
 /**
  * Load only the necessary block CSS per page (since WP 6.1).
