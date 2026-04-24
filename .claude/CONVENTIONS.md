@@ -129,19 +129,44 @@ Enforced by [`settings.json`](settings.json) `permissions.deny`:
 
 ## Git
 
-- **Conventional Commits.** Type + optional scope + imperative subject.
+**Semantic Commits.**
 
-  ```text
-  feat(blocks): add hero block with ACF fields
-  fix(theme): escape alt text in gallery pattern
-  chore(deps): bump @wordpress/eslint-plugin
-  docs: update .claude/BLOCKS.md scaffolding section
-  ```
+**Pattern:**
 
-- Allowed types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `build`, `ci`, `perf`, `style`.
-- **Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push
-  directly to `main` or `staging`.
-- **One commit per modernization batch** when working through `IMPLEMENTATION.md`.
+```text
+<type>: <Scope> - <Subject>
+```
+
+- **`<type>`** — lowercase, required. One of the types listed below.
+- **`<Scope>`** — capitalized, optional. The block, template, component, or area affected
+  (e.g., `Single`, `Header`, `FAQ`, `README`, `Template`). Omit when the change is global.
+- **`<Subject>`** — capitalized, required. Past tense (preterit) verb + brief description.
+
+Examples:
+
+- `feat: Single - Added breadcrumb block`
+- `fix: Single - Resolved PHP notice in header block`
+- `docs: README - Updated setup instructions`
+- `style: FAQ - Edited toggle icon size`
+- `refactor: Template - Renamed block template file for clarity`
+
+Allowed types:
+
+- `feat` — new feature for the user (not a new feature for a build script).
+- `fix` — bug fix for the user (not a fix to a build script).
+- `docs` — changes to documentation.
+- `style` — formatting, missing semicolons, etc.; no production code change.
+- `refactor` — refactoring production code (e.g., renaming a variable).
+- `perf` — performance improvement; no functional change.
+- `test` — adding missing tests or refactoring tests; no production code change.
+- `build` — changes to the build system or external dependencies (Webpack, Composer, npm).
+- `ci` — changes to CI configuration (`.github/workflows/**`, `dependabot.yml`).
+- `chore` — updating tooling, dev tasks, or anything else that doesn't fit above; no production code change.
+
+**Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push directly
+to `main` or `staging`.
+
+**One commit per modernization batch** when working through `IMPLEMENTATION.md`.
 
 ⚠️ **Branch protection on `main` is not enforced** (no rule configured on the GitHub side, no
 `bin/setup-branch-protection.sh` helper yet — planned in `IMPLEMENTATION.md` Batch 9).

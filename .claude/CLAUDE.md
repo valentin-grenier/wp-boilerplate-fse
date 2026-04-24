@@ -104,7 +104,7 @@ npm run make-block                 # Scaffold un nouveau block (prompts interact
 - **i18n** : systématique (`__()`, `esc_html__()`, `_e()`, `_x()`…).
 - **Blocks** : un dossier par block dans `_dev/blocks/{name}/`. Chaque `block.json` est auto-découvert par [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php) qui glob récursivement.
 - **Cache-busting assets** : `filemtime()` sur le fichier compilé — ne **pas** mettre de version figée.
-- **Git** : Conventional Commits (`feat:`, `fix:`, `chore(deps):`…).
+- **Git** : Semantic Commits au format `type: Scope - Subject` (préterit) — ex. `feat: Single - Added breadcrumb block`. Types et règles détaillés dans [`CONVENTIONS.md`](CONVENTIONS.md#git).
 
 ## Fichiers / dossiers à ne jamais modifier
 
