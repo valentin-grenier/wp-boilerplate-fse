@@ -71,9 +71,20 @@ fi
 # 2. PHP gates
 run "composer lint"  composer lint
 run "composer stan"  composer stan
-run "composer test"  composer test
+if [ "$NO_DDEV" = true ]; then
+    skip "composer test (requires DDEV web container for PHP extensions)"
+else
+    run "composer test"  ddev exec composer test
+fi
 
 # 3. Frontend
+# Ensure Node >= 14 for the frontend toolchain. nvm may have an older version active
+# in interactive shells; fall back to the system node (typically /usr/bin/node) when needed.
+_node_major=$(node --version 2>/dev/null | sed 's/v\([0-9]*\).*/\1/')
+if [ -n "$_node_major" ] && [ "$_node_major" -lt 14 ] && [ -x /usr/bin/node ]; then
+    export PATH="/usr/bin:$PATH"
+fi
+
 if [ "$FAST" = true ]; then
     skip "npm run lint:js"
     skip "npm run lint:css"
@@ -81,10 +92,9 @@ if [ "$FAST" = true ]; then
 else
     (
         cd wp-content/themes/theme-fse/_dev || exit 1
-        # Skip gracefully if deps aren't installed yet
-        if [ ! -d node_modules ]; then
-            echo "node_modules missing — run npm install in _dev/"
-            exit 1
+        if [ ! -d node_modules ] || [ ! -f node_modules/.bin/eslint ] || [ ! -f node_modules/.bin/stylelint ]; then
+            echo "npm dependencies incomplete — running npm install..."
+            npm install --silent || exit 1
         fi
         npm run lint:js
     ) && pass "npm run lint:js" || fail "npm run lint:js"

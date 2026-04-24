@@ -1,6 +1,6 @@
 /**
  * Unregister default block style variations.
- * 
+ *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-styles/#unregistering-block-styles
  */
 wp.domReady(function () {
