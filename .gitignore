@@ -115,6 +115,17 @@ wp-config-ddev.php
 wp-content/updraft/
 
 # =========================
+# LOCAL TOOLING OVERRIDES
+# =========================
+# The .dist versions are the committed team defaults. Each tool checks for the
+# non-.dist file first and falls back to .dist, so devs can tweak locally
+# without leaking overrides into git.
+phpcs.xml
+phpstan.neon
+phpunit.xml
+.phpunit.result.cache
+
+# =========================
 # OTHERS
 # =========================
 roadmap.md

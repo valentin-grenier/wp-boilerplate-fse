@@ -1,12 +1,38 @@
+# phpstan (PHP Static Analyzer) — logic-bug finder.
+#
+# What it does:
+#   Reads PHP without running it and flags type errors, undefined functions,
+#   unreachable code, wrong argument counts, paths that should return a value but
+#   don't, etc. Where phpcs checks *style*, phpstan checks *correctness*.
+#
+# How to run:
+#   composer stan
+#
+# To override locally (not committed):
+#   cp phpstan.neon.dist phpstan.neon   # phpstan.neon is gitignored
+
 includes:
+    # szepeviktor/phpstan-wordpress teaches phpstan about WP's global API
+    # (get_field, add_action, wp_kses_post, $wpdb, hooks, etc.). Without it,
+    # nearly every WP call would be flagged as "unknown function".
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
 
 parameters:
+    # Levels 0 (loosest) to 9 (max strict). 5 is the sweet spot for WP code: strict
+    # enough to catch real bugs, loose enough to not drown you in WP's dynamic-typing
+    # noise. Raise one level at a time as the codebase gets cleaner.
     level: 5
+
+    # What to analyze.
     paths:
         - wp-content/themes/theme-fse/
+
+    # Skip these — compiled output and build-tool sources.
     excludePaths:
         - wp-content/themes/theme-fse/dist/*
         - wp-content/themes/theme-fse/_dev/*
+
+    # Explicit bootstrap (the extension ships one; naming it here makes intent clear
+    # and survives future extension updates).
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php

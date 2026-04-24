@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+	phpunit — PHP testing framework.
+
+	What it does:
+	  Runs the test classes in tests/ and reports pass/fail. Write test methods as
+	  public functions on classes that extend PHPUnit\Framework\TestCase; phpunit
+	  auto-discovers files matching the suffix below.
+
+	How to run:
+	  composer test
+
+	Today there are no test files, so phpunit reports "No tests executed" and exits 0
+	(because failOnEmptyTestSuite is false). When you add a first test file under
+	tests/, it'll be picked up automatically with no config change.
+
+	To override locally (not committed):
+	  cp phpunit.xml.dist phpunit.xml   # phpunit.xml is gitignored
+-->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
          colors="true"
@@ -6,11 +24,13 @@
          failOnWarning="true"
          failOnRisky="true"
          failOnEmptyTestSuite="false">
+    <!-- Test files. Name yours SomethingTest.php so the suffix picks them up. -->
     <testsuites>
         <testsuite name="default">
             <directory suffix="Test.php">tests/</directory>
         </testsuite>
     </testsuites>
+    <!-- Paths to measure coverage on (when running phpunit with --coverage-*). -->
     <coverage>
         <include>
             <directory suffix=".php">wp-content/themes/theme-fse/inc</directory>

@@ -1,26 +1,57 @@
 <?xml version="1.0"?>
+<!--
+	phpcs (PHP_CodeSniffer) — coding-standards linter.
+
+	What it does:
+	  Reads PHP files, compares them to the WordPress-Extra ruleset, and reports style
+	  violations (indentation, naming, missing docblocks) + known-unsafe patterns
+	  (unescaped echo, missing nonces, text-domain mismatches, direct SQL without
+	  $wpdb->prepare, etc.).
+
+	How to run:
+	  composer lint       # report violations
+	  composer lint:fix   # auto-fix the mechanical ones (phpcbf)
+
+	To override locally (not committed):
+	  cp phpcs.xml.dist phpcs.xml   # phpcs.xml is gitignored
+-->
 <ruleset name="WP FSE Boilerplate">
 	<description>Coding standards for the WP FSE boilerplate theme.</description>
 
-	<!-- Paths scanned -->
+	<!-- Which paths are linted. Relative to this file (repo root). -->
 	<file>wp-content/themes/theme-fse/</file>
 
-	<!-- Exclusions -->
+	<!-- Exclusions: compiled output, third-party code, and node dependencies. -->
 	<exclude-pattern>*/dist/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/_dev/node_modules/*</exclude-pattern>
 
-	<!-- CLI args -->
+	<!--
+		CLI args baked into the config:
+		  s = show sniff codes (so you can target/disable specific rules)
+		  p = show progress dots
+		  colors = ANSI colors in output
+		  extensions = only scan .php (default)
+		  parallel = scan up to 8 files concurrently
+	-->
 	<arg value="sp"/>
 	<arg name="colors"/>
 	<arg name="extensions" value="php"/>
 	<arg name="parallel" value="8"/>
 
-	<!-- Main ruleset -->
+	<!--
+		Main ruleset. WordPress-Extra = the broader of WP's official phpcs rulesets
+		(stricter than plain WordPress, looser than WordPress-VIP-Go). Enforces WP
+		coding style + i18n + security conventions.
+	-->
 	<rule ref="WordPress-Extra"/>
 
-	<!-- Text-domain (currently fse-boilerplate; will change to studioval-boilerplate in Batch 4) -->
+	<!--
+		Text-domain sniff. Every __() / _e() / _x() / block.json textdomain must match
+		one of the values below. Currently fse-boilerplate (the style.css header value).
+		Batch 4 normalizes the codebase to this; Batch 5 may later rename the token.
+	-->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
@@ -29,10 +60,16 @@
 		</properties>
 	</rule>
 
-	<!-- PHP compatibility target -->
+	<!--
+		PHPCompatibilityWP — flags language features the declared PHP floor can't
+		handle (e.g., enums on PHP < 8.1). testVersion "8.2-" means "PHP 8.2 and up".
+	-->
 	<config name="testVersion" value="8.2-"/>
 	<rule ref="PHPCompatibilityWP"/>
 
-	<!-- Minimum supported WordPress version -->
+	<!--
+		Minimum WordPress version. Drives some of WordPress-Extra's "is this function
+		available in the lowest-supported WP?" checks.
+	-->
 	<config name="minimum_supported_wp_version" value="6.0"/>
 </ruleset>

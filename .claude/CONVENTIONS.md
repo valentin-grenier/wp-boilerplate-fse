@@ -114,14 +114,36 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 - **PHP 8.2+** — `composer.json` requires `>=8.2` and pins `config.platform.php`; `style.css`
   declares `Requires PHP: 8.2`.
 - Short array syntax `[]` only. No `array()`.
-- **phpcs** — `WordPress-Extra` via [`phpcs.xml.dist`](../phpcs.xml.dist); run with `composer lint`
-  (auto-fix with `composer lint:fix`). Text-domain sniff configured; `PHPCompatibility-WP` wired
-  in the same ruleset targeting PHP 8.2.
-- **phpstan** — level 5 via [`phpstan.neon.dist`](../phpstan.neon.dist) with the
-  `szepeviktor/phpstan-wordpress` extension (bringing in WP core stubs). Run with `composer stan`.
-- **phpunit** — configured via [`phpunit.xml.dist`](../phpunit.xml.dist) pointing to `tests/`;
-  no test cases authored yet, so `composer test` is a no-op that exits 0.
-- **`composer ci`** runs `lint` + `stan` + `test` in one go.
+
+### Tooling — what each tool does
+
+| Tool      | Purpose                                                        | Config file                                       | Run with                                      |
+|-----------|----------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------|
+| `phpcs`   | Style + known-unsafe-pattern linter (WordPress-Extra ruleset). | [`phpcs.xml.dist`](../phpcs.xml.dist)             | `composer lint` (report) / `composer lint:fix` (auto-fix via `phpcbf`) |
+| `phpstan` | Static analyzer — finds logic bugs without running the code.   | [`phpstan.neon.dist`](../phpstan.neon.dist)       | `composer stan`                               |
+| `phpunit` | Test runner. Picks up `tests/**Test.php`.                      | [`phpunit.xml.dist`](../phpunit.xml.dist)         | `composer test`                               |
+
+**What "phpcs" catches:** indentation, docblocks, unescaped `echo`, missing nonces, text-domain
+mismatches, direct SQL without `$wpdb->prepare`, `array()` instead of `[]`, etc. WordPress-Extra is
+the broader of WP's two official rulesets — stricter than plain WordPress, looser than VIP.
+
+**What "phpstan" catches:** calls to undefined functions, wrong argument types, paths that should
+return a value but don't, unreachable code. Level 5 is the sweet spot for WP code. The
+`szepeviktor/phpstan-wordpress` extension teaches phpstan the WP API (`get_field`, `add_action`,
+`wp_kses_post`, `$wpdb`…) — without it, every WP call would be flagged as "unknown function".
+
+**What "phpunit" does:** runs test classes that extend `PHPUnit\Framework\TestCase`. No tests
+exist yet; the config is pre-wired so `composer test` exits 0 today and picks up new files
+dropped in `tests/` later.
+
+**`composer ci`** runs all three (`lint` → `stan` → `test`) as one gate for CI and local pre-push.
+
+### The `.dist` convention
+
+Each config file lives at the repo root as `<tool>.<ext>.dist`. Each tool looks for the
+non-`.dist` version first (`phpcs.xml`, `phpstan.neon`, `phpunit.xml`) and falls back to `.dist`.
+The `.dist` file is the committed team default; a developer can copy it without the suffix and
+tweak locally (the non-`.dist` versions are gitignored so local overrides never leak).
 
 ⚠️ **Lint/stan red at HEAD.** Tooling is in place (Batch 2) but the codebase still violates the
 rules in known ways: 12 missing `ABSPATH` guards, 4 mixed text-domains, pre-migration prefixes.
