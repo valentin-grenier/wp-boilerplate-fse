@@ -31,12 +31,15 @@ This is the literal content of `_dev/blocks/block/block.json` at HEAD:
 
 ```json
 {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
 	"name": "studioval/block",
 	"title": "Studio Val",
 	"description": "Default ACF block for starter theme.",
+	"textdomain": "studioval-boilerplate",
 	"style": ["file:../../../dist/blocks/block/block.css"],
 	"script": ["file:../../../dist/blocks/block/block.js"],
-	"category": "layout",
+	"category": "studioval",
 	"icon": "screenoptions",
 	"keywords": ["studio"],
 	"acf": {
@@ -57,19 +60,16 @@ This is the literal content of `_dev/blocks/block/block.json` at HEAD:
 
 **Conventions today:**
 
-- `name` — `studioval/{slug}`. Block namespace is `studioval`.
+- `$schema` — always `https://schemas.wp.org/trunk/block.json`. Powers editor autocomplete.
+- `apiVersion: 3` — opt in to WP 6.3+ behaviour (iframed editor, theme.json support per block).
+- `name` — `studioval/{slug}`. The block namespace is the agency brand and stays constant across
+  client installs.
+- `textdomain` — `studioval-boilerplate`. Required for `ddev wp i18n make-pot` to catch `title`,
+  `description`, and `keywords` strings.
 - `acf.renderTemplate` — `block.php` in the same folder.
 - `style` / `script` — point to the compiled output under `dist/blocks/{slug}/`.
-
-⚠️ **Missing fields** (planned in `IMPLEMENTATION.md` Batch 6):
-
-- `$schema: https://schemas.wp.org/trunk/block.json` — for editor autocomplete and CI validation.
-- `textdomain: studioval-boilerplate` — required for i18n string extraction. Without it, WP-CLI
-  `i18n make-pot` won't catch block strings.
-
-**Category:** `layout` is currently used (a WP core category). A custom `studioval` category exists
-in [`inc/block-categories.php`](../wp-content/themes/theme-fse/inc/block-categories.php) and is the
-intended target — switch new blocks to it.
+- `category` — `studioval`, the theme's own category registered by
+  [`inc/block-categories.php`](../wp-content/themes/theme-fse/inc/block-categories.php).
 
 ## `block.php` render template
 
