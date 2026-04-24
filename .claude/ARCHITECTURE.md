@@ -38,6 +38,10 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 │   ├── _dev/                    # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
 │   └── dist/                    # Webpack output — committed so FTP deploy works
 ├── composer.json                # PHP deps + scripts (lockfile gitignored — known limitation)
+├── phpcs.xml.dist               # phpcs ruleset (WordPress-Extra + PHPCompatibility WP 8.2)
+├── phpstan.neon.dist            # phpstan config (level 5 + szepeviktor/phpstan-wordpress)
+├── phpunit.xml.dist             # phpunit config (tests/ testsuite — empty for now)
+├── tests/                       # placeholder; phpunit runs green with no tests today
 ├── auth.json.example            # Template for ACF Pro credentials
 ├── CHANGELOG.md                 # Keep-a-Changelog
 ├── README.md                    # User-facing project overview
@@ -57,7 +61,7 @@ The theme is a single flat FSE theme; there is no parent/child relationship. Its
 defined by four top-level files:
 
 - `style.css` — the WP Theme header block (Theme Name, Text Domain, Requires PHP, etc.). Current
-  text-domain header value: `fse-boilerplate`. Current `Requires PHP`: `8.0`.
+  text-domain header value: `fse-boilerplate`. Current `Requires PHP`: `8.2`.
 - `theme.json` — global FSE settings. Has `$schema: https://schemas.wp.org/trunk/theme.json`.
 - `functions.php` — intentionally trivial: `foreach ( glob( …/inc/*.php ) as $f ) require_once $f;`.
 - `index.php` — WP fallback; not used in FSE rendering.
@@ -155,8 +159,14 @@ cd wp-content/themes/theme-fse/_dev
 npm install && npm run dev            # watch + BrowserSync at https://wp-boilerplate-fse.ddev.site
 # In another shell:
 composer install
-composer lint                          # phpcs WordPress (plain) — no .phpcs.xml.dist yet
+composer lint                          # phpcs (reads phpcs.xml.dist — WordPress-Extra)
+composer stan                          # phpstan analyse (level 5, WP bootstrap)
+composer ci                            # lint + stan + test
 ```
+
+`composer ci` will be red at HEAD — by design. The PHP tooling is installed in Batch 2 but the
+codebase has 12 missing `ABSPATH` guards and 4 mixed text-domains (fixed in Batch 4) plus the
+prefix/namespace migration (Batch 5).
 
 ## Design constraints to preserve
 

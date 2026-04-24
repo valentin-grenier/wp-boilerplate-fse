@@ -13,12 +13,13 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 
 ## Stack
 
-- **WordPress** 6.0+, **PHP** 8.0+ (target 8.2 in the short term).
+- **WordPress** 6.0+, **PHP** 8.2+.
 - **Webpack 5** custom + **Sass** — **not** `wp-scripts`. Migration possibly planned later:
   **do not propose a refactor to wp-scripts without explicit approval.**
 - **DDEV** (config versioned in `.ddev/`).
 - **ACF Pro** for custom blocks (credentials via `auth.json`, gitignored).
-- **Composer**: WPCS + PHPCompatibility.
+- **Composer**: WPCS (WordPress-Extra ruleset via `phpcs.xml.dist`) + `phpstan` level 5 with
+  `szepeviktor/phpstan-wordpress` (via `phpstan.neon.dist`) + PHPCompatibility (WP 8.2 target).
 
 ## Key tree layout
 
@@ -84,10 +85,12 @@ ddev ssh                           # Shell into the web container
 ddev wp <cmd>                      # WP-CLI inside the container (e.g., ddev wp plugin list)
 
 # Backend PHP
-composer install                   # Installs WPCS + PHPUnit + dealerdirect installer
-composer lint                      # phpcs --standard=WordPress wp-content/themes/
+composer install                   # Installs WPCS + phpstan + phpunit + dealerdirect installer
+composer lint                      # phpcs (reads phpcs.xml.dist — WordPress-Extra)
 composer lint:fix                  # phpcbf
+composer stan                      # phpstan analyse (level 5, WP bootstrap)
 composer test                      # phpunit
+composer ci                        # lint + stan + test
 
 # Frontend (from _dev/)
 cd wp-content/themes/theme-fse/_dev
@@ -156,7 +159,8 @@ yet — to be added later.
 - **No lint/test CI on PRs** — current GitHub Actions workflows only run FTP deploys.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
-- **phpcs rule**: currently `WordPress` (not `WordPress-Extra`). Missing-docblock warnings are not
-  blocking.
-- **PHP minimum**: `composer.json` requires `>=8.0`, `style.css` declares `8.0`. A bump to 8.2 is
-  planned but not yet done — do not assume PHP 8.1+ features in code.
+- **Lint/stan expected red until Batches 4–5 land**: phpcs (WordPress-Extra via `phpcs.xml.dist`)
+  and phpstan level 5 (via `phpstan.neon.dist`) are wired in Batch 2, but the codebase still has
+  the 12 missing `ABSPATH` guards and the 4 mixed text-domains. Running `composer ci` today will
+  fail on those — by design. Batch 4 fixes the guards + normalizes text-domains; Batch 5 migrates
+  prefixes/namespaces.

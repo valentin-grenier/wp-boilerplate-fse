@@ -111,13 +111,22 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 
 ## PHP
 
-- **PHP 8.0+** — `composer.json` requires `>=8.0`, `style.css` declares `Requires PHP: 8.0`.
-  A bump to 8.2 is planned in `IMPLEMENTATION.md` Batch 2.
+- **PHP 8.2+** — `composer.json` requires `>=8.2` and pins `config.platform.php`; `style.css`
+  declares `Requires PHP: 8.2`.
 - Short array syntax `[]` only. No `array()`.
-- **phpcs:** plain `WordPress` ruleset via `composer lint` → `phpcs --standard=WordPress
-  wp-content/themes/`. No `phpcs.xml.dist` yet (planned in `IMPLEMENTATION.md` Batch 2 — will move
-  to `WordPress-Extra` and add `phpstan` level 5 with `szepeviktor/phpstan-wordpress`).
-- **PHPCompatibility-WP** is in `require-dev` but not wired into a script.
+- **phpcs** — `WordPress-Extra` via [`phpcs.xml.dist`](../phpcs.xml.dist); run with `composer lint`
+  (auto-fix with `composer lint:fix`). Text-domain sniff configured; `PHPCompatibility-WP` wired
+  in the same ruleset targeting PHP 8.2.
+- **phpstan** — level 5 via [`phpstan.neon.dist`](../phpstan.neon.dist) with the
+  `szepeviktor/phpstan-wordpress` extension (bringing in WP core stubs). Run with `composer stan`.
+- **phpunit** — configured via [`phpunit.xml.dist`](../phpunit.xml.dist) pointing to `tests/`;
+  no test cases authored yet, so `composer test` is a no-op that exits 0.
+- **`composer ci`** runs `lint` + `stan` + `test` in one go.
+
+⚠️ **Lint/stan red at HEAD.** Tooling is in place (Batch 2) but the codebase still violates the
+rules in known ways: 12 missing `ABSPATH` guards, 4 mixed text-domains, pre-migration prefixes.
+Batch 4 fixes the guards + normalizes text-domains; Batch 5 migrates prefixes/namespaces.
+`composer ci` becomes green after Batch 5.
 
 ## Files that must never be edited
 
