@@ -13,7 +13,13 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 │   ├── BLOCKS.md                # ACF block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
 │   ├── IMPLEMENTATION.md        # Modernization tracker (temporary)
-│   └── settings.json            # Permissions allow/deny (no hooks yet)
+│   ├── settings.json            # Permissions allow/deny + 4 hooks
+│   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
+│   ├── rules/                   # security.md, i18n.md, blocks.md — auto-context for Claude
+│   ├── agents/                  # wp-reviewer.md — review subagent
+│   ├── commands/                # /smoke — slash command
+│   ├── skills/sync-docs/        # Auto-trigger skill: audits team-docs drift
+│   └── lessons.md               # Rolling log appended by the PreCompact hook
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 │   ├── workflows/
@@ -42,6 +48,7 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ├── phpstan.neon.dist            # phpstan config (level 5 + szepeviktor/phpstan-wordpress)
 ├── phpunit.xml.dist             # phpunit config (tests/ testsuite — empty for now)
 ├── tests/                       # placeholder; phpunit runs green with no tests today
+├── .mcp.json                    # MCP server template (Notion commented out)
 ├── auth.json.example            # Template for ACF Pro credentials
 ├── CHANGELOG.md                 # Keep-a-Changelog
 ├── README.md                    # User-facing project overview

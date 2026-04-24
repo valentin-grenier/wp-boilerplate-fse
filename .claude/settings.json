@@ -41,7 +41,9 @@
       "Bash(node -v)",
       "Bash(npm --version)",
       "Bash(composer --version)",
-      "Bash(ddev --version)"
+      "Bash(ddev --version)",
+      "Bash(.claude/hooks/:*)",
+      "Bash(bin/smoke.sh)"
     ],
     "deny": [
       "Edit(wp-config.php)",
@@ -65,6 +67,49 @@
       "Bash(git reset --hard:*)",
       "Bash(git clean -f:*)",
       "Bash(git branch -D:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-banner.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-edited.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/append-lesson.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
     ]
   }
 }
