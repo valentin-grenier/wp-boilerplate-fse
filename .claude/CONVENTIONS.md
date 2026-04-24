@@ -97,17 +97,26 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 - **Variables via `theme.json` CSS custom properties** where possible
   (`var(--wp--preset--color--primary)`).
 - Fallback to SCSS variables in `_dev/scss/abstracts/` only for build-time values.
-
-⚠️ **No Stylelint configured yet** (planned in `IMPLEMENTATION.md` Batch 3 — will use
-`@wordpress/stylelint-config`).
+- **Stylelint** — `@wordpress/stylelint-config/scss` via
+  [`_dev/.stylelintrc.json`](../wp-content/themes/theme-fse/_dev/.stylelintrc.json); run from
+  `_dev/` with `npm run lint:css` (auto-fix: `npm run lint:css:fix`). Scans `scss/**/*.scss` and
+  `blocks/**/*.scss`.
 
 ## JavaScript
 
 - ES2022, modules, no jQuery in new code (WP core still ships it; opt out of it per enqueue).
 - Editor-side scripts live in `_dev/blocks/{slug}/block.js`; frontend scripts in `_dev/js/`.
+- **ESLint** — `@wordpress/eslint-plugin/recommended` via
+  [`_dev/.eslintrc.json`](../wp-content/themes/theme-fse/_dev/.eslintrc.json); run from `_dev/`
+  with `npm run lint:js` (auto-fix: `npm run lint:js:fix`). Scans `js/`, `blocks/`, `scripts/`.
 
-⚠️ **No ESLint configured yet** (planned in `IMPLEMENTATION.md` Batch 3 — will use
-`@wordpress/eslint-plugin`).
+## Formatting
+
+- **Prettier** — [`_dev/.prettierrc`](../wp-content/themes/theme-fse/_dev/.prettierrc) (tabs,
+  print-width 100, single quotes, trailing ES5 commas, LF line endings). Run `npm run format`
+  from `_dev/` to apply to `**/*.{js,json,md,scss}`. Ignored paths in
+  [`_dev/.prettierignore`](../wp-content/themes/theme-fse/_dev/.prettierignore).
+- **`npm run lint`** (from `_dev/`) runs `lint:js` + `lint:css` together.
 
 ## PHP
 

@@ -87,9 +87,8 @@ Every file is auto-loaded by `functions.php`. Each one owns one concern:
 | `comments.php`            | Comments UI / template overrides                                          |
 | `hooks.php`               | Catch-all for small hooks that don't warrant their own file               |
 
-**Convention:** every file should begin with `if ( ! defined( 'ABSPATH' ) ) { exit; }` to prevent
-direct HTTP access. ⚠️ **Current state:** only `block-categories.php` and `hooks.php` (2 of 14) have
-the guard. The other 12 are tracked for fixing in [`IMPLEMENTATION.md`](IMPLEMENTATION.md) Batch 4.
+**Convention:** every file begins with `if ( ! defined( 'ABSPATH' ) ) { exit; }` to prevent direct
+HTTP access. Applied across all 14 files.
 
 ### `_dev/` — the build pipeline
 
@@ -106,10 +105,12 @@ _dev/
 ├── webpack.common.js
 ├── webpack.dev.js       # npm run dev — with BrowserSync
 ├── webpack.prod.js      # npm run build — minified
-└── package.json         # devDeps: webpack 5, babel, sass, postcss, browser-sync
+├── package.json         # devDeps + scripts (dev, build, make-block, lint, format)
+├── .eslintrc.json       # @wordpress/eslint-plugin — lint:js
+├── .stylelintrc.json    # @wordpress/stylelint-config/scss — lint:css
+├── .prettierrc          # Shared formatter config (tabs, print-width 100)
+└── .prettierignore
 ```
-
-No JS/CSS linter or formatter is wired in yet (planned for `IMPLEMENTATION.md` Batch 3).
 
 Compiled output goes to `../dist/` (committed). Deploy workflows FTP-upload that directory as-is.
 
