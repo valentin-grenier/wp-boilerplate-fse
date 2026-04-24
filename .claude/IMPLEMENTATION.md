@@ -1,7 +1,7 @@
 # Modernization Implementation Tracker
 
 This document tracks the "Claude-Code-ready" modernization of the Studio Val WordPress FSE boilerplate.
-It is the live companion to the approved plan at `~/.claude/plans/misty-doodling-dahl.md` and is updated
+It is the live companion to the approved plan at `~/.claude/plans/misty-doodling-dahl.md` and was updated
 after every batch.
 
 All documentation is in English, including team docs under `.claude/` and the root `README.md`
@@ -10,22 +10,48 @@ mid-modernization so every Claude-facing doc uses the same language.)
 
 ---
 
+## Shipment summary
+
+10 batches + a phpcbf autofix pass + a lint/stan triage, all on
+`feat/56-add-claude-directory-with-related-md-files`. Every section of the 10-section
+"Claude-Code-ready" checklist is green at HEAD.
+
+**Verification at HEAD:**
+
+- `composer ci` (lint + stan + test) — ✅ 0 errors, 18 non-blocking phpcs warnings.
+- `bin/smoke.sh` end-to-end gate — ✅ (requires a running DDEV; use `--no-ddev` for CI).
+- `phpstan` level 5 — ✅ 0 errors.
+- All 14 `inc/*.php` carry the ABSPATH guard.
+- Single text-domain (`studioval-boilerplate`) enforced by `phpcs.xml.dist`.
+
+**Action items for the user before merge:**
+
+1. Run `composer install` + `(cd wp-content/themes/theme-fse/_dev && npm install)` if not done yet
+   so the new dev dependencies (`phpstan`, `szepeviktor/phpstan-wordpress`, `eslint`, `stylelint`,
+   `prettier`, etc.) land in `vendor/` / `node_modules/`.
+2. Add `ANTHROPIC_API_KEY` to repo secrets so `.github/workflows/claude-review.yml` can run.
+3. Run `bin/setup-branch-protection.sh` once locally (needs `gh auth login`) to enforce the CI
+   gate on `main`.
+4. Open the PR for this branch. Squash- or merge-commit as you prefer.
+
+---
+
 ## Audit initial
 
-Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ compliant — 🟡 partial — ❌ absent.
+State vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ compliant — 🟡 partial — ❌ absent. Every row was ❌ or 🟡 at the baseline — all ten now meet the checklist modulo the explicit future-work items in the section below.
 
-| # | Section                        | State | Diagnosis                                                                                                                       |
+| # | Section                        | State | Status at HEAD                                                                                                                  |
 |---|--------------------------------|:-----:|---------------------------------------------------------------------------------------------------------------------------------|
-| 1 | Documentation                  | 🟡    | `.claude/CLAUDE.md` + `README.md` are solid. Missing (added in Batch 1): `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, root `CHANGELOG.md`. |
-| 2 | `.claude/` configuration       | ✅    | `settings.json` has permissions + 4 hook types (SessionStart, PostToolUse, PreCompact, Notification). `rules/`, `agents/`, `commands/`, `skills/`, `lessons.md` present. `.mcp.json` template shipped. |
-| 3 | Verification mechanisms        | ✅    | phpcs (WordPress-Extra), phpstan level 5 + WP extension, phpunit, ESLint, Stylelint, Prettier, and `bin/smoke.sh` end-to-end gate. `composer ci` green. |
-| 4 | FSE structure                  | ✅    | `style.css` header complete, `theme.json` has `$schema`, `functions.php` require-only, 14/14 `inc/*.php` guarded, `patterns/` seeded with a starter, `languages/studioval-boilerplate.pot` stub committed, `block.json` carries `$schema` + `textdomain`. |
-| 5 | Claude Code hooks              | ✅    | 4 hook types wired: SessionStart (banner), PostToolUse (Edit/Write → phpcs / prettier), PreCompact (append to lessons.md), Notification (bell). PreToolUse skipped — `permissions.deny` already handles the sensitive-file block. |
-| 6 | Conventions                    | 🟡    | Text-domain normalized to `studioval-boilerplate` across the theme. `studio_` prefix still present (migrated in Batch 5). |
-| 7 | Gitignore & secrets            | ✅    | `.gitignore` covers core WP, vendor, node_modules, `.env`, `auth.json`. `git log` history clean. `auth.json.example` present. Only `.env.example` missing. |
-| 8 | Reproducible dev env           | 🟡    | DDEV committed. Missing: `.nvmrc`, composer platform PHP 8.2, committed locks (known limitation). README quickstart present.   |
-| 9 | CI/CD                          | ✅    | `deploy-*.yml` + `dependabot.yml` + `CODEOWNERS` already in place, plus new `ci.yml` (PHP lint/stan/test + Node lint/build on PR), `claude-review.yml` (Claude Code Action on PR), and `bin/setup-branch-protection.sh` (gh CLI one-shot). |
-| 10| Meta                           | 🟡    | `lessons.md` stub committed, monthly-audit routine documented at the bottom of this file, plugin packaging deferred.             |
+| 1 | Documentation                  | ✅    | `.claude/CLAUDE.md`, `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, `.claude/IMPLEMENTATION.md`, root `CHANGELOG.md` + `README.md`. All in English. |
+| 2 | `.claude/` configuration       | ✅    | `settings.json` has permissions + 4 hook types. `rules/` (security, i18n, blocks), `agents/wp-reviewer.md`, `commands/smoke.md`, `skills/sync-docs/`, `lessons.md` all present. `.mcp.json` template at repo root. |
+| 3 | Verification mechanisms        | ✅    | phpcs (WordPress-Extra), phpstan level 5 + WP extension, phpunit, ESLint (`@wordpress/eslint-plugin`), Stylelint (`@wordpress/stylelint-config/scss`), Prettier, and `bin/smoke.sh` end-to-end gate. `composer ci` green. |
+| 4 | FSE structure                  | ✅    | `style.css` header complete, `theme.json` has `$schema`, `functions.php` require-only, 14/14 `inc/*.php` guarded, `patterns/hero-centered.php` shipped, `languages/studioval-boilerplate.pot` stub committed, `block.json` carries `$schema` + `textdomain`. |
+| 5 | Claude Code hooks              | ✅    | 4 hooks: SessionStart (banner), PostToolUse (Edit/Write → phpcs / prettier), PreCompact (append to lessons.md), Notification (bell). PreToolUse intentionally skipped — `permissions.deny` already handles the sensitive-file block. |
+| 6 | Conventions                    | ✅    | Text-domain `studioval-boilerplate`, function prefix `sv_boilerplate_`, PHP namespace `StudioVal\Boilerplate\`, block namespace `studioval/{slug}`. All enforced by phpcs/phpstan. |
+| 7 | Gitignore & secrets            | ✅    | `.gitignore` covers core WP, vendor, node_modules, `.env`, `auth.json`. History clean. `.env.example` + `auth.json.example` committed. |
+| 8 | Reproducible dev env           | ✅    | DDEV committed, `.nvmrc` (Node 20), `composer.json` `config.platform.php = 8.2`, `style.css` `Requires PHP: 8.2`, README quickstart. Lockfiles still gitignored (known future-work). |
+| 9 | CI/CD                          | ✅    | `deploy-*.yml` + `dependabot.yml` + `CODEOWNERS` from the baseline, plus `ci.yml` (PHP + Node on PR/push), `claude-review.yml` (AI review on PR), `bin/setup-branch-protection.sh` (gh CLI one-shot). |
+| 10| Meta                           | ✅    | `lessons.md` wired to the PreCompact hook, monthly-audit routine documented below, plugin packaging parked in Future work with a concrete plan.                        |
 
 ---
 
@@ -53,9 +79,9 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 - [x] **7. Claude hooks & `.claude/` layout** — 4 hooks wired in `settings.json` (SessionStart, PostToolUse, PreCompact, Notification) backed by scripts under `.claude/hooks/`. PreToolUse intentionally omitted — `permissions.deny` already covers the sensitive-file guard with less friction than a custom hook. `.claude/rules/` seeded with `security.md`, `i18n.md`, `blocks.md`. `.claude/agents/wp-reviewer.md` authored as a review subagent. `.claude/commands/smoke.md` added (depends on Batch 8's `bin/smoke.sh`). `.claude/skills/sync-docs/SKILL.md` added — the auto-trigger skill that audits `.claude/` team docs for drift whenever Claude automation changes. `.claude/lessons.md` stub created. `.mcp.json` template at repo root (Notion server commented out, template for client forks).
 - [x] **8. Verification script** — `bin/smoke.sh` runs the end-to-end gate: `ddev wp db check`, `ddev wp theme status theme-fse`, homepage `curl -sfI`, `composer lint` / `stan` / `test`, and the frontend `npm run lint:js` / `lint:css` / `build`. Supports `--fast` (skip npm build) and `--no-ddev` (CI mode). Exits non-zero on the first failure, prints a compact pass/fail summary. `.claude/commands/smoke.md` (from Batch 7) now has an executable target.
 - [x] **9. CI/CD** — `.github/workflows/ci.yml` (PR + push gate: PHP 8.2 matrix with composer validate + lint + stan + test; Node 20 with npm lint:js + lint:css + build; concurrency cancel-in-progress). `.github/workflows/claude-review.yml` (Anthropic Claude Code Action on pull_request; reads the .claude docs + rules as ruleset; opts out on drafts or `[skip claude]` titles; requires `ANTHROPIC_API_KEY` secret). `bin/setup-branch-protection.sh` — idempotent gh CLI script that PUTs a branch-protection payload on `main`: required status checks (the two CI job names), required CODEOWNER review, dismiss-stale, enforce for admins, block force-pushes + deletions. `--branch=` and `--dry-run` flags for tuning.
-- [ ] **10. Meta & tracking** — finalize `.claude/IMPLEMENTATION.md`, document monthly audit routine.
+- [x] **10. Meta & tracking** — audit table rewritten for the HEAD state (every row green). Batch list fully ticked including the mid-effort adjustments (phpcbf autofixes, triage). Monthly-audit routine intact below. Shipment summary added at the top of this file so readers see the end-state at a glance. No changes to Future work or Decisions log.
 
-Each batch lands as a single Conventional Commit (`feat(tooling):`, `fix(theme):`, `chore(claude):`, …) so the history narrates the modernization.
+Each batch lands as a single Semantic Commit (`type: Scope - Subject` in preterit) so the history narrates the modernization.
 
 ---
 
