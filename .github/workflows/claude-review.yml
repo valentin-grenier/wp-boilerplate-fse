@@ -1,0 +1,56 @@
+name: Claude Code Review
+
+# Automatic PR review by Claude, using the project's CLAUDE.md and
+# CONVENTIONS.md as ruleset. Requires ANTHROPIC_API_KEY in repo secrets.
+#
+# Scope: read-only review that comments on the PR. No commits, no pushes.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    name: Claude review
+    runs-on: ubuntu-latest
+    # Skip on drafts and on PRs that opt out with [skip claude] in the title.
+    if: >-
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.title, '[skip claude]')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code Action
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            Review this pull request against the WP FSE Boilerplate conventions.
+
+            Read .claude/CLAUDE.md (project overview), .claude/CONVENTIONS.md
+            (naming, security, i18n, git), and .claude/rules/ (the detailed
+            rule files) before reviewing.
+
+            Blocking items (call out clearly):
+              - Security: escape all output, sanitize input, nonce state changes,
+                $wpdb->prepare every query, ABSPATH guard on every inc/*.php.
+              - Text-domain: every translation call uses 'studioval-boilerplate' exactly.
+              - Prefix: custom functions and custom hooks use sv_boilerplate_.
+              - Namespace: PHP classes under StudioVal\Boilerplate\.
+              - phpcs WordPress-Extra and phpstan level 5 must be green.
+
+            Non-blocking (suggest inline):
+              - BEM in SCSS, no @import.
+              - Short array syntax [].
+              - Commented-out code smells, unused parameters with WP-required signatures.
+
+            Keep the review compact (under ~400 words). Link to rule files by
+            path instead of quoting them. Do not commit; comments only.
