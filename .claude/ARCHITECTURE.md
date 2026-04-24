@@ -7,7 +7,14 @@ understand where things live and what is safe to touch.
 
 ```
 .
-├── .claude/                     # Claude Code config: CLAUDE.md, settings.json, rules/, agents/, …
+├── .claude/                     # Claude Code config + team docs (Claude-only workflow)
+│   ├── CLAUDE.md                # Session-start context (French)
+│   ├── ARCHITECTURE.md          # This file
+│   ├── BLOCKS.md                # Block authoring guide
+│   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
+│   ├── IMPLEMENTATION.md        # Modernization tracker (temporary — can be archived post-ship)
+│   ├── settings.json            # Permissions + hooks
+│   └── rules/ · agents/ · commands/ · skills/ · lessons.md
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 ├── bin/                         # Shell scripts: setup.sh, cleanup.sh, smoke.sh, session-banner.sh, …
@@ -25,9 +32,7 @@ understand where things live and what is safe to touch.
 │   ├── _dev/                    # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
 │   └── dist/                    # Webpack output — committed so FTP deploy works
 ├── composer.json / composer.lock
-├── IMPLEMENTATION.md            # Modernization tracker (temporary; can be archived post-ship)
-├── AGENTS.md · ARCHITECTURE.md · BLOCKS.md · CONVENTIONS.md · CHANGELOG.md
-├── README.md (French)           # User-facing project overview
+├── CHANGELOG.md · README.md (French) · LICENSE
 └── phpcs.xml.dist · phpstan.neon.dist · phpunit.xml.dist
 ```
 
@@ -122,7 +127,7 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 - **`.github/workflows/ci.yml`** — PR lint+stan+build: matrix PHP 8.2 (composer lint, stan, test) +
   Node 20 (npm lint + build).
 - **`.github/workflows/claude-review.yml`** — Anthropic Claude Code Action reviews PRs against
-  `CLAUDE.md` + `CONVENTIONS.md`.
+  `.claude/CLAUDE.md` + `.claude/CONVENTIONS.md`.
 - **`.github/workflows/deploy-*.yml`** — FTP deploy on push to `staging` / `main`.
 - **`dependabot.yml`** — weekly npm (`_dev/`) + GitHub Actions updates.
 - **Branch protection on `main`** — seeded by `bin/setup-branch-protection.sh` (uses `gh` CLI).

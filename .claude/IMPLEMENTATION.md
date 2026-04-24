@@ -16,7 +16,7 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 
 | # | Section                        | State | Diagnosis                                                                                                                       |
 |---|--------------------------------|:-----:|---------------------------------------------------------------------------------------------------------------------------------|
-| 1 | Root documentation             | 🟡    | `CLAUDE.md` (in `.claude/`) + `README.md` are solid. Missing: `AGENTS.md`, `ARCHITECTURE.md`, `BLOCKS.md`, `CONVENTIONS.md`, `CHANGELOG.md`. |
+| 1 | Documentation                  | 🟡    | `.claude/CLAUDE.md` + `README.md` are solid. Missing (added in Batch 1): `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, root `CHANGELOG.md`. |
 | 2 | `.claude/` configuration       | 🟡    | `settings.json` has permissions but no `hooks`. No `rules/`, `agents/`, `skills/`, `commands/`, `lessons.md`. No `.mcp.json`.    |
 | 3 | Verification mechanisms        | ❌    | `composer lint` references `--standard=WordPress` with no `phpcs.xml`. No phpstan, eslint, stylelint, prettier, editorconfig, phpunit.xml, smoke.sh. |
 | 4 | FSE structure                  | 🟡    | `style.css` header complete, `theme.json` has `$schema`, `functions.php` require-only. Missing: `patterns/`, `languages/` (.pot), `$schema` in `block.json`. **Defect:** 12 of 14 `inc/*.php` lack `ABSPATH` guard. |
@@ -43,7 +43,7 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 
 ## Batches
 
-- [x] **1. Root docs & reproducibility** — `AGENTS.md`, `ARCHITECTURE.md`, `BLOCKS.md`, `CONVENTIONS.md`, `CHANGELOG.md`, `.editorconfig`, `.nvmrc`, `.env.example`; append convention note to `.claude/CLAUDE.md`.
+- [x] **1. Docs & reproducibility** — `.claude/ARCHITECTURE.md`, `.claude/BLOCKS.md`, `.claude/CONVENTIONS.md`, `.claude/IMPLEMENTATION.md`, `CHANGELOG.md`, `.editorconfig`, `.nvmrc`, `.env.example`; docs-language note in `.claude/CLAUDE.md`.
 - [ ] **2. PHP tooling** — `phpcs.xml.dist`, `phpstan.neon.dist`, `phpunit.xml.dist`; update `composer.json` (platform 8.2, dev deps, scripts); bump `style.css` `Requires PHP`.
 - [ ] **3. JS/CSS tooling** — `_dev/.eslintrc.json`, `.stylelintrc.json`, `.prettierrc`, `.prettierignore`; update `_dev/package.json` (deps + scripts).
 - [ ] **4. Fix pre-existing defects** — add `ABSPATH` guard to 12 files in `inc/`; normalize 4 text-domains to `studioval-boilerplate`; update `style.css` `Text Domain` + `Domain Path`.
@@ -52,7 +52,7 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 - [ ] **7. Claude hooks & `.claude/` layout** — expand `settings.json` with 5 hook types; create `rules/`, `agents/wp-reviewer.md`, `commands/smoke.md`, `lessons.md`, `skills/.gitkeep`; add `.mcp.json`.
 - [ ] **8. Verification script** — `bin/smoke.sh` (DB check + theme status + curl + lint + stan + build).
 - [ ] **9. CI/CD** — `.github/workflows/ci.yml`, `.github/workflows/claude-review.yml`, `bin/setup-branch-protection.sh`.
-- [ ] **10. Meta & tracking** — finalize `IMPLEMENTATION.md`, document monthly audit routine.
+- [ ] **10. Meta & tracking** — finalize `.claude/IMPLEMENTATION.md`, document monthly audit routine.
 
 Each batch lands as a single Conventional Commit (`feat(tooling):`, `fix(theme):`, `chore(claude):`, …) so the history narrates the modernization.
 

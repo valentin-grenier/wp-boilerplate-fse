@@ -88,7 +88,7 @@ npm run make-block                 # Scaffold un nouveau block (prompts interact
 
 ## Conventions de code
 
-- **Langue** : code et commentaires **en anglais**. `CLAUDE.md` (ce fichier) reste **en français**. Les docs techniques d'équipe partagées entre tous les agent-runners — [`AGENTS.md`](../AGENTS.md), [`ARCHITECTURE.md`](../ARCHITECTURE.md), [`BLOCKS.md`](../BLOCKS.md), [`CONVENTIONS.md`](../CONVENTIONS.md), [`CHANGELOG.md`](../CHANGELOG.md), [`IMPLEMENTATION.md`](../IMPLEMENTATION.md) — sont **en anglais** pour rester compatibles avec les outils qui les lisent (Claude Code, Copilot, Cursor, Aider, CI agents).
+- **Langue** : code et commentaires **en anglais**. `CLAUDE.md` (ce fichier) et [`README.md`](../README.md) restent **en français**. Les docs techniques co-localisées dans `.claude/` pour servir de contexte à Claude Code — [`ARCHITECTURE.md`](ARCHITECTURE.md), [`BLOCKS.md`](BLOCKS.md), [`CONVENTIONS.md`](CONVENTIONS.md), [`IMPLEMENTATION.md`](IMPLEMENTATION.md) — sont **en anglais** (et [`../CHANGELOG.md`](../CHANGELOG.md) reste à la racine par convention GitHub).
 - **Text-domain** : `studioval-boilerplate` — sera renommé par `bin/setup.sh` lors de l'install sur un projet client (token `boilerplate` substitué).
 - **Hook / function prefix** : `sv_boilerplate_` (ex : `sv_boilerplate_register_blocks`, `sv_boilerplate_enqueue_assets`) — idem substitué à l'install.
 - **Namespace PHP** : `StudioVal\Boilerplate\` (PSR-4, autoload configuré dans `composer.json` → `wp-content/themes/theme-fse/inc/`).

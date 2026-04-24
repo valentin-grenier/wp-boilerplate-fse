@@ -125,7 +125,7 @@ Enforced by `.claude/settings.json` `permissions.deny`:
   feat(blocks): add hero block with ACF fields
   fix(theme): escape alt text in gallery pattern
   chore(deps): bump @wordpress/eslint-plugin
-  docs: update BLOCKS.md scaffolding section
+  docs: update .claude/BLOCKS.md scaffolding section
   ```
 - Allowed types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `build`, `ci`, `perf`, `style`.
 - **Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push

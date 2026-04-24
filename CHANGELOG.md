@@ -7,7 +7,8 @@ All notable changes to this project are documented here. Format follows
 ## [Unreleased]
 
 ### Added
-- Root docs: `AGENTS.md`, `ARCHITECTURE.md`, `BLOCKS.md`, `CONVENTIONS.md`, `CHANGELOG.md`, `IMPLEMENTATION.md`.
+- Team docs in `.claude/`: `ARCHITECTURE.md`, `BLOCKS.md`, `CONVENTIONS.md`, `IMPLEMENTATION.md` (Claude-only workflow — co-located with `CLAUDE.md` for context surfacing).
+- Root: `CHANGELOG.md`.
 - Reproducibility: `.editorconfig`, `.nvmrc`, `.env.example`.
 - PHP tooling: `phpcs.xml.dist` (WordPress-Extra), `phpstan.neon.dist` (level 5 + `szepeviktor/phpstan-wordpress`), `phpunit.xml.dist`.
 - Frontend tooling: `_dev/.eslintrc.json`, `_dev/.stylelintrc.json`, `_dev/.prettierrc`, `_dev/.prettierignore`.
