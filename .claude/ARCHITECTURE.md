@@ -8,7 +8,7 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ```text
 .
 ├── .claude/                     # Claude Code config + team docs (Claude-only workflow)
-│   ├── CLAUDE.md                # Session-start context (French)
+│   ├── CLAUDE.md                # Session-start context
 │   ├── ARCHITECTURE.md          # This file
 │   ├── BLOCKS.md                # ACF block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
@@ -40,7 +40,7 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ├── composer.json                # PHP deps + scripts (lockfile gitignored — known limitation)
 ├── auth.json.example            # Template for ACF Pro credentials
 ├── CHANGELOG.md                 # Keep-a-Changelog
-├── README.md                    # User-facing project overview (English)
+├── README.md                    # User-facing project overview
 ├── LICENSE
 ├── .editorconfig
 ├── .nvmrc                       # Node 20

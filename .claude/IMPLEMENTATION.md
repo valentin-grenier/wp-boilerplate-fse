@@ -4,9 +4,9 @@ This document tracks the "Claude-Code-ready" modernization of the Studio Val Wor
 It is the live companion to the approved plan at `~/.claude/plans/misty-doodling-dahl.md` and is updated
 after every batch.
 
-All new documentation added by this modernization is in English. Existing French docs
-(`.claude/CLAUDE.md`, `README.md`) are intentionally left in French to match the historical project
-convention; only new team-level technical docs switch to English.
+All documentation is in English, including team docs under `.claude/` and the root `README.md`
+/ `CHANGELOG.md`. (`.claude/CLAUDE.md` was originally kept in French; it was translated to English
+mid-modernization so every Claude-facing doc uses the same language.)
 
 ---
 
@@ -31,7 +31,7 @@ Baseline state vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ com
 
 ## Decisions log (plan-mode Q&A)
 
-1. **Docs language** → new docs in English; existing `CLAUDE.md` / `README.md` stay in French.
+1. **Docs language** → all docs in English. Initially planned to keep `.claude/CLAUDE.md` in French; decision revised mid-modernization so every Claude-facing doc uses the same language.
 2. **Existing defects** → fix now (ABSPATH guards + text-domain normalization).
 3. **PHP tooling** → full checklist: phpcs `WordPress-Extra`, phpstan level 5 + `szepeviktor/phpstan-wordpress`, composer `platform.php = 8.2`, `Requires PHP: 8.2` in `style.css`.
 4. **Plugin packaging** → deferred (documented in Future work).
