@@ -20,6 +20,8 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 - **ACF Pro** for custom blocks (credentials via `auth.json`, gitignored).
 - **Composer**: WPCS (WordPress-Extra ruleset via `phpcs.xml.dist`) + `phpstan` level 5 with
   `szepeviktor/phpstan-wordpress` (via `phpstan.neon.dist`) + PHPCompatibility (WP 8.2 target).
+- ⚠️ `composer.lock` and `package-lock.json` are gitignored — reproducibility between machines/CI
+  is not guaranteed (known limitation, to be fixed later).
 
 ## Key tree layout
 
@@ -29,41 +31,17 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 │   ├── style.css                  # Theme header (Theme Name, Version, Text Domain)
 │   ├── theme.json                 # Global FSE config (palette, typography, layout)
 │   ├── functions.php              # require-only: glob(inc/*.php)
-│   ├── inc/                       # PHP logic split by concern
-│   │   ├── theme-setup.php        # add_theme_support, menus, sizes
-│   │   ├── theme-assets.php       # wp_enqueue with filemtime() cache-busting
-│   │   ├── block-acf.php          # Registers all blocks via glob(block.json)
-│   │   ├── block-bindings.php
-│   │   ├── block-categories.php
-│   │   ├── block-settings.php
-│   │   ├── security.php           # XML-RPC off, file editor off, version hidden…
-│   │   ├── performance-hooks.php
-│   │   ├── post-types.php
-│   │   ├── media-uploads.php
-│   │   ├── user-capabilities.php
-│   │   ├── dashboard.php
-│   │   ├── comments.php
-│   │   └── hooks.php
+│   ├── inc/                       # PHP logic split by concern (auto-loaded by functions.php)
 │   ├── templates/                 # FSE templates (.html) — index, home, single, page, 404…
 │   ├── parts/                     # header.html, footer.html
 │   ├── styles/                    # Style variations (JSON)
-│   ├── _dev/                      # Source: SCSS, JS, blocks, build config
-│   │   ├── blocks/{name}/         # One folder per block
-│   │   │   ├── block.json         # Metadata (official WP schema)
-│   │   │   ├── block.php          # PHP template (ACF render)
-│   │   │   ├── block.js           # Editor script
-│   │   │   └── block.scss         # Scoped styles
-│   │   ├── scss/                  # theme.scss + editor.scss + partials
-│   │   ├── js/                    # theme.js + editor.js
-│   │   ├── scripts/make-block.js  # New-block scaffolder
-│   │   └── webpack.{common,dev,prod}.js
+│   ├── _dev/                      # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
 │   └── dist/                      # Build output (committed — see .gitignore)
 ├── .claude/                          # Claude Code config + team docs
 │   ├── CLAUDE.md                     # This file
 │   ├── ARCHITECTURE.md               # Repo map + responsibilities
 │   ├── BLOCKS.md                     # ACF block authoring
 │   ├── CONVENTIONS.md                # Prefixes, security, i18n, git
-│   ├── IMPLEMENTATION.md             # Claude-Code-ready modernization tracker
 │   └── settings.json                 # Permissions allow/deny
 ├── .ddev/                            # DDEV config (versioned — in git)
 ├── bin/
@@ -121,6 +99,8 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`. Each `block.json` is auto-discovered
   by [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.
 - **Asset cache-busting**: `filemtime()` on the compiled file — **do not** hardcode a version.
+- **`_dev/blocks/block/block.js` is intentionally empty**: it is the skeleton consumed by
+  `scripts/make-block.js` when scaffolding a new block.
 - **Git**: Semantic Commits in the format `type: Scope - Subject` (preterit) — e.g.,
   `feat: Single - Added breadcrumb block`. Types and full rules in
   [`CONVENTIONS.md`](CONVENTIONS.md#git).
@@ -149,18 +129,6 @@ Main branches (created automatically by `bin/setup.sh`):
 Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. `ci.yml` gates PHP
 lint/stan/test + Node lint/build on every PR.
 
-## Known pitfalls
-
-- **Theme not directly activatable**: the source theme uses default names (`sv_boilerplate_`,
-  `studioval-boilerplate`, `StudioVal\Boilerplate\`). `bin/setup.sh` substitutes the `boilerplate`
-  token with the client project slug on install. **Do not** activate `theme-fse` directly on a
-  project without first running setup.
-- **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
-  not guaranteed — known limitation, to be fixed later.
-- **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
-  `scripts/make-block.js` when scaffolding a new block.
-- **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
-  reports 0 errors. ~18 phpcs warnings remain (non-blocking) — `file_get_contents` /
-  `file_put_contents` / `wp_redirect` alternative-fn suggestions, unused-param notes on hook
-  callbacks with required WP signatures, and commented-out code in `dashboard.php`. Raise one
-  phpstan level at a time as new code is added.
+⚠️ **Do not activate `theme-fse` without first running `bin/setup.sh`** — the source theme uses
+default placeholder names (`sv_boilerplate_`, `studioval-boilerplate`, `StudioVal\Boilerplate\`).
+`bin/setup.sh` substitutes the `boilerplate` token with the client project slug on install.
