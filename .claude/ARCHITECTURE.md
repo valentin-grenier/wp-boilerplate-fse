@@ -1,7 +1,6 @@
 # Architecture
 
-How the repository is laid out and why. This document describes the **current** state of the repo at
-HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATION.md).
+How the repository is laid out and why.
 
 ## Repository layout
 
@@ -12,7 +11,6 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 │   ├── ARCHITECTURE.md          # This file
 │   ├── BLOCKS.md                # ACF block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
-│   ├── IMPLEMENTATION.md        # Modernization tracker (temporary)
 │   ├── settings.json            # Permissions allow/deny + 4 hooks
 │   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
 │   ├── rules/                   # security.md, i18n.md, blocks.md — auto-context for Claude
@@ -137,45 +135,6 @@ Use `npm run make-block` to scaffold a new block folder (prompts for slug, title
 Committed because the deploy workflows are FTP-based and do not run a build step on the remote.
 **Never edit `dist/` directly.** The [`.claude/settings.json`](settings.json) `permissions.deny` list
 blocks writes there for agents.
-
-## Environments
-
-| Env        | Purpose                          | Branch     | Deploy                                       |
-|------------|----------------------------------|------------|----------------------------------------------|
-| Local      | Dev on DDEV                      | `feature/*`| —                                            |
-| Staging    | Client preview / QA              | `staging`  | `.github/workflows/deploy-staging.yml` (FTP) |
-| Production | Live                             | `main`     | `.github/workflows/deploy-production.yml` (FTP) |
-
-Integration branch: `development`. Flow: `feature/* → development → staging → main`.
-
-## CI/CD (current)
-
-- `.github/workflows/ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
-- `.github/workflows/pr-checklist.yml` — fails the PR check while any item in the `## Checklist` section of the description is still unchecked. Re-runs on every PR-body edit.
-- `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
-- `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
-- `.github/CODEOWNERS` — single owner: `@valentin-grenier`.
-- `bin/setup-branch-protection.sh` — idempotent `gh` CLI helper that enforces the CI gate and CODEOWNER review on `main`.
-
-## Developer workflow
-
-```bash
-# One-time setup on a client project
-./bin/setup.sh --theme-dest=<client-slug>
-
-# Day-to-day
-ddev start
-cd wp-content/themes/theme-fse/_dev
-npm install && npm run dev            # watch + BrowserSync at https://wp-boilerplate-fse.ddev.site
-# In another shell:
-composer install
-composer lint                          # phpcs (reads phpcs.xml.dist — WordPress-Extra)
-composer stan                          # phpstan analyse (level 5, WP bootstrap)
-composer ci                            # lint + stan + test
-```
-
-`composer ci` is green at HEAD (0 errors across phpcs + phpstan + phpunit). 18 phpcs warnings
-remain and are non-blocking.
 
 ## Design constraints to preserve
 
