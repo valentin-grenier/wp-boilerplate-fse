@@ -214,4 +214,4 @@ to `main` or `staging`.
 See [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md). The current template
 covers PR type, conventions, asset compilation, escaping, security guards, and docs.
 
-✅ **CI runs on every PR.** `ci.yml` gates PHP lint/stan/test + Node lint/build; `claude-review.yml` posts an AI code review. Requires `ANTHROPIC_API_KEY` in repo secrets for the review workflow.
+✅ **CI runs on every PR.** `ci.yml` gates PHP lint/stan/test + Node lint/build.

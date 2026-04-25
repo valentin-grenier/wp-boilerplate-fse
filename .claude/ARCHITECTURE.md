@@ -24,7 +24,6 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 │   ├── workflows/
 │   │   ├── ci.yml               # PR + push gate: PHP lint/stan/test + Node lint/build
-│   │   ├── claude-review.yml    # AI code review on every PR (requires ANTHROPIC_API_KEY)
 │   │   ├── deploy-staging.yml   # FTP deploy on push to staging
 │   │   └── deploy-production.yml # FTP deploy on push to main
 │   ├── ISSUE_TEMPLATE/
@@ -151,7 +150,6 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 ## CI/CD (current)
 
 - `.github/workflows/ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
-- `.github/workflows/claude-review.yml` — AI code review on every non-draft PR (requires `ANTHROPIC_API_KEY` secret).
 - `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
 - `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `.github/CODEOWNERS` — single owner: `@valentin-grenier`.

@@ -107,13 +107,7 @@ To automatically install ACF Pro during setup, provide your license key using on
 
 ### Required Secrets
 
-The deploy workflows declare `environment: staging` and `environment: production`, so the FTP credentials are configured as **environment secrets** (one set per environment, same names). The Claude PR review workflow runs at repo level, so its API key is a **repository secret**.
-
-#### Repository secrets
-
-| Name                | Used by                                            | Purpose                                                                |
-| ------------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
-| `ANTHROPIC_API_KEY` | [`claude-review.yml`](.github/workflows/claude-review.yml) | Auth for the `anthropics/claude-code-action` step that reviews PRs. |
+The deploy workflows declare `environment: staging` and `environment: production`, so the FTP credentials are configured as **environment secrets** (one set per environment, same names).
 
 #### Environment secrets — `staging` and `production`
 

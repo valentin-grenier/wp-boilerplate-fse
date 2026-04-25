@@ -147,8 +147,7 @@ Main branches (created automatically by `bin/setup.sh`):
 - `feature/*` — development.
 
 Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. `ci.yml` gates PHP
-lint/stan/test + Node lint/build on every PR; `claude-review.yml` posts an AI code review on every
-non-draft PR (requires `ANTHROPIC_API_KEY` in repo secrets).
+lint/stan/test + Node lint/build on every PR.
 
 ## Known pitfalls
 

@@ -29,10 +29,9 @@ mid-modernization so every Claude-facing doc uses the same language.)
 1. Run `composer install` + `(cd wp-content/themes/theme-fse/_dev && npm install)` if not done yet
    so the new dev dependencies (`phpstan`, `szepeviktor/phpstan-wordpress`, `eslint`, `stylelint`,
    `prettier`, etc.) land in `vendor/` / `node_modules/`.
-2. Add `ANTHROPIC_API_KEY` to repo secrets so `.github/workflows/claude-review.yml` can run.
-3. Run `bin/setup-branch-protection.sh` once locally (needs `gh auth login`) to enforce the CI
+2. Run `bin/setup-branch-protection.sh` once locally (needs `gh auth login`) to enforce the CI
    gate on `main`.
-4. Open the PR for this branch. Squash- or merge-commit as you prefer.
+3. Open the PR for this branch. Squash- or merge-commit as you prefer.
 
 ---
 
@@ -50,7 +49,7 @@ State vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ compliant �
 | 6 | Conventions                    | ✅    | Text-domain `studioval-boilerplate`, function prefix `sv_boilerplate_`, PHP namespace `StudioVal\Boilerplate\`, block namespace `studioval/{slug}`. All enforced by phpcs/phpstan. |
 | 7 | Gitignore & secrets            | ✅    | `.gitignore` covers core WP, vendor, node_modules, `.env`, `auth.json`. History clean. `.env.example` + `auth.json.example` committed. |
 | 8 | Reproducible dev env           | ✅    | DDEV committed, `.nvmrc` (Node 20), `composer.json` `config.platform.php = 8.2`, `style.css` `Requires PHP: 8.2`, README quickstart. Lockfiles still gitignored (known future-work). |
-| 9 | CI/CD                          | ✅    | `deploy-*.yml` + `dependabot.yml` + `CODEOWNERS` from the baseline, plus `ci.yml` (PHP + Node on PR/push), `claude-review.yml` (AI review on PR), `bin/setup-branch-protection.sh` (gh CLI one-shot). |
+| 9 | CI/CD                          | ✅    | `deploy-*.yml` + `dependabot.yml` + `CODEOWNERS` from the baseline, plus `ci.yml` (PHP + Node on PR/push) and `bin/setup-branch-protection.sh` (gh CLI one-shot). |
 | 10| Meta                           | ✅    | `lessons.md` wired to the PreCompact hook, monthly-audit routine documented below, plugin packaging parked in Future work with a concrete plan.                        |
 
 ---
@@ -78,7 +77,7 @@ State vs. the 10-section "Claude-Code-ready" checklist. Legend: ✅ compliant �
 - [x] **6. FSE structure gaps** — `patterns/hero-centered.php` starter pattern (full-width group with heading, subheading, centered CTA button; registers under `studioval-boilerplate` pattern category; every user-visible string is wrapped in `esc_html_x`). `languages/studioval-boilerplate.pot` stub (regenerate with `ddev wp i18n make-pot` before release). `_dev/blocks/block/block.json` extended with `$schema`, `apiVersion: 3`, `textdomain: studioval-boilerplate`, and `category: studioval` (was `layout` — the theme's own category registered by `inc/block-categories.php`).
 - [x] **7. Claude hooks & `.claude/` layout** — 4 hooks wired in `settings.json` (SessionStart, PostToolUse, PreCompact, Notification) backed by scripts under `.claude/hooks/`. PreToolUse intentionally omitted — `permissions.deny` already covers the sensitive-file guard with less friction than a custom hook. `.claude/rules/` seeded with `security.md`, `i18n.md`, `blocks.md`. `.claude/agents/wp-reviewer.md` authored as a review subagent. `.claude/commands/smoke.md` added (depends on Batch 8's `bin/smoke.sh`). `.claude/skills/sync-docs/SKILL.md` added — the auto-trigger skill that audits `.claude/` team docs for drift whenever Claude automation changes. `.claude/lessons.md` stub created. `.mcp.json` template at repo root (Notion server commented out, template for client forks).
 - [x] **8. Verification script** — `bin/smoke.sh` runs the end-to-end gate: `ddev wp db check`, `ddev wp theme status theme-fse`, homepage `curl -sfI`, `composer lint` / `stan` / `test`, and the frontend `npm run lint:js` / `lint:css` / `build`. Supports `--fast` (skip npm build) and `--no-ddev` (CI mode). Exits non-zero on the first failure, prints a compact pass/fail summary. `.claude/commands/smoke.md` (from Batch 7) now has an executable target.
-- [x] **9. CI/CD** — `.github/workflows/ci.yml` (PR + push gate: PHP 8.2 matrix with composer validate + lint + stan + test; Node 20 with npm lint:js + lint:css + build; concurrency cancel-in-progress). `.github/workflows/claude-review.yml` (Anthropic Claude Code Action on pull_request; reads the .claude docs + rules as ruleset; opts out on drafts or `[skip claude]` titles; requires `ANTHROPIC_API_KEY` secret). `bin/setup-branch-protection.sh` — idempotent gh CLI script that PUTs a branch-protection payload on `main`: required status checks (the two CI job names), required CODEOWNER review, dismiss-stale, enforce for admins, block force-pushes + deletions. `--branch=` and `--dry-run` flags for tuning.
+- [x] **9. CI/CD** — `.github/workflows/ci.yml` (PR + push gate: PHP 8.2 matrix with composer validate + lint + stan + test; Node 20 with npm lint:js + lint:css + build; concurrency cancel-in-progress). `bin/setup-branch-protection.sh` — idempotent gh CLI script that PUTs a branch-protection payload on `main`: required status checks (the two CI job names), required CODEOWNER review, dismiss-stale, enforce for admins, block force-pushes + deletions. `--branch=` and `--dry-run` flags for tuning.
 - [x] **10. Meta & tracking** — audit table rewritten for the HEAD state (every row green). Batch list fully ticked including the mid-effort adjustments (phpcbf autofixes, triage). Monthly-audit routine intact below. Shipment summary added at the top of this file so readers see the end-state at a glance. No changes to Future work or Decisions log.
 
 Each batch lands as a single Semantic Commit (`type: Scope - Subject` in preterit) so the history narrates the modernization.
