@@ -1,8 +1,6 @@
 # Conventions
 
-Repository-wide conventions. This document describes the **current** state at HEAD. The
-post-modernization target (WordPress-Extra phpcs, phpstan level 5, PHP 8.2 floor, normalized
-text-domain, new prefix scheme) lives in [`IMPLEMENTATION.md`](IMPLEMENTATION.md).
+Repository-wide conventions.
 
 ## Naming
 
@@ -111,11 +109,10 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 
 ## Formatting
 
-- **Prettier** — [`_dev/.prettierrc`](../wp-content/themes/theme-fse/_dev/.prettierrc) (tabs,
-  print-width 100, single quotes, trailing ES5 commas, LF line endings). Run `npm run format`
-  from `_dev/` to apply to `**/*.{js,json,md,scss}`. Ignored paths in
-  [`_dev/.prettierignore`](../wp-content/themes/theme-fse/_dev/.prettierignore).
-- **`npm run lint`** (from `_dev/`) runs `lint:js` + `lint:css` together.
+- `npm run format` (from `_dev/`) — Prettier; applies to `**/*.{js,json,md,scss}`.
+- `npm run lint:css` — Stylelint; scans `scss/**/*.scss` and `blocks/**/*.scss`.
+- `npm run lint:js` — ESLint; scans `js/`, `blocks/`, `scripts/`.
+- `npm run lint` — runs `lint:js` + `lint:css` together.
 
 ## PHP
 
@@ -124,6 +121,8 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 - Short array syntax `[]` only. No `array()`.
 
 ### Tooling — what each tool does
+
+Config files live at the repo root as `<tool>.<ext>.dist` (the non-`.dist` versions are gitignored so local overrides never leak).
 
 | Tool      | Purpose                                                        | Config file                                       | Run with                                      |
 |-----------|----------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------|
@@ -145,18 +144,6 @@ exist yet; the config is pre-wired so `composer test` exits 0 today and picks up
 dropped in `tests/` later.
 
 **`composer ci`** runs all three (`lint` → `stan` → `test`) as one gate for CI and local pre-push.
-
-### The `.dist` convention
-
-Each config file lives at the repo root as `<tool>.<ext>.dist`. Each tool looks for the
-non-`.dist` version first (`phpcs.xml`, `phpstan.neon`, `phpunit.xml`) and falls back to `.dist`.
-The `.dist` file is the committed team default; a developer can copy it without the suffix and
-tweak locally (the non-`.dist` versions are gitignored so local overrides never leak).
-
-✅ **`composer ci` is green.** phpcs (WordPress-Extra) reports 0 errors; phpstan level 5 reports
-0 errors; phpunit is a no-op with no tests. ~18 phpcs warnings remain (non-blocking alternative-fn
-suggestions, commented-out code, unused-param notes on hook callbacks with required signatures).
-Raise phpstan one level at a time when adding substantial new code.
 
 ## Files that must never be edited
 
@@ -205,9 +192,7 @@ Allowed types:
 **Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push directly
 to `main` or `staging`.
 
-**One commit per modernization batch** when working through `IMPLEMENTATION.md`.
-
-⚠️ **Branch protection on `main` is not automatically active.** Run `bin/setup-branch-protection.sh` once locally (requires `gh auth login`) to enforce the CI gate and CODEOWNER review. See `IMPLEMENTATION.md` for details.
+⚠️ **Branch protection on `main` is not automatically active.** Run `bin/setup-branch-protection.sh` once locally (requires `gh auth login`) to enforce the CI gate and CODEOWNER review.
 
 ## PR checklist
 

@@ -1,7 +1,6 @@
 # Architecture
 
-How the repository is laid out and why. This document describes the **current** state of the repo at
-HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATION.md).
+How the repository is laid out and why.
 
 ## Repository layout
 
@@ -12,7 +11,6 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 │   ├── ARCHITECTURE.md          # This file
 │   ├── BLOCKS.md                # ACF block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
-│   ├── IMPLEMENTATION.md        # Modernization tracker (temporary)
 │   ├── settings.json            # Permissions allow/deny + 4 hooks
 │   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
 │   ├── rules/                   # Auto-context rules: a11y.md, security.md, i18n.md, blocks.md
