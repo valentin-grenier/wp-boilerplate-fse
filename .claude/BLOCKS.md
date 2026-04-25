@@ -3,10 +3,6 @@
 How custom blocks work in this theme. All blocks are ACF-backed server-rendered blocks, not JS-first
 blocks. This keeps authoring close to PHP and leverages ACF's field UI.
 
-This document describes the **current** state at HEAD. The post-modernization target (`$schema` in
-`block.json`, `studioval-boilerplate` text-domain everywhere, etc.) lives in
-[`IMPLEMENTATION.md`](IMPLEMENTATION.md).
-
 ## Directory contract
 
 ```text
