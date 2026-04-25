@@ -181,3 +181,44 @@ When adding new features:
 - "Will this change require `npm run build`?" (any SCSS/JS modifications)
 - "Should this be configurable via setup.sh flags?" (for reusability)
 - "Does this need to work in both Local and production environments?"
+
+## Pull request generation
+
+### Title
+
+Follow the Semantic Commit convention: `type: Scope - Subject`
+
+- **Subject** in preterit (past tense), capitalized — e.g. `feat: Single - Added breadcrumb block`
+- **Infer the type from the diff:**
+  - `feat` — new feature or block
+  - `fix` — bug fix
+  - `docs` — documentation only
+  - `style` — CSS/formatting only, no logic change
+  - `refactor` — restructuring without behaviour change
+  - `build` — Webpack, Composer, or npm changes
+  - `ci` — GitHub Actions / workflow changes
+  - `chore` — anything else (config, maintenance)
+
+### Description
+
+Use the structure from `.github/PULL_REQUEST_TEMPLATE.md` and fill every section — do not skip any.
+
+- **Description:** describe the actual diff in 1–3 sentences; do not restate the title
+- **Why:** explain the intent, not the implementation
+- **Type of Change:** tick only the boxes that match the diff
+- **Related Issue:** link the issue if one exists; otherwise remove the placeholder
+- **Screenshots:** include before/after if the diff touches UI or the block editor; remove the section if not applicable
+- **Additional Notes:** add any context reviewers need; remove the section if there is nothing to say
+- Keep each section concise — no filler prose
+
+### Checklist
+
+- Only check boxes that can be verified from the diff itself
+- Leave unchecked any box that requires runtime confirmation (e.g. "tested on staging", "tested locally")
+- Never check all boxes by default
+
+### Tone
+
+- English only
+- Direct and factual — no "This PR introduces…" or "In this pull request…" openers
+- Match the commit message style already present in the repo git log
