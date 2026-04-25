@@ -15,7 +15,7 @@ All notable changes to this project are documented here. Format follows
 - FSE: `patterns/` with starter pattern, `languages/studioval-boilerplate.pot`, `$schema` in every `block.json`.
 - Claude Code: PostToolUse / PreToolUse / SessionStart / PreCompact / Notification hooks; `.claude/rules/`, `.claude/agents/wp-reviewer.md`, `.claude/commands/smoke.md`, `.claude/lessons.md`; `.mcp.json` template.
 - Verification: `bin/smoke.sh`.
-- CI: `.github/workflows/ci.yml` (lint + stan + build on PR).
+- CI: `.github/workflows/ci.yml` (lint + stan + build on PR), `.github/workflows/pr-checklist.yml` (fails the PR while any `## Checklist` box is unchecked).
 - Branch protection helper: `bin/setup-branch-protection.sh`.
 
 ### Changed

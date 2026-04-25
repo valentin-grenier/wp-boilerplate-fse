@@ -5,7 +5,8 @@
 # the `gh` CLI. Idempotent — safe to re-run.
 #
 # What it enforces on main:
-#   - Require a passing CI run (ci.yml jobs: 'PHP (lint + stan + test)' + 'Frontend (lint + build)').
+#   - Require a passing CI run (ci.yml jobs: 'PHP (lint + stan + test)' + 'Frontend (lint + build)')
+#     plus the 'Checklist complete' job from pr-checklist.yml.
 #   - Require at least 1 review from a CODEOWNER.
 #   - Dismiss stale approvals when new commits are pushed.
 #   - Block force-pushes.
@@ -66,7 +67,8 @@ read -r -d '' PAYLOAD <<'JSON' || true
     "strict": true,
     "contexts": [
       "PHP (lint + stan + test)",
-      "Frontend (lint + build)"
+      "Frontend (lint + build)",
+      "Checklist complete"
     ]
   },
   "enforce_admins": true,

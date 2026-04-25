@@ -24,6 +24,7 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 │   ├── workflows/
 │   │   ├── ci.yml               # PR + push gate: PHP lint/stan/test + Node lint/build
+│   │   ├── pr-checklist.yml     # Fails the PR if any "## Checklist" box is unchecked
 │   │   ├── deploy-staging.yml   # FTP deploy on push to staging
 │   │   └── deploy-production.yml # FTP deploy on push to main
 │   ├── ISSUE_TEMPLATE/
@@ -150,6 +151,7 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 ## CI/CD (current)
 
 - `.github/workflows/ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
+- `.github/workflows/pr-checklist.yml` — fails the PR check while any item in the `## Checklist` section of the description is still unchecked. Re-runs on every PR-body edit.
 - `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
 - `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `.github/CODEOWNERS` — single owner: `@valentin-grenier`.
