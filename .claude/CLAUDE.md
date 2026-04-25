@@ -129,6 +129,24 @@ Main branches (created automatically by `bin/setup.sh`):
 Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. `ci.yml` gates PHP
 lint/stan/test + Node lint/build on every PR.
 
-⚠️ **Do not activate `theme-fse` without first running `bin/setup.sh`** — the source theme uses
-default placeholder names (`sv_boilerplate_`, `studioval-boilerplate`, `StudioVal\Boilerplate\`).
-`bin/setup.sh` substitutes the `boilerplate` token with the client project slug on install.
+## Claude Code workflow
+
+`gh` CLI is installed and authenticated via SSH. When asked to commit, push, and open a PR, do all
+three without asking for confirmation. Use `gh pr create` with the body written in French, following
+`.github/PULL_REQUEST_TEMPLATE.md`.
+
+## Known pitfalls
+
+- **Theme not directly activatable**: the source theme uses default names (`sv_boilerplate_`,
+  `studioval-boilerplate`, `StudioVal\Boilerplate\`). `bin/setup.sh` substitutes the `boilerplate`
+  token with the client project slug on install. **Do not** activate `theme-fse` directly on a
+  project without first running setup.
+- **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
+  not guaranteed — known limitation, to be fixed later.
+- **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
+  `scripts/make-block.js` when scaffolding a new block.
+- **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
+  reports 0 errors. ~18 phpcs warnings remain (non-blocking) — `file_get_contents` /
+  `file_put_contents` / `wp_redirect` alternative-fn suggestions, unused-param notes on hook
+  callbacks with required WP signatures, and commented-out code in `dashboard.php`. Raise one
+  phpstan level at a time as new code is added.
