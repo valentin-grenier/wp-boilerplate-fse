@@ -149,6 +149,12 @@ Main branches (created automatically by `bin/setup.sh`):
 Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. `ci.yml` gates PHP
 lint/stan/test + Node lint/build on every PR.
 
+## Claude Code workflow
+
+`gh` CLI is installed and authenticated via SSH. When asked to commit, push, and open a PR, do all
+three without asking for confirmation. Use `gh pr create` with the body written in French, following
+`.github/PULL_REQUEST_TEMPLATE.md`.
+
 ## Known pitfalls
 
 - **Theme not directly activatable**: the source theme uses default names (`sv_boilerplate_`,
