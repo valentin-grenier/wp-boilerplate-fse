@@ -1,227 +1,35 @@
-# FSE Boilerplate WordPress Theme
+# WP FSE Boilerplate
 
-A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes — powered by Sass and modular PHP.
+Studio Val's turn-key starter theme for WordPress Full Site Editing (FSE) — Webpack 5 + Sass, ACF Pro blocks, modular PHP, automated setup.
 
-## 🧩 Features
+## Features
 
--   **Full FSE support**: Templates and template parts structured in native `.html` files
--   **Custom styles via `theme.json`**: Define your color palette, spacing, typography, and block settings
--   **SCSS workflow included**: Compiles separate frontend and editor styles using `npm run build` or `npm run watch`
--   **Modular PHP architecture**: Split into logical `inc/` files (`theme-setup`, `assets`, `security`, `performance`, etc.)
--   **Block restrictions**: Disable unused block styles, comment-related blocks, and dashboard widgets
--   **Console signature**: A developer-friendly signature logs in the browser console on every load
--   **Security hardening**: XML-RPC disabled, file editor blocked, version info hidden, and more
--   **Editor experience optimized**: Clean block inserter with only relevant styles and blocks
--   **Automated setup**: Complete WordPress installation with theme activation, plugin installation, and Git workflow
+- **Full FSE support** — templates and parts as native `.html` files
+- **SCSS workflow** — separate frontend and editor stylesheets, Webpack 5 (not wp-scripts)
+- **ACF Pro blocks** — server-rendered, auto-discovered, scaffoldable via CLI
+- **Modular PHP** — `inc/` files split by concern: setup, security, performance, blocks…
+- **Security hardened** — XML-RPC off, file editor blocked, version hidden, ABSPATH guards throughout
+- **Automated setup** — renames theme, substitutes slugs, installs plugins, creates Git branches
 
-## 🚀 Quick Start
-
-### Option 1: With ACF Pro License
+## Quick start
 
 ```bash
-# Set up with ACF Pro license key
 ./bin/setup.sh --acf-license=YOUR_LICENSE_KEY
-
-# Or use environment variable
-export ACF_PRO_LICENSE="your_license_key"
-./bin/setup.sh
-
-# Or add to auth.json (copy from auth.example.json)
-./bin/setup.sh
 ```
 
-### Option 2: Without ACF Pro
+For prerequisites, step-by-step install, and deployment configuration see [docs/setup.md](docs/setup.md).
 
-```bash
-# Basic setup without ACF Pro
-./bin/setup.sh
+## Documentation
 
-# Development workflow
-cd wp-content/themes/your-theme-name/_dev
-npm install
-npm run watch       # Watch SCSS for changes
-```
+| Guide                            | Description                                                             |
+|----------------------------------|-------------------------------------------------------------------------|
+| [docs/setup.md](docs/setup.md)   | Prerequisites, install steps, script options, GitHub Actions deployment |
+| [docs/blocks.md](docs/blocks.md) | Scaffolding and authoring ACF blocks                                    |
 
-### Setup Options
+## Author
 
--   **Theme folder name**: The setup script defaults the theme folder to `wp-boilerplate-fse` to align with the GitHub Actions deployment workflow
--   **Customization**: You can override the theme name using `--theme-dest=your-custom-name` if needed
--   **Directory structure**: The script moves all boilerplate content to your WordPress root directory
--   **Git workflow**: Automatically creates development branches (`staging`, `development`, `feature/initial-setup`) for a complete Git workflow
--   **Deployment sync**: Automatically updates GitHub workflow files with the chosen theme name for seamless deployment
+Made by **Studio Val** — [studio-val.fr](https://studio-val.fr) · [@valentin-grenier](https://github.com/valentin-grenier)
 
-## 🌿 Git Workflow
-
-The setup script creates a complete branching strategy:
-
--   **`main`** - Production-ready code (protected branch)
--   **`staging`** - Pre-production testing and QA
--   **`development`** - Active development and integration
--   **`feature/initial-setup`** - Example feature branch template
-
-**Deployment flow:**
-
-```text
-feature/xxx → development → staging → main
-```
-
-**Skip branch creation:** Use `--skip-branches` if you prefer a simpler Git setup.
-
-## ⚙️ Setup Script Options
-
-```bash
-./bin/setup.sh [OPTIONS]
-
-Options:
-  --dry-run             Show what would be done without making changes
-  --skip-plugins        Skip automatic plugin installation
-  --skip-git            Skip git repository initialization
-  --skip-branches       Skip creating additional git branches (staging, development)
-  --theme=NAME          Override source theme name detection
-  --theme-dest=NAME     Override destination theme name
-  --github-user=USER    Override GitHub username (default: valentin-grenier)
-  --acf-license=KEY     ACF Pro license key for installation
-  --help, -h            Show this help message
-```
-
-## 🔑 ACF Pro Configuration
-
-To automatically install ACF Pro during setup, provide your license key using one of these methods:
-
-1. **Command line flag**: `--acf-license=YOUR_KEY`
-2. **Environment variable**: `export ACF_PRO_LICENSE="YOUR_KEY"`
-3. **auth.json file**: Copy `auth.example.json` to `auth.json` and add your license key as the password
-
-```json
-{
-	"http-basic": {
-		"connect.advancedcustomfields.com": {
-			"username": "",
-			"password": "YOUR_LICENSE_KEY_HERE"
-		}
-	}
-}
-```
-
-## 🚀 GitHub Actions Deployment
-
-### Required Secrets
-
-The deploy workflows declare `environment: staging` and `environment: production`, so the FTP credentials are configured as **environment secrets** (one set per environment, same names).
-
-#### Environment secrets — `staging` and `production`
-
-Create both environments in **Settings → Environments** and add the same six secret names to each, with the values that match that target host:
-
-| Name              | Description                                                                |
-| ----------------- | -------------------------------------------------------------------------- |
-| `FTP_HOST`        | FTP/SFTP server hostname (e.g., `ftp.example.com`)                         |
-| `FTP_PORT`        | Port — typically `21` (FTP/FTPS) or `22` (SFTP)                            |
-| `FTP_PROTOCOL`    | `ftp`, `ftps`, or `sftp`                                                   |
-| `FTP_USER`        | FTP username                                                               |
-| `FTP_PASSWORD`    | FTP password                                                               |
-| `FTP_SERVER_DIR`  | **WordPress root** with trailing slash (e.g., `/public_html/`). The workflows append `wp-content/themes/theme-fse/` and `wp-content/plugins/` themselves — do **not** include `wp-content` in this value. |
-
-#### Optional environment hardening
-
-In **Settings → Environments → {environment}**, configure:
-
--   **`production`** — add required reviewers, restrict deployments to the `main` branch.
--   **`staging`** — restrict deployments to the `staging` branch.
-
-This gates deploys on top of secret access. Branch protection itself is handled separately by [`bin/setup-branch-protection.sh`](bin/setup-branch-protection.sh).
-
-### Deployment Triggers
-
--   **Staging**: Deploys automatically when code is pushed to `staging` branch
--   **Production**: Deploys automatically when code is pushed to `main` branch
-
-## 🛠️ Development
-
-### Build Scripts
-
-```bash
-# Development build with watch mode
-npm run dev
-
-# Production build (minified, optimized)
-npm run build
-
-# Watch mode for development (if available)
-npm run watch
-```
-
-### File Structure
-
-```
-wp-content/themes/your-theme/
-├── _dev/                    # Development assets
-│   ├── js/                  # JavaScript source files
-│   ├── scss/                # SCSS source files
-│   ├── blocks/              # Custom block development
-│   ├── package.json         # Node.js dependencies
-│   └── webpack.*.js         # Webpack configuration
-├── assets/                  # Compiled assets
-│   ├── css/                 # Compiled CSS
-│   └── js/                  # Compiled JavaScript
-├── inc/                     # PHP includes
-│   ├── theme-setup.php      # Theme configuration
-│   ├── security.php         # Security enhancements
-│   ├── performance-hooks.php # Performance optimizations
-│   └── ...                  # Other modular functionality
-├── parts/                   # Template parts
-├── templates/               # Full site editing templates
-├── functions.php            # Main theme functions
-├── style.css               # Theme header and basic styles
-└── theme.json              # FSE configuration
-```
-
-## 🔌 Recommended Plugins
-
-### Development Plugins (Auto-installed)
-
--   **Query Monitor** – Development debugging
--   **UpdraftPlus** – Backup and migration
--   **Admin Site Enhancements** – Admin experience improvements
--   **Contact Form 7** – Form builder
-
-### Production Plugins (Manual installation)
-
--   **Broken Link Checker** – SEO maintenance
--   **Rank Math SEO** – SEO optimization
--   **Better WP Security** – Security enhancements
--   **Complianz GDPR** – Privacy compliance
--   **WebP Converter for Media** – Image optimization
--   **Simple History** – Activity logging
--   **Plausible Analytics** – Privacy-friendly analytics
-
-## ✍️ Author
-
-Made with ❤️ by **Studio Val** — a creative WordPress developer focused on fast, modern, maintainable custom themes.
-
--   Website: [studio-val.fr](https://studio-val.fr)
--   GitHub: [@valentin-grenier](https://github.com/valentin-grenier)
-
-## 📄 License
+## License
 
 MIT — free to use and adapt with attribution.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 🔒 Security
-
-We take security seriously. If you discover a security vulnerability, please report it responsibly.
-
-### Reporting a Vulnerability
-
-To report a security issue, please email **security@studio-val.fr**. We appreciate responsible disclosure and will respond promptly to security reports.
-
-For more information, see our [security.txt](/.well-known/security.txt) file, which follows the [RFC 9116](https://www.rfc-editor.org/rfc/rfc9116.html) standard for security contact information.
