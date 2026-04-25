@@ -23,6 +23,8 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 │   ├── workflows/
+│   │   ├── ci.yml               # PR + push gate: PHP lint/stan/test + Node lint/build
+│   │   ├── claude-review.yml    # AI code review on every PR (requires ANTHROPIC_API_KEY)
 │   │   ├── deploy-staging.yml   # FTP deploy on push to staging
 │   │   └── deploy-production.yml # FTP deploy on push to main
 │   ├── ISSUE_TEMPLATE/
@@ -148,12 +150,12 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 
 ## CI/CD (current)
 
+- `.github/workflows/ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
+- `.github/workflows/claude-review.yml` — AI code review on every non-draft PR (requires `ANTHROPIC_API_KEY` secret).
 - `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
 - `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `.github/CODEOWNERS` — single owner: `@valentin-grenier`.
-
-⚠️ **No PR lint/test CI yet.** Planned in `IMPLEMENTATION.md` Batch 9 (`ci.yml` + `claude-review.yml`
-+ branch protection helper).
+- `bin/setup-branch-protection.sh` — idempotent `gh` CLI helper that enforces the CI gate and CODEOWNER review on `main`.
 
 ## Developer workflow
 

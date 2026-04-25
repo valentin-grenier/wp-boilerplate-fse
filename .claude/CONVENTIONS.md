@@ -80,14 +80,13 @@ esc_attr__( 'Open menu', 'studioval-boilerplate' )
 _x( 'Home', 'breadcrumb label', 'studioval-boilerplate' )
 ```
 
-⚠️ **Current state:** mixed text-domains across files (see Naming → Text-domain above).
+⚠️ **Current state:** text-domains normalized to `studioval-boilerplate` across all files.
 
-There is no `languages/` folder or `.pot` file yet (planned in `IMPLEMENTATION.md` Batch 6). Once
-created, regenerate via:
+A `languages/studioval-boilerplate.pot` stub is committed. Regenerate it before every release via:
 
 ```bash
 ddev wp i18n make-pot wp-content/themes/theme-fse \
-    wp-content/themes/theme-fse/languages/fse-boilerplate.pot
+    wp-content/themes/theme-fse/languages/studioval-boilerplate.pot
 ```
 
 ## CSS / SCSS
@@ -208,13 +207,11 @@ to `main` or `staging`.
 
 **One commit per modernization batch** when working through `IMPLEMENTATION.md`.
 
-⚠️ **Branch protection on `main` is not enforced** (no rule configured on the GitHub side, no
-`bin/setup-branch-protection.sh` helper yet — planned in `IMPLEMENTATION.md` Batch 9).
+⚠️ **Branch protection on `main` is not automatically active.** Run `bin/setup-branch-protection.sh` once locally (requires `gh auth login`) to enforce the CI gate and CODEOWNER review. See `IMPLEMENTATION.md` for details.
 
 ## PR checklist
 
 See [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md). The current template
 covers PR type, conventions, asset compilation, escaping, security guards, and docs.
 
-⚠️ **No CI lint/test runs on PRs yet.** Only the FTP deploy workflows exist; `ci.yml` and
-`claude-review.yml` are planned in `IMPLEMENTATION.md` Batch 9.
+✅ **CI runs on every PR.** `ci.yml` gates PHP lint/stan/test + Node lint/build; `claude-review.yml` posts an AI code review. Requires `ANTHROPIC_API_KEY` in repo secrets for the review workflow.

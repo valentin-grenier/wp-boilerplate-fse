@@ -146,8 +146,9 @@ Main branches (created automatically by `bin/setup.sh`):
 - `development` — continuous integration.
 - `feature/*` — development.
 
-Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. No lint/test CI on PRs
-yet — to be added later.
+Automatic deployment via GitHub Actions (FTP) on push to `staging` / `main`. `ci.yml` gates PHP
+lint/stan/test + Node lint/build on every PR; `claude-review.yml` posts an AI code review on every
+non-draft PR (requires `ANTHROPIC_API_KEY` in repo secrets).
 
 ## Known pitfalls
 
@@ -157,7 +158,6 @@ yet — to be added later.
   project without first running setup.
 - **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
   not guaranteed — known limitation, to be fixed later.
-- **No lint/test CI on PRs** — current GitHub Actions workflows only run FTP deploys.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
 - **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
