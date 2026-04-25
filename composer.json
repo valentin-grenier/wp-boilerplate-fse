@@ -27,16 +27,21 @@
 		"source": "https://github.com/valentin-grenier/wp-boilerplate-fse"
 	},
 	"require": {
-		"php": ">=8.0",
+		"php": ">=8.2",
 		"composer/installers": "^2.0"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^9.0",
-		"wp-coding-standards/wpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"phpcompatibility/phpcompatibility-wp": "^2.1"
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpstan/phpstan": "^1.11",
+		"phpunit/phpunit": "^9.0",
+		"szepeviktor/phpstan-wordpress": "^1.3",
+		"wp-coding-standards/wpcs": "^3.0"
 	},
 	"config": {
+		"platform": {
+			"php": "8.2"
+		},
 		"optimize-autoloader": true,
 		"sort-packages": true,
 		"allow-plugins": {
@@ -45,9 +50,15 @@
 		}
 	},
 	"scripts": {
-		"lint": "phpcs --standard=WordPress wp-content/themes/",
-		"lint:fix": "phpcbf --standard=WordPress wp-content/themes/",
+		"lint": "phpcs",
+		"lint:fix": "phpcbf",
+		"stan": "phpstan analyse --memory-limit=1G",
 		"test": "phpunit",
+		"ci": [
+			"@lint",
+			"@stan",
+			"@test"
+		],
 		"post-install-cmd": [
 			"@php -r \"if (!file_exists('auth.json') && file_exists('auth.example.json')) { copy('auth.example.json', 'auth.json'); echo 'Created auth.json from example. Please update with your credentials.\\n'; }\""
 		]
@@ -64,7 +75,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"StudioVal\\WPBoilerplate\\": "wp-content/themes/theme-fse/inc/"
+			"StudioVal\\Boilerplate\\": "wp-content/themes/theme-fse/inc/"
 		}
 	},
 	"minimum-stability": "stable",

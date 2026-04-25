@@ -107,24 +107,29 @@ To automatically install ACF Pro during setup, provide your license key using on
 
 ### Required Secrets
 
-To enable deployment via GitHub Actions, add the following secrets to your repository:
+The deploy workflows declare `environment: staging` and `environment: production`, so the FTP credentials are configured as **environment secrets** (one set per environment, same names).
 
-**For staging deployment (FTP):**
+#### Environment secrets — `staging` and `production`
 
--   `STAGING_FTP_HOST` – your FTP server hostname (e.g., ftp.example.com)
--   `STAGING_FTP_PORT` – FTP port (usually 21)
--   `STAGING_FTP_USER` – FTP username
--   `STAGING_FTP_PASSWORD` – FTP password
--   `STAGING_FTP_SERVER_DIR` – WordPress installation root directory
+Create both environments in **Settings → Environments** and add the same six secret names to each, with the values that match that target host:
 
-**For production deployment (if different from staging):**
+| Name              | Description                                                                |
+| ----------------- | -------------------------------------------------------------------------- |
+| `FTP_HOST`        | FTP/SFTP server hostname (e.g., `ftp.example.com`)                         |
+| `FTP_PORT`        | Port — typically `21` (FTP/FTPS) or `22` (SFTP)                            |
+| `FTP_PROTOCOL`    | `ftp`, `ftps`, or `sftp`                                                   |
+| `FTP_USER`        | FTP username                                                               |
+| `FTP_PASSWORD`    | FTP password                                                               |
+| `FTP_SERVER_DIR`  | **WordPress root** with trailing slash (e.g., `/public_html/`). The workflows append `wp-content/themes/theme-fse/` and `wp-content/plugins/` themselves — do **not** include `wp-content` in this value. |
 
--   `FTP_HOST` – production FTP server hostname
--   `FTP_PORT` – production FTP port
--   `FTP_PROTOCOL` – protocol ("ftp" or "ftps")
--   `FTP_USER` – production FTP username
--   `FTP_PASSWORD` – production FTP password
--   `FTP_SERVER_DIR` – production WordPress installation root directory
+#### Optional environment hardening
+
+In **Settings → Environments → {environment}**, configure:
+
+-   **`production`** — add required reviewers, restrict deployments to the `main` branch.
+-   **`staging`** — restrict deployments to the `staging` branch.
+
+This gates deploys on top of secret access. Branch protection itself is handled separately by [`bin/setup-branch-protection.sh`](bin/setup-branch-protection.sh).
 
 ### Deployment Triggers
 

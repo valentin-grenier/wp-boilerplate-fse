@@ -1,0 +1,83 @@
+name: CI
+
+# Runs on every PR and on pushes to the long-lived branches so lint/stan/build
+# gates are honored before any FTP deploy workflow kicks in.
+
+on:
+  pull_request:
+    branches: ["**"]
+  push:
+    branches: [main, staging, development]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP (lint + stan + test)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ["8.2"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish
+
+      - name: Cache composer deps
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Lint — phpcs (WordPress-Extra)
+        run: composer lint
+
+      - name: Static analysis — phpstan (level 5)
+        run: composer stan
+
+      - name: Tests — phpunit
+        run: composer test
+
+  frontend:
+    name: Frontend (lint + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wp-content/themes/theme-fse/_dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Lint — ESLint
+        run: npm run lint:js
+
+      - name: Lint — Stylelint
+        run: npm run lint:css
+
+      - name: Build — Webpack (production)
+        run: npm run build
