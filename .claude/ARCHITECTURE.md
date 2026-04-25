@@ -15,10 +15,14 @@ HEAD. The post-modernization target lives in [`IMPLEMENTATION.md`](IMPLEMENTATIO
 │   ├── IMPLEMENTATION.md        # Modernization tracker (temporary)
 │   ├── settings.json            # Permissions allow/deny + 4 hooks
 │   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
-│   ├── rules/                   # security.md, i18n.md, blocks.md — auto-context for Claude
+│   ├── rules/                   # Auto-context rules: a11y.md, security.md, i18n.md, blocks.md
 │   ├── agents/                  # wp-reviewer.md — review subagent
 │   ├── commands/                # /smoke — slash command
-│   ├── skills/sync-docs/        # Auto-trigger skill: audits team-docs drift
+│   ├── skills/                  # Slash-command skills (flat {name}.md files)
+│   │   ├── sync-docs.md         # Auto-trigger: audits team-docs drift
+│   │   ├── a11y-links-buttons.md # On-demand: WCAG/RGAA failure grep audit
+│   │   ├── i18n-audit.md        # On-demand: text-domain and untranslated strings audit
+│   │   └── block-audit.md       # On-demand: block.json mandatory fields audit
 │   └── lessons.md               # Rolling log appended by the PreCompact hook
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
@@ -79,8 +83,8 @@ defined by four top-level files:
 
 Every file is auto-loaded by `functions.php`. Each one owns one concern:
 
-| File                      | Responsibility                                                            |
-|---------------------------|---------------------------------------------------------------------------|
+| File                      | Responsibility                                                              |
+| ------------------------- | --------------------------------------------------------------------------- |
 | `theme-setup.php`         | `add_theme_support` calls, menus, image sizes, editor styles              |
 | `theme-assets.php`        | `wp_enqueue_scripts` / `enqueue_block_editor_assets` with `filemtime()` cache-busting |
 | `block-acf.php`           | Auto-registers ACF blocks by globbing `_dev/blocks/*/block.json`          |
@@ -138,10 +142,51 @@ Committed because the deploy workflows are FTP-based and do not run a build step
 **Never edit `dist/` directly.** The [`.claude/settings.json`](settings.json) `permissions.deny` list
 blocks writes there for agents.
 
+## Claude Code config (`.claude/`)
+
+### Rules
+
+Files under `.claude/rules/` are auto-loaded as context on every session. Each file covers one concern and acts as a passive checklist Claude applies when writing or reviewing code.
+
+| File | Scope |
+| --- | --- |
+| `security.md` | Escape/sanitize/nonce/prepare rules — blocking in review |
+| `i18n.md` | Text-domain, translation functions, `.pot` generation |
+| `blocks.md` | `block.json` mandatory fields and `block.php` conventions |
+| `a11y.md` | WCAG/RGAA AA — links, buttons, images, contrast |
+
+### Skills
+
+Skills live at `.claude/skills/{name}.md` — **flat files, not subdirectories**. Use a subdirectory only if the skill requires companion files.
+
+**File format:**
+
+```markdown
+---
+name: skill-name
+description: One-line description used to decide when to auto-trigger.
+---
+
+## When to invoke
+## Procedure
+## Output format
+```
+
+| Skill | Trigger |
+| --- | --- |
+| `sync-docs.md` | Auto — whenever `.claude/` config changes |
+| `a11y-links-buttons.md` | On-demand — `/a11y-links-buttons` |
+| `i18n-audit.md` | On-demand — `/i18n-audit` |
+| `block-audit.md` | On-demand — `/block-audit` |
+
+### Agents
+
+Sub-agents live at `.claude/agents/{name}.md`. The `wp-reviewer` agent performs a second-pass security/quality audit on theme diffs; it is invoked by the `review` skill or manually.
+
 ## Environments
 
-| Env        | Purpose                          | Branch     | Deploy                                       |
-|------------|----------------------------------|------------|----------------------------------------------|
+| Env        | Purpose                          | Branch     | Deploy                                         |
+| ---------- | -------------------------------- | ---------- | ---------------------------------------------- |
 | Local      | Dev on DDEV                      | `feature/*`| —                                            |
 | Staging    | Client preview / QA              | `staging`  | `.github/workflows/deploy-staging.yml` (FTP) |
 | Production | Live                             | `main`     | `.github/workflows/deploy-production.yml` (FTP) |
