@@ -957,6 +957,24 @@ else
   fi
 fi
 
+# ========== GENERATE CODEOWNERS FROM TEMPLATE ==========
+CODEOWNERS_TEMPLATE="$TARGET_ROOT/.github/CODEOWNERS.template"
+CODEOWNERS_DEST="$TARGET_ROOT/.github/CODEOWNERS"
+
+if [ "$DRY_RUN" = false ]; then
+  if [ -f "$CODEOWNERS_TEMPLATE" ]; then
+    log_step "Generating .github/CODEOWNERS from template"
+    cp "$CODEOWNERS_TEMPLATE" "$CODEOWNERS_DEST"
+    log_success ".github/CODEOWNERS generated from CODEOWNERS.template"
+    increment_success
+  else
+    log_warning ".github/CODEOWNERS.template not found — skipping CODEOWNERS generation"
+    increment_warnings
+  fi
+else
+  echo "[DRY RUN] Would copy .github/CODEOWNERS.template → .github/CODEOWNERS"
+fi
+
 # ========== SUCCESS MESSAGE ==========
 if [ "$DRY_RUN" = false ]; then
   echo ""
@@ -981,6 +999,27 @@ if [ "$DRY_RUN" = false ]; then
   echo "   • Ready for version control"
   echo ""
   echo "💡 Pro tip: Use 'npm run dev' for live SCSS compilation during development"
+  echo ""
+
+  # ── Manual step reminder ────────────────────────────────────────────────
+  echo "=========================================="
+  echo "📋 MANUAL STEP REQUIRED — Core file sync"
+  echo "=========================================="
+  echo ""
+  echo "To receive automated boilerplate updates in this project, add the new"
+  echo "repo to .github/sync.yml in the wp-boilerplate-fse repository."
+  echo ""
+  echo "Open:  https://github.com/valentin-grenier/wp-boilerplate-fse/edit/main/.github/sync.yml"
+  echo ""
+  echo "Then append the following entry under the 'repos:' key:"
+  echo ""
+  echo "  - repo: valentin-grenier/REPLACE_WITH_CLIENT_REPO   # <-- replace with actual slug"
+  echo "    files:"
+  echo "      - *core"
+  echo ""
+  echo "Replace 'REPLACE_WITH_CLIENT_REPO' with the GitHub repo slug"
+  echo "of this project (e.g. valentin-grenier/lemon-studio)."
+  echo "=========================================="
   echo ""
 else
   echo ""

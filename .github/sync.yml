@@ -1,0 +1,41 @@
+# .github/sync.yml
+# Core file sync configuration for BetaHuhn/repo-file-sync-action.
+#
+# Files listed under the "core" anchor are single-source-of-truth in this
+# boilerplate and will be synced to every client repo listed below via an
+# automated pull request whenever they change on main.
+#
+# Client projects must NEVER edit these files directly — fixes must go
+# through the boilerplate first.
+
+group:
+  # ── Core files anchor ────────────────────────────────────────────────────
+  - &core
+    - src: .claude/agents/wp-reviewer.md
+      dest: .claude/agents/wp-reviewer.md
+    - src: .claude/rules/security.md
+      dest: .claude/rules/security.md
+    - src: .claude/rules/i18n.md
+      dest: .claude/rules/i18n.md
+    - src: .claude/rules/blocks.md
+      dest: .claude/rules/blocks.md
+    - src: .claude/hooks/lint-edited.sh
+      dest: .claude/hooks/lint-edited.sh
+    - src: .claude/hooks/session-banner.sh
+      dest: .claude/hooks/session-banner.sh
+    - src: .claude/hooks/append-lesson.sh
+      dest: .claude/hooks/append-lesson.sh
+    - src: phpcs.xml.dist
+      dest: phpcs.xml.dist
+    - src: phpstan.neon.dist
+      dest: phpstan.neon.dist
+    - src: .github/workflows/ci.yml
+      dest: .github/workflows/ci.yml
+
+# ── Client repos ─────────────────────────────────────────────────────────
+# Add each client repo here. Replace the placeholder with the actual repo
+# slug (e.g. valentin-grenier/lemon-studio).
+repos:
+  - repo: valentin-grenier/REPLACE_WITH_CLIENT_REPO
+    files:
+      - *core

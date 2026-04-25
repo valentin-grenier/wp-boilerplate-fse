@@ -1,0 +1,54 @@
+name: Sync core files to client repos
+
+# Triggers only when one of the boilerplate core files changes on main.
+# For every client repo listed in .github/sync.yml, a pull request is
+# opened (or updated) with the new content of each changed file.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Keep this list in sync with the file entries in .github/sync.yml
+      # and the core file entries in .github/CODEOWNERS.template.
+      - .claude/agents/wp-reviewer.md
+      - .claude/rules/security.md
+      - .claude/rules/i18n.md
+      - .claude/rules/blocks.md
+      - .claude/hooks/lint-edited.sh
+      - .claude/hooks/session-banner.sh
+      - .claude/hooks/append-lesson.sh
+      - phpcs.xml.dist
+      - phpstan.neon.dist
+      - .github/workflows/ci.yml
+
+jobs:
+  sync:
+    name: Sync core files
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync files to client repos
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ secrets.SYNC_PAT }}
+          CONFIG_PATH: .github/sync.yml
+          PR_TITLE: "[Boilerplate] Update core files"
+          COMMIT_PREFIX: "chore: Boilerplate"
+          PR_BODY: |
+            ## ⚠️ Read-only boilerplate update
+
+            This pull request was opened automatically by the [wp-boilerplate-fse](https://github.com/valentin-grenier/wp-boilerplate-fse) sync workflow.
+
+            The files changed here are **core boilerplate files** and must not be edited directly in this project.
+            Any fix or improvement must first be made in the boilerplate repository, after which a new sync PR will be created automatically.
+
+            🔗 [View recent boilerplate commits](https://github.com/valentin-grenier/wp-boilerplate-fse/commits/main)
+
+            ---
+            *Merge this PR to apply the latest boilerplate updates.*
