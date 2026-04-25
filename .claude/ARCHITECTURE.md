@@ -13,10 +13,14 @@ How the repository is laid out and why.
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
 │   ├── settings.json            # Permissions allow/deny + 4 hooks
 │   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
-│   ├── rules/                   # security.md, i18n.md, blocks.md — auto-context for Claude
+│   ├── rules/                   # Auto-context rules: a11y.md, security.md, i18n.md, blocks.md
 │   ├── agents/                  # wp-reviewer.md — review subagent
 │   ├── commands/                # /smoke — slash command
-│   ├── skills/sync-docs/        # Auto-trigger skill: audits team-docs drift
+│   ├── skills/                  # Slash-command skills (flat {name}.md files)
+│   │   ├── sync-docs.md         # Auto-trigger: audits team-docs drift
+│   │   ├── a11y-links-buttons.md # On-demand: WCAG/RGAA failure grep audit
+│   │   ├── i18n-audit.md        # On-demand: text-domain and untranslated strings audit
+│   │   └── block-audit.md       # On-demand: block.json mandatory fields audit
 │   └── lessons.md               # Rolling log appended by the PreCompact hook
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
@@ -77,8 +81,8 @@ defined by four top-level files:
 
 Every file is auto-loaded by `functions.php`. Each one owns one concern:
 
-| File                      | Responsibility                                                            |
-|---------------------------|---------------------------------------------------------------------------|
+| File                      | Responsibility                                                              |
+| ------------------------- | --------------------------------------------------------------------------- |
 | `theme-setup.php`         | `add_theme_support` calls, menus, image sizes, editor styles              |
 | `theme-assets.php`        | `wp_enqueue_scripts` / `enqueue_block_editor_assets` with `filemtime()` cache-busting |
 | `block-acf.php`           | Auto-registers ACF blocks by globbing `_dev/blocks/*/block.json`          |
@@ -135,6 +139,86 @@ Use `npm run make-block` to scaffold a new block folder (prompts for slug, title
 Committed because the deploy workflows are FTP-based and do not run a build step on the remote.
 **Never edit `dist/` directly.** The [`.claude/settings.json`](settings.json) `permissions.deny` list
 blocks writes there for agents.
+
+## Claude Code config (`.claude/`)
+
+### Rules
+
+Files under `.claude/rules/` are auto-loaded as context on every session. Each file covers one concern and acts as a passive checklist Claude applies when writing or reviewing code.
+
+| File | Scope |
+| --- | --- |
+| `security.md` | Escape/sanitize/nonce/prepare rules — blocking in review |
+| `i18n.md` | Text-domain, translation functions, `.pot` generation |
+| `blocks.md` | `block.json` mandatory fields and `block.php` conventions |
+| `a11y.md` | WCAG/RGAA AA — links, buttons, images, contrast |
+
+### Skills
+
+Skills live at `.claude/skills/{name}.md` — **flat files, not subdirectories**. Use a subdirectory only if the skill requires companion files.
+
+**File format:**
+
+```markdown
+---
+name: skill-name
+description: One-line description used to decide when to auto-trigger.
+---
+
+## When to invoke
+## Procedure
+## Output format
+```
+
+| Skill | Trigger |
+| --- | --- |
+| `sync-docs.md` | Auto — whenever `.claude/` config changes |
+| `a11y-links-buttons.md` | On-demand — `/a11y-links-buttons` |
+| `i18n-audit.md` | On-demand — `/i18n-audit` |
+| `block-audit.md` | On-demand — `/block-audit` |
+
+### Agents
+
+Sub-agents live at `.claude/agents/{name}.md`. The `wp-reviewer` agent performs a second-pass security/quality audit on theme diffs; it is invoked by the `review` skill or manually.
+
+## Environments
+
+| Env        | Purpose                          | Branch     | Deploy                                         |
+| ---------- | -------------------------------- | ---------- | ---------------------------------------------- |
+| Local      | Dev on DDEV                      | `feature/*`| —                                            |
+| Staging    | Client preview / QA              | `staging`  | `.github/workflows/deploy-staging.yml` (FTP) |
+| Production | Live                             | `main`     | `.github/workflows/deploy-production.yml` (FTP) |
+
+Integration branch: `development`. Flow: `feature/* → development → staging → main`.
+
+## CI/CD (current)
+
+- `.github/workflows/ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
+- `.github/workflows/pr-checklist.yml` — fails the PR check while any item in the `## Checklist` section of the description is still unchecked. Re-runs on every PR-body edit.
+- `.github/workflows/deploy-*.yml` — FTP deploy on push to `staging` / `main`.
+- `.github/dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
+- `.github/CODEOWNERS` — single owner: `@valentin-grenier`.
+- `bin/setup-branch-protection.sh` — idempotent `gh` CLI helper that enforces the CI gate and CODEOWNER review on `main`.
+
+## Developer workflow
+
+```bash
+# One-time setup on a client project
+./bin/setup.sh --theme-dest=<client-slug>
+
+# Day-to-day
+ddev start
+cd wp-content/themes/theme-fse/_dev
+npm install && npm run dev            # watch + BrowserSync at https://wp-boilerplate-fse.ddev.site
+# In another shell:
+composer install
+composer lint                          # phpcs (reads phpcs.xml.dist — WordPress-Extra)
+composer stan                          # phpstan analyse (level 5, WP bootstrap)
+composer ci                            # lint + stan + test
+```
+
+`composer ci` is green at HEAD (0 errors across phpcs + phpstan + phpunit). 18 phpcs warnings
+remain and are non-blocking.
 
 ## Design constraints to preserve
 
