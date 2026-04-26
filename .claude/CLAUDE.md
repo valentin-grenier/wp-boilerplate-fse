@@ -20,8 +20,6 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 - **ACF Pro** for custom blocks (credentials via `auth.json`, gitignored).
 - **Composer**: WPCS (WordPress-Extra ruleset via `phpcs.xml.dist`) + `phpstan` level 5 with
   `szepeviktor/phpstan-wordpress` (via `phpstan.neon.dist`) + PHPCompatibility (WP 8.2 target).
-- ⚠️ `composer.lock` and `package-lock.json` are gitignored — reproducibility between machines/CI
-  is not guaranteed (known limitation, to be fixed later).
 
 ## Key tree layout
 
@@ -139,8 +137,6 @@ three without asking for confirmation. Use `gh pr create` with the body written 
   `studioval-boilerplate`, `StudioVal\Boilerplate\`). `bin/setup.sh` substitutes the `boilerplate`
   token with the client project slug on install. **Do not** activate `theme-fse` directly on a
   project without first running setup.
-- **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
-  not guaranteed — known limitation, to be fixed later.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
 - **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
