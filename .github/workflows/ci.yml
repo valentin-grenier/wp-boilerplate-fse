@@ -46,14 +46,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
-      - name: Lint — phpcs (WordPress-Extra)
-        run: composer lint
-
-      - name: Static analysis — phpstan (level 5)
-        run: composer stan
-
-      - name: Tests — phpunit
-        run: composer test
+      - name: Lint + stan + test
+        run: composer ci
 
   frontend:
     name: Frontend (lint + build)
