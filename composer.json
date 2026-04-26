@@ -2,7 +2,7 @@
 	"name": "studio-val/wp-boilerplate-fse",
 	"description": "A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes",
 	"type": "wordpress-theme",
-	"license": "MIT",
+	"license": ["MIT", "GPL-2.0-or-later"],
 	"authors": [
 		{
 			"name": "Studio Val",
@@ -71,11 +71,6 @@
 			"wp-content/themes/{$name}/": [
 				"type:wordpress-theme"
 			]
-		}
-	},
-	"autoload": {
-		"psr-4": {
-			"StudioVal\\Boilerplate\\": "wp-content/themes/theme-fse/inc/"
 		}
 	},
 	"minimum-stability": "stable",
