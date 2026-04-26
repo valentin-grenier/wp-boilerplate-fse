@@ -129,8 +129,15 @@ lint/stan/test + Node lint/build on every PR.
 ## Claude Code workflow
 
 `gh` CLI is installed and authenticated via SSH. When asked to commit, push, and open a PR, do all
-three without asking for confirmation. Use `gh pr create` with the body written in French, following
+three without asking for confirmation. Use `gh pr create` with the body written in English, following
 `.github/PULL_REQUEST_TEMPLATE.md`.
+
+**Guardrails** — never run without explicit user instruction:
+
+- `git push --force` / `git push --force-with-lease`
+- `git reset --hard`
+- `git rebase -i` or any other history rewrite on a shared branch
+- `git branch -D` (delete branch)
 
 ## Known pitfalls
 
