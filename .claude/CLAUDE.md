@@ -84,8 +84,8 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 - **Hook / function prefix**: `sv_boilerplate_` (e.g., `sv_boilerplate_register_blocks`,
   `sv_boilerplate_enqueue_assets`) — `bin/setup.sh` substitutes the `boilerplate` token with the
   client project slug on install.
-- **PHP namespace**: `StudioVal\Boilerplate\` (PSR-4, autoload configured in `composer.json` →
-  `wp-content/themes/theme-fse/inc/`).
+- **PHP style**: procedural throughout — no namespaces. All functions use the `sv_boilerplate_`
+  prefix. Do not introduce classes or `namespace` declarations without explicit approval.
 - **Block namespace**: `studioval/{slug}` in `block.json` (already applied to the block template).
 - **WP security**: every `inc/*.php` starts with `if ( ! defined( 'ABSPATH' ) ) { exit; }` — guard
   applied to all 14 files. All output must be escaped (`esc_html`, `esc_attr`, `esc_url`,
