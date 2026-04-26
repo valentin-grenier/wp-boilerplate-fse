@@ -6,8 +6,6 @@
 .git
 /vendor
 **/node_modules
-package-lock.json
-composer.lock
 *.env
 auth.json
 /cgi-bin/
