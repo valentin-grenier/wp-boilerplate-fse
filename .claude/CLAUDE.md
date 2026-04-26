@@ -151,4 +151,4 @@ three without asking for confirmation. Use `gh pr create` with the body written 
   reports 0 errors. ~18 phpcs warnings remain (non-blocking) — `file_get_contents` /
   `file_put_contents` / `wp_redirect` alternative-fn suggestions, unused-param notes on hook
   callbacks with required WP signatures, and commented-out code in `dashboard.php`. Raise one
-  phpstan level at a time as new code is added.
+  phpstan level at a time as new code is added. **Target: level 8** (north star — not enforced yet).
