@@ -45,8 +45,7 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 │   └── settings.json                 # Permissions allow/deny
 ├── .ddev/                            # DDEV config (versioned — in git)
 ├── bin/
-│   ├── setup.sh                      # Full install: renames the theme, substitutes placeholders, activates
-│   └── cleanup.sh
+│   └── setup.sh                      # Full install: renames the theme, substitutes placeholders, activates
 ├── .github/
 │   ├── workflows/                    # deploy-staging.yml + deploy-production.yml (FTP)
 │   ├── copilot-instructions.md       # Equivalent of this file for GitHub Copilot
