@@ -29,7 +29,7 @@ _dev/blocks/{block-slug}/
 - Escape every output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`).
 - Never `echo get_field( 'x' )` directly.
 - ABSPATH guard at the top (defence-in-depth — WP normally loads the template via `register_block_type` rendering, but the guard costs nothing).
-- PHPDoc `@param` / `@var` blocks for `$block`, `$content`, `$is_preview`, `$post_id`.
+- PHPDoc `@var` for `$block`, `$content`, `$is_preview`, `$post_id` (template variables, not function params).
 
 ## `block.scss`
 
