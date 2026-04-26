@@ -75,7 +75,7 @@ export ACF_PRO_LICENSE="your_license_key"
 
 **3. auth.json file:**
 ```bash
-cp auth.example.json auth.json
+cp auth.json.example auth.json
 ```
 Edit `auth.json` and set your key as the password:
 ```json

@@ -60,7 +60,7 @@
 			"@test"
 		],
 		"post-install-cmd": [
-			"@php -r \"if (!file_exists('auth.json') && file_exists('auth.example.json')) { copy('auth.example.json', 'auth.json'); echo 'Created auth.json from example. Please update with your credentials.\\n'; }\""
+			"@php -r \"if (!file_exists('auth.json') && file_exists('auth.json.example')) { copy('auth.json.example', 'auth.json'); echo 'Created auth.json from example. Please update with your credentials.\\n'; }\""
 		]
 	},
 	"extra": {
