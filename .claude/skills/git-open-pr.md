@@ -1,5 +1,5 @@
 ---
-name: open-pr
+name: git-open-pr
 description: Commit, push, and open a GitHub PR on request. Follow semantic commit format and the PULL_REQUEST_TEMPLATE.md. Invoke whenever the user asks to commit, push, create a PR, or "push this".
 ---
 

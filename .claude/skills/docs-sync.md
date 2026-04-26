@@ -1,5 +1,5 @@
 ---
-name: sync-docs
+name: docs-sync
 description: Invoke automatically when the conversation adds or modifies Claude Code automation — hooks or permissions in .claude/settings.json, rules under .claude/rules/, agents under .claude/agents/, skills under .claude/skills/, slash commands under .claude/commands/, MCP servers in .mcp.json, or the team docs themselves (.claude/CLAUDE.md, ARCHITECTURE.md, BLOCKS.md, CONVENTIONS.md). Audits the team docs against the live state of .claude/ and proposes updates. Does not auto-apply edits — reports drift and proposes them for user approval.
 ---
 
