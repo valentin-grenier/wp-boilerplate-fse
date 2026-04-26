@@ -9,7 +9,7 @@ repo contains **only the theme + DDEV config + tooling** — the WordPress core 
 `wp-includes/`, `wp-config.php`, etc.) is present locally to run the site but is **not versioned**
 (see `.gitignore`).
 
-The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
+The theme lives at [wp-content/themes/theme-fse/](../wp-content/themes/theme-fse/).
 
 ## Stack
 
@@ -20,8 +20,6 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 - **ACF Pro** for custom blocks (credentials via `auth.json`, gitignored).
 - **Composer**: WPCS (WordPress-Extra ruleset via `phpcs.xml.dist`) + `phpstan` level 5 with
   `szepeviktor/phpstan-wordpress` (via `phpstan.neon.dist`) + PHPCompatibility (WP 8.2 target).
-- ⚠️ `composer.lock` and `package-lock.json` are gitignored — reproducibility between machines/CI
-  is not guaranteed (known limitation, to be fixed later).
 
 ## Key tree layout
 
@@ -45,11 +43,9 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 │   └── settings.json                 # Permissions allow/deny
 ├── .ddev/                            # DDEV config (versioned — in git)
 ├── bin/
-│   ├── setup.sh                      # Full install: renames the theme, substitutes placeholders, activates
-│   └── cleanup.sh
+│   └── setup.sh                      # Full install: renames the theme, substitutes placeholders, activates
 ├── .github/
 │   ├── workflows/                    # deploy-staging.yml + deploy-production.yml (FTP)
-│   ├── copilot-instructions.md       # Equivalent of this file for GitHub Copilot
 │   └── CODEOWNERS
 └── composer.json / auth.json.example / README.md / CHANGELOG.md / LICENSE / .editorconfig / .nvmrc / .env.example
 ```
@@ -82,14 +78,14 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 
 - **Language**: code, comments, **and all documentation** in English.
 - **Text-domain**: `studioval-boilerplate` (declared in
-  [`style.css`](wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
+  [`style.css`](../wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
   `boilerplate` token with the client project slug on install. Normalized consistently across the
   theme.
 - **Hook / function prefix**: `sv_boilerplate_` (e.g., `sv_boilerplate_register_blocks`,
   `sv_boilerplate_enqueue_assets`) — `bin/setup.sh` substitutes the `boilerplate` token with the
   client project slug on install.
-- **PHP namespace**: `StudioVal\Boilerplate\` (PSR-4, autoload configured in `composer.json` →
-  `wp-content/themes/theme-fse/inc/`).
+- **PHP style**: procedural throughout — no namespaces. All functions use the `sv_boilerplate_`
+  prefix. Do not introduce classes or `namespace` declarations without explicit approval.
 - **Block namespace**: `studioval/{slug}` in `block.json` (already applied to the block template).
 - **WP security**: every `inc/*.php` starts with `if ( ! defined( 'ABSPATH' ) ) { exit; }` — guard
   applied to all 14 files. All output must be escaped (`esc_html`, `esc_attr`, `esc_url`,
@@ -97,7 +93,7 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
   `$wpdb->prepare`, all action/admin-post handlers protected by nonce.
 - **i18n**: systematic (`__()`, `esc_html__()`, `_e()`, `_x()`…).
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`. Each `block.json` is auto-discovered
-  by [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.
+  by [inc/block-acf.php](../wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.
 - **Asset cache-busting**: `filemtime()` on the compiled file — **do not** hardcode a version.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it is the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
@@ -107,15 +103,16 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 
 ## Files / folders never to modify
 
-- [wp-admin/](wp-admin/), [wp-includes/](wp-includes/) — WP core, gitignored, reinstalled by WP on
-  every update.
-- [wp-config.php](wp-config.php), [wp-config-ddev.php](wp-config-ddev.php),
-  [wp-config-sample.php](wp-config-sample.php) — sensitive config (DB, salts).
+- [wp-config.php](../wp-config.php), [wp-config-ddev.php](../wp-config-ddev.php),
+  [wp-config-sample.php](../wp-config-sample.php) — sensitive config (DB, salts).
 - `auth.json` (gitignored) — ACF Pro credentials.
-- `vendor/**`, `**/node_modules/**`.
 - `wp-content/themes/theme-fse/dist/**` — **modify only indirectly** via `npm run build`.
-- WP core root files (`wp-activate.php`, `wp-load.php`, `wp-settings.php`, etc.) — gitignored,
-  never touched by hand.
+
+## Tests
+
+PHPUnit is pre-wired via [`phpunit.xml.dist`](../phpunit.xml.dist). No test files exist yet —
+`composer test` exits 0 today because `failOnEmptyTestSuite="false"` is set. Add `*Test.php` files
+under `tests/` to start building coverage. Run with `composer test` or as part of `composer ci`.
 
 ## Git workflow
 
@@ -132,8 +129,15 @@ lint/stan/test + Node lint/build on every PR.
 ## Claude Code workflow
 
 `gh` CLI is installed and authenticated via SSH. When asked to commit, push, and open a PR, do all
-three without asking for confirmation. Use `gh pr create` with the body written in French, following
+three without asking for confirmation. Use `gh pr create` with the body written in English, following
 `.github/PULL_REQUEST_TEMPLATE.md`.
+
+**Guardrails** — never run without explicit user instruction:
+
+- `git push --force` / `git push --force-with-lease`
+- `git reset --hard`
+- `git rebase -i` or any other history rewrite on a shared branch
+- `git branch -D` (delete branch)
 
 ## Known pitfalls
 
@@ -141,12 +145,10 @@ three without asking for confirmation. Use `gh pr create` with the body written 
   `studioval-boilerplate`, `StudioVal\Boilerplate\`). `bin/setup.sh` substitutes the `boilerplate`
   token with the client project slug on install. **Do not** activate `theme-fse` directly on a
   project without first running setup.
-- **`composer.lock` and `package-lock.json` gitignored**: reproducibility between machines/CI is
-  not guaranteed — known limitation, to be fixed later.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it's the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
 - **Lint/stan green**: `composer ci` runs `phpcs lint` + `phpstan` at level 5 + `phpunit` and
   reports 0 errors. ~18 phpcs warnings remain (non-blocking) — `file_get_contents` /
   `file_put_contents` / `wp_redirect` alternative-fn suggestions, unused-param notes on hook
   callbacks with required WP signatures, and commented-out code in `dashboard.php`. Raise one
-  phpstan level at a time as new code is added.
+  phpstan level at a time as new code is added. **Target: level 8** (north star — not enforced yet).

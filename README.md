@@ -32,4 +32,4 @@ Made by **Studio Val** — [studio-val.fr](https://studio-val.fr) · [@valentin-
 
 ## License
 
-MIT — free to use and adapt with attribution.
+Dual-licensed: tooling and configuration under [MIT](LICENSE), theme code under [GPL-2.0-or-later](LICENSE) (required by WordPress).
