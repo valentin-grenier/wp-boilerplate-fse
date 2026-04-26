@@ -48,7 +48,6 @@ The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
 │   └── setup.sh                      # Full install: renames the theme, substitutes placeholders, activates
 ├── .github/
 │   ├── workflows/                    # deploy-staging.yml + deploy-production.yml (FTP)
-│   ├── copilot-instructions.md       # Equivalent of this file for GitHub Copilot
 │   └── CODEOWNERS
 └── composer.json / auth.json.example / README.md / CHANGELOG.md / LICENSE / .editorconfig / .nvmrc / .env.example
 ```
