@@ -29,32 +29,46 @@ if ( is_admin() && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
  * @return string
  */
 function sv_boilerplate_hide_login_errors( $error ) {
+	unset( $error );
 	return __( 'Login failed. Please try again.', 'studioval-boilerplate' );
 }
 add_filter( 'login_errors', 'sv_boilerplate_hide_login_errors' );
 
 /**
- * Disable directory browsing via .htaccess fallback.
+ * Disable directory browsing by writing "Options -Indexes" to .htaccess.
+ * Uses insert_with_markers() so the block is idempotent and clearly delimited.
  *
  * @return void
  */
 function sv_boilerplate_disable_directory_browsing() {
 	$htaccess = ABSPATH . '.htaccess';
 
-	if ( is_writable( $htaccess ) && strpos( file_get_contents( $htaccess ), 'Options -Indexes' ) === false ) {
-		file_put_contents( $htaccess, "Options -Indexes\n", FILE_APPEND );
+	if ( ! file_exists( $htaccess ) ) {
+		return;
 	}
+
+	if ( ! function_exists( 'insert_with_markers' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/misc.php';
+	}
+
+	$existing = extract_from_markers( $htaccess, 'sv-no-indexes' );
+
+	if ( in_array( 'Options -Indexes', $existing, true ) ) {
+		return;
+	}
+
+	insert_with_markers( $htaccess, 'sv-no-indexes', array( 'Options -Indexes' ) );
 }
 add_action( 'init', 'sv_boilerplate_disable_directory_browsing' );
 
 /**
- * Disable author archive scans
+ * Disable author archive scans to prevent user enumeration.
  *
  * @return void
  */
 function sv_boilerplate_disable_author_archive_scans() {
 	if ( is_author() && ! is_user_logged_in() ) {
-		wp_redirect( home_url() );
+		wp_safe_redirect( home_url() );
 		exit;
 	}
 }
