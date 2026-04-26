@@ -73,7 +73,7 @@ Default: **French**. Switch to English when I write in English.
 
 ## Pointers
 
-- **Commits and PRs**: use the `git-open-pr` skill.
+- **Commits and PRs**: use the `git-open-pr` skill (build → commit → push → PR, never merge).
 - **PHPStan level bumps**: use the `phpstan-bump` skill.
 - **Block authoring**: `.claude/BLOCKS.md`.
 - **Naming, security, i18n, git details**: `.claude/CONVENTIONS.md`.
