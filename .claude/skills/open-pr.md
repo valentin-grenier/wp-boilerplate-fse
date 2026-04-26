@@ -41,3 +41,4 @@ Use `gh pr create` with an **English** body following `.github/PULL_REQUEST_TEMP
 - **Never force-push** to any branch.
 - **Never rewrite history** (`git rebase -i`, `git reset --hard`, `git commit --amend`) on `main`, `staging`, or `development`.
 - **Never push directly** to `main` or `staging` — always use a feature branch and PR.
+- **Never merge a PR** — the user is the sole reviewer and merger. Stop after `gh pr create` and report the PR URL.
