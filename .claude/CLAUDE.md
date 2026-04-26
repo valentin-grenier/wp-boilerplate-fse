@@ -103,15 +103,10 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 
 ## Files / folders never to modify
 
-- [wp-admin/](../wp-admin/), [wp-includes/](../wp-includes/) — WP core, gitignored, reinstalled by WP on
-  every update.
 - [wp-config.php](../wp-config.php), [wp-config-ddev.php](../wp-config-ddev.php),
   [wp-config-sample.php](../wp-config-sample.php) — sensitive config (DB, salts).
 - `auth.json` (gitignored) — ACF Pro credentials.
-- `vendor/**`, `**/node_modules/**`.
 - `wp-content/themes/theme-fse/dist/**` — **modify only indirectly** via `npm run build`.
-- WP core root files (`wp-activate.php`, `wp-load.php`, `wp-settings.php`, etc.) — gitignored,
-  never touched by hand.
 
 ## Git workflow
 
