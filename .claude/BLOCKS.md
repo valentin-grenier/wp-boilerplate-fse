@@ -27,30 +27,30 @@ This is the literal content of `_dev/blocks/block/block.json` at HEAD:
 
 ```json
 {
-	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
-	"name": "studioval/block",
-	"title": "Studio Val",
-	"description": "Default ACF block for starter theme.",
-	"textdomain": "studioval-boilerplate",
-	"style": ["file:../../../dist/blocks/block/block.css"],
-	"script": ["file:../../../dist/blocks/block/block.js"],
-	"category": "studioval",
-	"icon": "screenoptions",
-	"keywords": ["studio"],
-	"acf": {
-		"mode": "preview",
-		"renderTemplate": "block.php"
-	},
-	"supports": {
-		"anchor": false,
-		"jsx": false,
-		"inserter": true,
-		"spacing": {
-			"margin": false,
-			"padding": false
-		}
-	}
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "studioval/block",
+  "title": "Studio Val",
+  "description": "Default ACF block for starter theme.",
+  "textdomain": "studioval-boilerplate",
+  "style": ["file:../../../dist/blocks/block/block.css"],
+  "script": ["file:../../../dist/blocks/block/block.js"],
+  "category": "studioval",
+  "icon": "screenoptions",
+  "keywords": ["studio"],
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "block.php"
+  },
+  "supports": {
+    "anchor": false,
+    "jsx": false,
+    "inserter": true,
+    "spacing": {
+      "margin": false,
+      "padding": false
+    }
+  }
 }
 ```
 
@@ -78,11 +78,13 @@ Pattern in use (see `_dev/blocks/block/block.php` for the literal current templa
  *
  * @package StudioVal\WPBoilerplate
  *
- * @var array $block       Block settings.
+ * @var array  $block      Block settings.
  * @var string $content    Inner content (if any).
- * @var bool $is_preview   True when rendering in the editor.
- * @var int $post_id       Current post ID.
+ * @var bool   $is_preview True when rendering in the editor.
+ * @var int    $post_id    Current post ID.
  */
+
+if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 $heading = get_field( 'heading' ) ?: '';
 
@@ -98,8 +100,8 @@ if ( ! empty( $block['className'] ) ) {
 </section>
 ```
 
-`block.php` files are included from `register_block_type` rendering, never reached via direct HTTP,
-so the `ABSPATH` guard used in `inc/*.php` is not required here (though it does no harm).
+`block.php` files are included from `register_block_type` rendering, never reached via direct HTTP.
+Add the `ABSPATH` guard anyway — defence-in-depth, costs nothing, consistent with all other templates.
 
 **Escaping rules (every output):**
 
@@ -113,12 +115,12 @@ so the `ABSPATH` guard used in `inc/*.php` is not required here (though it does 
 ## `block.scss`
 
 ```scss
-@use '../../scss/abstracts/variables' as *;
+@use "../../scss/abstracts/variables" as *;
 
 .block {
-	&__heading {
-		font-size: var(--wp--preset--font-size--x-large);
-	}
+  &__heading {
+    font-size: var(--wp--preset--font-size--x-large);
+  }
 }
 ```
 
@@ -149,6 +151,7 @@ After scaffolding:
 
 - [ ] Folder under `_dev/blocks/` with the 4 files.
 - [ ] `block.json` `name` uses the `studioval/` namespace.
+- [ ] `block.php` opens with ABSPATH guard.
 - [ ] `block.php` escapes all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`).
 - [ ] No raw `echo get_field(...)`.
 - [ ] Styles use BEM and are scoped to `.{slug}`.
