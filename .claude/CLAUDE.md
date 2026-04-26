@@ -108,6 +108,12 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 - `auth.json` (gitignored) — ACF Pro credentials.
 - `wp-content/themes/theme-fse/dist/**` — **modify only indirectly** via `npm run build`.
 
+## Tests
+
+PHPUnit is pre-wired via [`phpunit.xml.dist`](../phpunit.xml.dist). No test files exist yet —
+`composer test` exits 0 today because `failOnEmptyTestSuite="false"` is set. Add `*Test.php` files
+under `tests/` to start building coverage. Run with `composer test` or as part of `composer ci`.
+
 ## Git workflow
 
 Main branches (created automatically by `bin/setup.sh`):
