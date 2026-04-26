@@ -1,5 +1,5 @@
 ---
-name: bump-phpstan-level
+name: phpstan-bump
 description: Raise the PHPStan analysis level by one, triage new errors (real bugs vs WP false positives), fix or suppress them, and commit. Invoke when the user asks to bump PHPStan or raise the analysis level.
 ---
 
@@ -30,7 +30,7 @@ These are pre-existing; do not treat them as regressions from a level bump:
      $value = get_field( 'my_field' ); // @phpstan-ignore-line — ACF returns mixed; narrowed by context
      ```
 4. **Confirm green**: `composer ci` (lint + stan + test must all pass, 0 errors).
-5. **Commit** using the `open-pr` skill conventions:
+5. **Commit** using the `git-open-pr` skill conventions:
    ```
    chore: Tooling - Raised PHPStan to level <N>
    ```
