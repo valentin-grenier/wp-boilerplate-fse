@@ -64,8 +64,6 @@ wp-content/updraft/*
 wp-content/themes/twenty*
 wp-content/themes/**/*/vendor/
 wp-content/themes/**/*/node_modules/
-wp-content/themes/**/*/package-lock.json
-wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
 wp-content/uploads/
 wp-content/uploads-webpc/
@@ -99,8 +97,6 @@ wp-content/themes/**/dist/
 !wp-content/themes/theme-fse/dist/
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
-wp-content/themes/**/package-lock.json
-wp-content/themes/**/composer.lock
 
 # =========================
 # DDEV
