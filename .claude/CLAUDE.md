@@ -9,7 +9,7 @@ repo contains **only the theme + DDEV config + tooling** — the WordPress core 
 `wp-includes/`, `wp-config.php`, etc.) is present locally to run the site but is **not versioned**
 (see `.gitignore`).
 
-The theme lives at [wp-content/themes/theme-fse/](wp-content/themes/theme-fse/).
+The theme lives at [wp-content/themes/theme-fse/](../wp-content/themes/theme-fse/).
 
 ## Stack
 
@@ -78,7 +78,7 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 
 - **Language**: code, comments, **and all documentation** in English.
 - **Text-domain**: `studioval-boilerplate` (declared in
-  [`style.css`](wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
+  [`style.css`](../wp-content/themes/theme-fse/style.css)). `bin/setup.sh` substitutes the
   `boilerplate` token with the client project slug on install. Normalized consistently across the
   theme.
 - **Hook / function prefix**: `sv_boilerplate_` (e.g., `sv_boilerplate_register_blocks`,
@@ -93,7 +93,7 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
   `$wpdb->prepare`, all action/admin-post handlers protected by nonce.
 - **i18n**: systematic (`__()`, `esc_html__()`, `_e()`, `_x()`…).
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`. Each `block.json` is auto-discovered
-  by [inc/block-acf.php](wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.
+  by [inc/block-acf.php](../wp-content/themes/theme-fse/inc/block-acf.php), which globs recursively.
 - **Asset cache-busting**: `filemtime()` on the compiled file — **do not** hardcode a version.
 - **`_dev/blocks/block/block.js` is intentionally empty**: it is the skeleton consumed by
   `scripts/make-block.js` when scaffolding a new block.
@@ -103,10 +103,10 @@ npm run make-block                 # Scaffold a new block (interactive prompts)
 
 ## Files / folders never to modify
 
-- [wp-admin/](wp-admin/), [wp-includes/](wp-includes/) — WP core, gitignored, reinstalled by WP on
+- [wp-admin/](../wp-admin/), [wp-includes/](../wp-includes/) — WP core, gitignored, reinstalled by WP on
   every update.
-- [wp-config.php](wp-config.php), [wp-config-ddev.php](wp-config-ddev.php),
-  [wp-config-sample.php](wp-config-sample.php) — sensitive config (DB, salts).
+- [wp-config.php](../wp-config.php), [wp-config-ddev.php](../wp-config-ddev.php),
+  [wp-config-sample.php](../wp-config-sample.php) — sensitive config (DB, salts).
 - `auth.json` (gitignored) — ACF Pro credentials.
 - `vendor/**`, `**/node_modules/**`.
 - `wp-content/themes/theme-fse/dist/**` — **modify only indirectly** via `npm run build`.
