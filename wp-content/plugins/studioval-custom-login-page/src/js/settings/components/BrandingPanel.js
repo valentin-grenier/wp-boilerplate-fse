@@ -1,12 +1,14 @@
 import React from 'react';
 import {
 	TextControl,
+	SelectControl,
 	Button,
 	Card,
 	CardHeader,
 	CardBody,
 	CardDivider,
 	CardFooter,
+	Notice,
 	__experimentalHeading as Heading,
 	__experimentalVStack as VStack,
 	__experimentalHStack as HStack,
@@ -15,10 +17,20 @@ import {
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-const RESET_KEYS = [ 'logoId', 'logoUrl', 'customTitle' ];
+const RESET_KEYS = [ 'logoId', 'logoUrl', 'logoSource', 'customTitle', 'titleSource' ];
+
+const siteIconUrl = window.studiovalClpData?.siteIconUrl ?? '';
+const siteTitle   = window.studiovalClpData?.siteTitle ?? '';
+const siteTagline = window.studiovalClpData?.siteTagline ?? '';
 
 export default function BrandingPanel( { settings, onChange, onReset } ) {
-	const { logoId, logoUrl, customTitle } = settings;
+	const {
+		logoId,
+		logoUrl,
+		logoSource = 'custom',
+		customTitle,
+		titleSource = 'custom',
+	} = settings;
 
 	const onSelectLogo = ( media ) => {
 		onChange( 'logoId', media.id );
@@ -30,6 +42,9 @@ export default function BrandingPanel( { settings, onChange, onReset } ) {
 		onChange( 'logoUrl', '' );
 	};
 
+	const isCustomTitle = 'custom' === titleSource;
+	const isCustomLogo  = 'custom' === logoSource;
+
 	return (
 		<Card size="small">
 			<CardHeader>
@@ -38,14 +53,37 @@ export default function BrandingPanel( { settings, onChange, onReset } ) {
 				</Heading>
 			</CardHeader>
 			<CardBody>
-				<TextControl
-					label={ __( 'Page title', 'studioval-clp' ) }
-					help={ __( 'Replaces the site name displayed above the form.', 'studioval-clp' ) }
-					value={ customTitle }
-					onChange={ ( val ) => onChange( 'customTitle', val ) }
-					placeholder={ __( 'My Site', 'studioval-clp' ) }
-					__nextHasNoMarginBottom
-				/>
+				<VStack spacing={ 3 }>
+					<SelectControl
+						label={ __( 'Title source', 'studioval-clp' ) }
+						value={ titleSource }
+						options={ [
+							{ label: __( 'Custom text', 'studioval-clp' ), value: 'custom' },
+							{ label: __( 'Site title', 'studioval-clp' ),  value: 'site' },
+						] }
+						onChange={ ( val ) => onChange( 'titleSource', val ) }
+						help={ __( 'Choose where the title displayed above the form comes from.', 'studioval-clp' ) }
+						__nextHasNoMarginBottom
+					/>
+
+					{ isCustomTitle ? (
+						<TextControl
+							label={ __( 'Page title', 'studioval-clp' ) }
+							help={ __( 'Replaces the site name displayed above the form.', 'studioval-clp' ) }
+							value={ customTitle }
+							onChange={ ( val ) => onChange( 'customTitle', val ) }
+							placeholder={ __( 'My Site', 'studioval-clp' ) }
+							__nextHasNoMarginBottom
+						/>
+					) : (
+						<VStack spacing={ 1 }>
+							<Text>{ siteTitle || __( '(site title is empty)', 'studioval-clp' ) }</Text>
+							{ siteTagline && (
+								<Text variant="muted">{ siteTagline }</Text>
+							) }
+						</VStack>
+					) }
+				</VStack>
 			</CardBody>
 
 			<CardDivider />
@@ -61,32 +99,53 @@ export default function BrandingPanel( { settings, onChange, onReset } ) {
 						</Text>
 					</VStack>
 
-					<MediaUploadCheck>
-						<MediaUpload
-							onSelect={ onSelectLogo }
-							allowedTypes={ [ 'image' ] }
-							value={ logoId }
-							render={ ( { open } ) => (
-								<VStack spacing={ 3 }>
-									{ logoUrl && (
-										<div className="clp-logo-preview">
-											<img src={ logoUrl } alt="" />
-										</div>
-									) }
-									<HStack spacing={ 2 } justify="flex-start">
-										<Button variant="secondary" onClick={ open }>
-											{ logoUrl ? __( 'Replace', 'studioval-clp' ) : __( 'Choose a logo', 'studioval-clp' ) }
-										</Button>
+					<SelectControl
+						label={ __( 'Logo source', 'studioval-clp' ) }
+						value={ logoSource }
+						options={ [
+							{ label: __( 'Custom logo', 'studioval-clp' ), value: 'custom' },
+							{ label: __( 'Site icon', 'studioval-clp' ),   value: 'site-icon' },
+						] }
+						onChange={ ( val ) => onChange( 'logoSource', val ) }
+						__nextHasNoMarginBottom
+					/>
+
+					{ isCustomLogo ? (
+						<MediaUploadCheck>
+							<MediaUpload
+								onSelect={ onSelectLogo }
+								allowedTypes={ [ 'image' ] }
+								value={ logoId }
+								render={ ( { open } ) => (
+									<VStack spacing={ 3 }>
 										{ logoUrl && (
-											<Button variant="link" isDestructive onClick={ onRemoveLogo }>
-												{ __( 'Remove', 'studioval-clp' ) }
-											</Button>
+											<div className="clp-logo-preview">
+												<img src={ logoUrl } alt="" />
+											</div>
 										) }
-									</HStack>
-								</VStack>
-							) }
-						/>
-					</MediaUploadCheck>
+										<HStack spacing={ 2 } justify="flex-start">
+											<Button variant="secondary" onClick={ open }>
+												{ logoUrl ? __( 'Replace', 'studioval-clp' ) : __( 'Choose a logo', 'studioval-clp' ) }
+											</Button>
+											{ logoUrl && (
+												<Button variant="link" isDestructive onClick={ onRemoveLogo }>
+													{ __( 'Remove', 'studioval-clp' ) }
+												</Button>
+											) }
+										</HStack>
+									</VStack>
+								) }
+							/>
+						</MediaUploadCheck>
+					) : siteIconUrl ? (
+						<div className="clp-logo-preview">
+							<img src={ siteIconUrl } alt="" />
+						</div>
+					) : (
+						<Notice status="warning" isDismissible={ false }>
+							{ __( 'No site icon is configured. Set one under Settings → General → Site Icon.', 'studioval-clp' ) }
+						</Notice>
+					) }
 				</VStack>
 			</CardBody>
 			<CardFooter>

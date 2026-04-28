@@ -69,11 +69,14 @@ class StudioVal_CLP_Settings_Page {
 			'studioval-clp-settings',
 			'studiovalClpData',
 			[
-				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'settings' => get_option( self::OPTION_NAME, self::defaults() ),
-				'defaults' => self::defaults(),
-				'loginUrl' => wp_login_url(),
-				'palette'  => $this->get_theme_palette(),
+				'nonce'       => wp_create_nonce( 'wp_rest' ),
+				'settings'    => get_option( self::OPTION_NAME, self::defaults() ),
+				'defaults'    => self::defaults(),
+				'loginUrl'    => wp_login_url(),
+				'palette'     => $this->get_theme_palette(),
+				'siteIconUrl' => get_site_icon_url(),
+				'siteTitle'   => get_bloginfo( 'name' ),
+				'siteTagline' => get_bloginfo( 'description' ),
 			]
 		);
 	}
@@ -127,7 +130,9 @@ class StudioVal_CLP_Settings_Page {
 							'imageUrl'           => [ 'type' => 'string' ],
 							'logoId'             => [ 'type' => 'integer' ],
 							'logoUrl'            => [ 'type' => 'string' ],
+							'logoSource'         => [ 'type' => 'string' ],
 							'customTitle'        => [ 'type' => 'string' ],
+							'titleSource'        => [ 'type' => 'string' ],
 							'buttonText'         => [ 'type' => 'string' ],
 							'showForgotPassword' => [ 'type' => 'boolean' ],
 							'showBackToHome'     => [ 'type' => 'boolean' ],
@@ -147,8 +152,10 @@ class StudioVal_CLP_Settings_Page {
 			return self::defaults();
 		}
 
-		$d               = self::defaults();
-		$allowed_layouts = [ 'basic', 'image-left', 'image-right' ];
+		$d                     = self::defaults();
+		$allowed_layouts       = [ 'basic', 'image-left', 'image-right' ];
+		$allowed_logo_sources  = [ 'custom', 'site-icon' ];
+		$allowed_title_sources = [ 'custom', 'site' ];
 
 		return [
 			'layout'             => in_array( $raw['layout'] ?? '', $allowed_layouts, true ) ? $raw['layout'] : $d['layout'],
@@ -164,7 +171,9 @@ class StudioVal_CLP_Settings_Page {
 			'imageUrl'           => esc_url_raw( $raw['imageUrl'] ?? '' ),
 			'logoId'             => absint( $raw['logoId'] ?? 0 ),
 			'logoUrl'            => esc_url_raw( $raw['logoUrl'] ?? '' ),
+			'logoSource'         => in_array( $raw['logoSource'] ?? '', $allowed_logo_sources, true ) ? $raw['logoSource'] : $d['logoSource'],
 			'customTitle'        => sanitize_text_field( $raw['customTitle'] ?? '' ),
+			'titleSource'        => in_array( $raw['titleSource'] ?? '', $allowed_title_sources, true ) ? $raw['titleSource'] : $d['titleSource'],
 			'buttonText'         => sanitize_text_field( $raw['buttonText'] ?? $d['buttonText'] ) ?: $d['buttonText'],
 			'showForgotPassword' => (bool) ( $raw['showForgotPassword'] ?? $d['showForgotPassword'] ),
 			'showBackToHome'     => (bool) ( $raw['showBackToHome'] ?? $d['showBackToHome'] ),
@@ -190,7 +199,9 @@ class StudioVal_CLP_Settings_Page {
 			'imageUrl'           => '',
 			'logoId'             => 0,
 			'logoUrl'            => '',
+			'logoSource'         => 'custom',
 			'customTitle'        => '',
+			'titleSource'        => 'custom',
 			'buttonText'         => 'Log In',
 			'showForgotPassword' => true,
 			'showBackToHome'     => true,

@@ -65,7 +65,10 @@ class StudioVal_CLP_Login_Customizer {
 		$link_color      = esc_attr( $s['linkColor'] );
 		$overlay_rgba    = $this->hex_to_rgba( $s['overlayColor'], (float) $s['overlayOpacity'] );
 		$image_url       = esc_url( $s['imageUrl'] );
-		$logo_url        = esc_url( $s['logoUrl'] );
+		$logo_src        = 'site-icon' === ( $s['logoSource'] ?? 'custom' )
+			? get_site_icon_url()
+			: $s['logoUrl'];
+		$logo_url        = esc_url( $logo_src );
 		$layout          = esc_attr( $s['layout'] );
 		$has_image       = in_array( $s['layout'], [ 'image-left', 'image-right' ], true );
 
@@ -118,6 +121,12 @@ class StudioVal_CLP_Login_Customizer {
 	}
 
 	public function logo_text(): string {
+		$source = $this->settings['titleSource'] ?? 'custom';
+
+		if ( 'site' === $source ) {
+			return esc_html( get_bloginfo( 'name' ) );
+		}
+
 		$title = $this->settings['customTitle'] ?? '';
 		return esc_html( $title ?: get_bloginfo( 'name' ) );
 	}
