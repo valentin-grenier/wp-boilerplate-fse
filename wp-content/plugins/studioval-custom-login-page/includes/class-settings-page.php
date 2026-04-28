@@ -71,6 +71,7 @@ class StudioVal_CLP_Settings_Page {
 			[
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'settings' => get_option( self::OPTION_NAME, self::defaults() ),
+				'defaults' => self::defaults(),
 				'loginUrl' => wp_login_url(),
 				'palette'  => $this->get_theme_palette(),
 			]

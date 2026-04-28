@@ -6,6 +6,7 @@ import {
 	CardHeader,
 	CardBody,
 	CardDivider,
+	CardFooter,
 	__experimentalHeading as Heading,
 	__experimentalVStack as VStack,
 	__experimentalHStack as HStack,
@@ -14,7 +15,9 @@ import {
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-export default function BrandingPanel( { settings, onChange } ) {
+const RESET_KEYS = [ 'logoId', 'logoUrl', 'customTitle' ];
+
+export default function BrandingPanel( { settings, onChange, onReset } ) {
 	const { logoId, logoUrl, customTitle } = settings;
 
 	const onSelectLogo = ( media ) => {
@@ -86,6 +89,11 @@ export default function BrandingPanel( { settings, onChange } ) {
 					</MediaUploadCheck>
 				</VStack>
 			</CardBody>
+			<CardFooter>
+				<Button variant="tertiary" onClick={ () => onReset( RESET_KEYS ) }>
+					{ __( 'Reset to default', 'studioval-clp' ) }
+				</Button>
+			</CardFooter>
 		</Card>
 	);
 }

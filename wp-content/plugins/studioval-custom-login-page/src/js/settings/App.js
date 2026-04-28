@@ -15,7 +15,7 @@ import BrandingPanel from './components/BrandingPanel';
 import FormPanel from './components/FormPanel';
 import RedirectPanel from './components/RedirectPanel';
 
-const { settings: initialSettings, nonce } = window.studiovalClpData;
+const { settings: initialSettings, defaults, nonce } = window.studiovalClpData;
 
 apiFetch.use( apiFetch.createNonceMiddleware( nonce ) );
 
@@ -35,6 +35,19 @@ export default function App() {
 	const addNotice = useCallback( ( content, status = 'success' ) => {
 		setNotices( ( prev ) => [ ...prev, { id: String( Date.now() ), content, status } ] );
 	}, [] );
+
+	const resetKeys = useCallback( ( keys ) => {
+		setSettings( ( prev ) => {
+			const next = { ...prev };
+			keys.forEach( ( key ) => {
+				if ( key in defaults ) {
+					next[ key ] = defaults[ key ];
+				}
+			} );
+			return next;
+		} );
+		addNotice( __( 'Defaults restored — click Save to apply.', 'studioval-clp' ) );
+	}, [ addNotice ] );
 
 	const saveSettings = async () => {
 		setIsSaving( true );
@@ -84,14 +97,14 @@ export default function App() {
 
 				<div className="clp-grid">
 					<VStack spacing={ 4 }>
-						<ColorsPanel settings={ settings } onChange={ updateSetting } />
+						<ColorsPanel settings={ settings } onChange={ updateSetting } onReset={ resetKeys } />
 					</VStack>
 
 					<VStack spacing={ 4 }>
 						{ hasImageLayout && (
-							<ImagePanel settings={ settings } onChange={ updateSetting } />
+							<ImagePanel settings={ settings } onChange={ updateSetting } onReset={ resetKeys } />
 						) }
-						<BrandingPanel settings={ settings } onChange={ updateSetting } />
+						<BrandingPanel settings={ settings } onChange={ updateSetting } onReset={ resetKeys } />
 					</VStack>
 
 					<VStack spacing={ 4 }>

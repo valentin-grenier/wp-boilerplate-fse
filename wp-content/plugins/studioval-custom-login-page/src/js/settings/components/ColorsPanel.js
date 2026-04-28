@@ -9,6 +9,7 @@ import {
 	CardHeader,
 	CardBody,
 	CardDivider,
+	CardFooter,
 	Button,
 	Flex,
 	FlexItem,
@@ -71,8 +72,20 @@ function ColorControl( { label, value, onChange } ) {
 	);
 }
 
-export default function ColorsPanel( { settings, onChange } ) {
+const BASE_RESET_KEYS = [
+	'bgColor',
+	'formBgColor',
+	'textColor',
+	'buttonBgColor',
+	'buttonTextColor',
+	'linkColor',
+];
+
+const OVERLAY_RESET_KEYS = [ 'overlayColor', 'overlayOpacity' ];
+
+export default function ColorsPanel( { settings, onChange, onReset } ) {
 	const hasImageLayout = [ 'image-left', 'image-right' ].includes( settings.layout );
+	const resetKeys = hasImageLayout ? [ ...BASE_RESET_KEYS, ...OVERLAY_RESET_KEYS ] : BASE_RESET_KEYS;
 
 	return (
 		<Card size="small">
@@ -144,6 +157,12 @@ export default function ColorsPanel( { settings, onChange } ) {
 					</CardBody>
 				</>
 			) }
+
+			<CardFooter>
+				<Button variant="tertiary" onClick={ () => onReset( resetKeys ) }>
+					{ __( 'Reset to default', 'studioval-clp' ) }
+				</Button>
+			</CardFooter>
 		</Card>
 	);
 }

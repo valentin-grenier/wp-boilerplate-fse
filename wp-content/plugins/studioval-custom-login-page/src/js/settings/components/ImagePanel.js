@@ -4,6 +4,7 @@ import {
 	Card,
 	CardHeader,
 	CardBody,
+	CardFooter,
 	__experimentalHeading as Heading,
 	__experimentalVStack as VStack,
 	__experimentalHStack as HStack,
@@ -12,7 +13,9 @@ import {
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-export default function ImagePanel( { settings, onChange } ) {
+const RESET_KEYS = [ 'imageId', 'imageUrl' ];
+
+export default function ImagePanel( { settings, onChange, onReset } ) {
 	const { imageId, imageUrl } = settings;
 
 	const onSelect = ( media ) => {
@@ -66,6 +69,11 @@ export default function ImagePanel( { settings, onChange } ) {
 					</MediaUploadCheck>
 				</VStack>
 			</CardBody>
+			<CardFooter>
+				<Button variant="tertiary" onClick={ () => onReset( RESET_KEYS ) }>
+					{ __( 'Reset to default', 'studioval-clp' ) }
+				</Button>
+			</CardFooter>
 		</Card>
 	);
 }
