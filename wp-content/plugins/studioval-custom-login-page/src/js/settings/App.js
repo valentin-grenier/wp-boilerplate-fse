@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, SnackbarList } from '@wordpress/components';
+import {
+	Button,
+	SnackbarList,
+	__experimentalHeading as Heading,
+	__experimentalHStack as HStack,
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import LayoutPanel from './components/LayoutPanel';
 import ColorsPanel from './components/ColorsPanel';
@@ -27,7 +33,6 @@ export default function App() {
 	}, [] );
 
 	const addNotice = useCallback( ( content, status = 'success' ) => {
-		// SnackbarList handles auto-dismiss internally via onRemove.
 		setNotices( ( prev ) => [ ...prev, { id: String( Date.now() ), content, status } ] );
 	}, [] );
 
@@ -59,37 +64,42 @@ export default function App() {
 
 	return (
 		<div className="clp-settings-wrap">
-			<div className="clp-settings-header">
-				<h1 className="clp-settings-title">{ __( 'Custom login', 'studioval-clp' ) }</h1>
-				<Button
-					variant="primary"
-					onClick={ saveSettings }
-					isBusy={ isSaving }
-					disabled={ isSaving }
-				>
-					{ isSaving ? __( 'Saving…', 'studioval-clp' ) : __( 'Save', 'studioval-clp' ) }
-				</Button>
-			</div>
+			<VStack spacing={ 5 }>
+				<HStack justify="space-between" align="center">
+					<Heading level={ 1 } size={ 20 }>
+						{ __( 'Custom login', 'studioval-clp' ) }
+					</Heading>
+					<Button
+						variant="primary"
+						onClick={ saveSettings }
+						isBusy={ isSaving }
+						disabled={ isSaving }
+						__next40pxDefaultSize
+					>
+						{ isSaving ? __( 'Saving…', 'studioval-clp' ) : __( 'Save', 'studioval-clp' ) }
+					</Button>
+				</HStack>
 
-			<LayoutPanel settings={ settings } onChange={ updateSetting } />
+				<LayoutPanel settings={ settings } onChange={ updateSetting } />
 
-			<div className="clp-grid">
-				<div className="clp-grid__col">
-					<ColorsPanel settings={ settings } onChange={ updateSetting } />
+				<div className="clp-grid">
+					<VStack spacing={ 4 }>
+						<ColorsPanel settings={ settings } onChange={ updateSetting } />
+					</VStack>
+
+					<VStack spacing={ 4 }>
+						{ hasImageLayout && (
+							<ImagePanel settings={ settings } onChange={ updateSetting } />
+						) }
+						<BrandingPanel settings={ settings } onChange={ updateSetting } />
+					</VStack>
+
+					<VStack spacing={ 4 }>
+						<FormPanel settings={ settings } onChange={ updateSetting } />
+						<RedirectPanel settings={ settings } onChange={ updateSetting } />
+					</VStack>
 				</div>
-
-				<div className="clp-grid__col">
-					{ hasImageLayout && (
-						<ImagePanel settings={ settings } onChange={ updateSetting } />
-					) }
-					<BrandingPanel settings={ settings } onChange={ updateSetting } />
-				</div>
-
-				<div className="clp-grid__col">
-					<FormPanel settings={ settings } onChange={ updateSetting } />
-					<RedirectPanel settings={ settings } onChange={ updateSetting } />
-				</div>
-			</div>
+			</VStack>
 
 			<div className="clp-snackbars">
 				<SnackbarList notices={ notices } onRemove={ removeNotice } />

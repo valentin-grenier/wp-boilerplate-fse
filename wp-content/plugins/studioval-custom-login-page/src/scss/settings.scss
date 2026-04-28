@@ -1,58 +1,71 @@
-// ─── Wrap & header ────────────────────────────────────────────────────────────
+// Layout primitives and visual scaffolding live in @wordpress/components.
+// This file only carries what the component library doesn't ship: page wrap,
+// the 3-column grid, the layout-illustration thumbnails, image previews,
+// and the snackbar position.
+
+// ─── Wrap ────────────────────────────────────────────────────────────────────
 
 .clp-settings-wrap {
 	max-width: 1200px;
 	padding: 24px 0 64px;
 }
 
-.clp-settings-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 24px;
+// ─── 3-column grid ───────────────────────────────────────────────────────────
+
+.clp-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+	align-items: start;
+
+	@media (max-width: 1100px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media (max-width: 782px) {
+		grid-template-columns: 1fr;
+	}
 }
 
-.clp-settings-title {
-	font-size: 20px;
-	font-weight: 600;
-	margin: 0;
-	color: #1d2327;
-}
-
-// ─── Layout selector ──────────────────────────────────────────────────────────
+// ─── Layout selector (custom — no Gutenberg primitive for illustrated picks) ─
 
 .clp-layout-selector {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
-	gap: 16px;
-	margin-bottom: 24px;
+	gap: 12px;
 }
 
 .clp-layout-option {
 	position: relative;
 	display: block;
 	width: 100%;
-	padding: 16px;
+	padding: 12px;
 	background: #fff;
-	border: 2px solid #dcdcde;
-	border-radius: 6px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
 	cursor: pointer;
 	text-align: left;
-	transition: border-color 0.12s ease, background 0.12s ease;
+	transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
 	&:hover {
 		border-color: #8c8f94;
 	}
 
+	&:focus-visible {
+		outline: none;
+		border-color: var(--wp-admin-theme-color, #2271b1);
+		box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
+	}
+
 	&.is-selected {
-		border-color: #2271b1;
-		background: #f0f6fc;
+		border-color: var(--wp-admin-theme-color, #2271b1);
+		box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
 	}
 
 	&__info {
 		display: flex;
 		flex-direction: column;
-		gap: 3px;
+		gap: 2px;
 	}
 
 	&__label {
@@ -66,36 +79,18 @@
 		font-size: 12px;
 		color: #646970;
 	}
-
-	&__check {
-		position: absolute;
-		top: 12px;
-		right: 12px;
-		width: 20px;
-		height: 20px;
-		background: #2271b1;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #fff;
-		font-size: 10px;
-		font-weight: 700;
-		line-height: 1;
-	}
 }
 
-// ─── Layout illustrations (CSS only) ─────────────────────────────────────────
+// ─── Layout illustrations ────────────────────────────────────────────────────
 
 .clp-illustration {
 	width: 100%;
 	aspect-ratio: 3 / 2;
-	border-radius: 4px;
+	border-radius: 3px;
 	overflow: hidden;
-	margin-bottom: 12px;
+	margin-bottom: 10px;
 	border: 1px solid rgba(0, 0, 0, 0.08);
 
-	// Basic: centered form on gradient background
 	&--basic {
 		background: linear-gradient(135deg, #dfe3e8 0%, #c8d0d8 100%);
 		display: flex;
@@ -106,7 +101,7 @@
 			width: 46%;
 			height: 62%;
 			background: #fff;
-			border-radius: 4px;
+			border-radius: 3px;
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 			position: relative;
 
@@ -116,9 +111,9 @@
 				position: absolute;
 				left: 14%;
 				right: 14%;
-				height: 6px;
+				height: 5px;
 				background: #e8ebee;
-				border-radius: 3px;
+				border-radius: 2px;
 			}
 
 			&::before { top: 26%; }
@@ -126,7 +121,6 @@
 		}
 	}
 
-	// Split: image half + form half
 	&--split {
 		display: flex;
 
@@ -136,15 +130,14 @@
 			background: linear-gradient(160deg, #4a5568 0%, #2d3748 100%);
 			position: relative;
 
-			// Subtle frame icon hinting at a photo
 			&::after {
 				content: '';
 				position: absolute;
 				top: 50%;
 				left: 50%;
 				transform: translate(-50%, -50%);
-				width: 28px;
-				height: 22px;
+				width: 24px;
+				height: 18px;
 				border: 2px solid rgba(255, 255, 255, 0.2);
 				border-radius: 2px;
 			}
@@ -162,7 +155,7 @@
 				width: 68%;
 				height: 62%;
 				background: #fff;
-				border-radius: 3px;
+				border-radius: 2px;
 				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 				position: relative;
 
@@ -172,7 +165,7 @@
 					position: absolute;
 					left: 14%;
 					right: 14%;
-					height: 5px;
+					height: 4px;
 					background: #e8ebee;
 					border-radius: 2px;
 				}
@@ -183,143 +176,13 @@
 		}
 	}
 
-	// image-right: reverse DOM order via flexbox
 	&--image-right {
 		.clp-illustration__image      { order: 2; }
 		.clp-illustration__form-panel { order: 1; }
 	}
 }
 
-// ─── 3-column grid ────────────────────────────────────────────────────────────
-
-.clp-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 20px;
-	align-items: start;
-}
-
-// ─── Card ─────────────────────────────────────────────────────────────────────
-
-.clp-card {
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-
-	& + & {
-		margin-top: 16px;
-	}
-
-	&__title {
-		font-size: 12px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: #3c434a;
-		margin: 0;
-		padding: 12px 16px;
-		border-bottom: 1px solid #f0f0f1;
-	}
-
-	&__body {
-		padding: 16px;
-	}
-}
-
-// ─── Color controls ───────────────────────────────────────────────────────────
-
-.clp-color-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 7px 0;
-	border-bottom: 1px solid #f6f7f7;
-
-	&:last-of-type {
-		border-bottom: none;
-		padding-bottom: 0;
-	}
-
-	&__label {
-		font-size: 13px;
-		color: #1d2327;
-		flex: 1;
-		min-width: 0;
-	}
-}
-
-.clp-color-trigger {
-	display: flex;
-	align-items: center;
-	gap: 7px;
-	padding: 4px 8px;
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	cursor: pointer;
-	flex-shrink: 0;
-	transition: border-color 0.1s, background 0.1s;
-
-	&:hover,
-	&.is-open {
-		border-color: #8c8f94;
-		background: #f0f0f1;
-	}
-}
-
-.clp-color-swatch {
-	width: 16px;
-	height: 16px;
-	border-radius: 3px;
-	border: 1px solid rgba(0, 0, 0, 0.15);
-	flex-shrink: 0;
-}
-
-.clp-color-hex {
-	font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
-	font-size: 11px;
-	color: #3c434a;
-	letter-spacing: 0.03em;
-}
-
-.clp-color-popover {
-	min-width: 200px;
-	padding: 8px;
-
-	.components-color-picker {
-		border: none;
-		box-shadow: none;
-	}
-
-	.components-color-palette {
-		margin: 0;
-	}
-}
-
-// ─── Range (overlay opacity) ─────────────────────────────────────────────────
-
-.clp-separator {
-	height: 1px;
-	background: #f0f0f1;
-	margin: 8px 0;
-}
-
-.clp-range-wrap {
-	padding-top: 8px;
-
-	.components-range-control {
-		margin-bottom: 0;
-	}
-}
-
-// ─── Image / logo upload ──────────────────────────────────────────────────────
-
-.clp-image-control {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
+// ─── Image / logo previews ───────────────────────────────────────────────────
 
 .clp-image-preview {
 	border: 1px solid #dcdcde;
@@ -347,37 +210,6 @@
 		max-height: 64px;
 		object-fit: contain;
 	}
-}
-
-.clp-image-actions {
-	display: flex;
-	gap: 8px;
-	align-items: center;
-	flex-wrap: wrap;
-}
-
-// ─── Misc helpers ─────────────────────────────────────────────────────────────
-
-.clp-field-section {
-	margin-top: 20px;
-	padding-top: 16px;
-	border-top: 1px solid #f0f0f1;
-}
-
-.clp-field-label {
-	font-size: 11px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	color: #1d2327;
-	margin-bottom: 4px;
-}
-
-.clp-help {
-	font-size: 12px;
-	color: #646970;
-	margin: 0 0 12px;
-	line-height: 1.5;
 }
 
 // ─── SnackbarList (fixed bottom-right) ───────────────────────────────────────

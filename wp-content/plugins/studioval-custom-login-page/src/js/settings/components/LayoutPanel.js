@@ -1,4 +1,10 @@
 import React from 'react';
+import {
+	Card,
+	CardHeader,
+	CardBody,
+	__experimentalHeading as Heading,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const LAYOUTS = [
@@ -40,24 +46,31 @@ function LayoutIllustration( { value } ) {
 
 export default function LayoutPanel( { settings, onChange } ) {
 	return (
-		<div className="clp-layout-selector">
-			{ LAYOUTS.map( ( { value, label, description } ) => (
-				<button
-					key={ value }
-					type="button"
-					className={ `clp-layout-option${ settings.layout === value ? ' is-selected' : '' }` }
-					onClick={ () => onChange( 'layout', value ) }
-				>
-					<LayoutIllustration value={ value } />
-					<div className="clp-layout-option__info">
-						<span className="clp-layout-option__label">{ label }</span>
-						<span className="clp-layout-option__desc">{ description }</span>
-					</div>
-					{ settings.layout === value && (
-						<span className="clp-layout-option__check" aria-hidden="true">✓</span>
-					) }
-				</button>
-			) ) }
-		</div>
+		<Card size="small">
+			<CardHeader>
+				<Heading level={ 3 } size={ 13 }>
+					{ __( 'Layout', 'studioval-clp' ) }
+				</Heading>
+			</CardHeader>
+			<CardBody>
+				<div className="clp-layout-selector">
+					{ LAYOUTS.map( ( { value, label, description } ) => (
+						<button
+							key={ value }
+							type="button"
+							className={ `clp-layout-option${ settings.layout === value ? ' is-selected' : '' }` }
+							onClick={ () => onChange( 'layout', value ) }
+							aria-pressed={ settings.layout === value }
+						>
+							<LayoutIllustration value={ value } />
+							<div className="clp-layout-option__info">
+								<span className="clp-layout-option__label">{ label }</span>
+								<span className="clp-layout-option__desc">{ description }</span>
+							</div>
+						</button>
+					) ) }
+				</div>
+			</CardBody>
+		</Card>
 	);
 }
