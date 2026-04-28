@@ -56,11 +56,11 @@ import './${blockName}.scss';
 
 import Icon from '../../shared/icon-site.jsx';
 
-registerBlockType('theme-name/${blockName}', {
+registerBlockType('studioval/${blockName}', {
 	apiVersion: 3,
-	title: __('${titleCase}', 'theme-name'),
-	description: __('Un bloc personnalisé nommé ${blockName}.', 'theme-name'),
-	category: 'theme-name',
+	title: __('${titleCase}', 'studioval-boilerplate'),
+	description: __('Un bloc personnalisé nommé ${blockName}.', 'studioval-boilerplate'),
+	category: 'studioval',
 	icon: { src: Icon },
 	keywords: ['${blockName}'],${
 		isDynamic
@@ -88,7 +88,7 @@ registerBlockType('theme-name/${blockName}', {
 					tagName="p"
 					value={attributes.content}
 					onChange={(content) => setAttributes({ content })}
-					placeholder={__('Saisir le contenu...', 'theme-name')}
+					placeholder={__('Saisir le contenu...', 'studioval-boilerplate')}
 				/>
 			</div>
 		);
@@ -116,21 +116,21 @@ ${
 	// === [block-name]-editor.scss (Editor Styles) ===
 	fs.writeFileSync(
 		path.join(blockDir, `${blockName}-editor.scss`),
-		`.wp-block-theme-name-${blockName} {}
+		`.wp-block-studioval-${blockName} {}
 `
 	);
 
 	// === [block-name].scss (Frontend Styles) ===
 	fs.writeFileSync(
 		path.join(blockDir, `${blockName}.scss`),
-		`.wp-block-theme-name-${blockName} {}
+		`.wp-block-studioval-${blockName} {}
 `
 	);
 
 	// === [block-name]-frontend.js (Frontend JavaScript) ===
 	if (isDynamic) {
 		const frontendJs = `document.addEventListener('DOMContentLoaded', () => {
-	const blocks = document.querySelectorAll('.wp-block-theme-name-${blockName}');
+	const blocks = document.querySelectorAll('.wp-block-studioval-${blockName}');
 
 	blocks.forEach((block) => {
 		console.log('${titleCase} block initialized', block);

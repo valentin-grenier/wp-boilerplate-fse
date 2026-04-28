@@ -1,16 +1,12 @@
 ## Description
 
-<!-- Describe the changes introduced by this PR and why they are needed. -->
+Describe the changes introduced by this PR and why they are needed.
 
 ## Related Issue
-
-<!-- Link the issue this PR addresses, e.g. Closes #123 -->
 
 Closes #
 
 ## Type of Change
-
-<!-- Check all that apply -->
 
 - [ ] 🐛 Bug fix
 - [ ] ✨ New feature
@@ -33,8 +29,8 @@ Closes #
 
 ## Screenshots
 
-<!-- If your change affects the UI or block editor, add before/after screenshots. -->
+If your change affects the UI or block editor, add before/after screenshots.
 
 ## Additional Notes
 
-<!-- Anything else reviewers should know? -->
+Anything else reviewers should know?

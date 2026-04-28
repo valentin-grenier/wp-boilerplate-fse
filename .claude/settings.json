@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(composer:*)",
+      "Bash(npm install)",
+      "Bash(npm ci)",
+      "Bash(npm run:*)",
+      "Bash(npx:*)",
+      "Bash(ddev:*)",
+      "Bash(wp:*)",
+      "Bash(git status)",
+      "Bash(git status:*)",
+      "Bash(git diff)",
+      "Bash(git diff:*)",
+      "Bash(git log)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch)",
+      "Bash(git branch --show-current)",
+      "Bash(git branch -v)",
+      "Bash(git fetch)",
+      "Bash(git fetch:*)",
+      "Bash(git remote -v)",
+      "Bash(git blame:*)",
+      "Bash(git stash list)",
+      "Bash(git add:*)",
+      "Bash(git commit -m:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git pull)",
+      "Bash(git pull:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh -R:*)",
+      "Bash(gh repo:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(php --version)",
+      "Bash(php -v)",
+      "Bash(node --version)",
+      "Bash(node -v)",
+      "Bash(npm --version)",
+      "Bash(composer --version)",
+      "Bash(ddev --version)",
+      "Bash(.claude/hooks/:*)",
+      "Bash(bin/smoke.sh)"
+    ],
+    "deny": [
+      "Edit(wp-config.php)",
+      "Edit(wp-config-ddev.php)",
+      "Edit(wp-config-sample.php)",
+      "Edit(auth.json)",
+      "Edit(wp-admin/**)",
+      "Edit(wp-includes/**)",
+      "Edit(vendor/**)",
+      "Edit(**/node_modules/**)",
+      "Edit(wp-content/themes/theme-fse/dist/**)",
+      "Write(wp-config.php)",
+      "Write(auth.json)",
+      "Write(wp-admin/**)",
+      "Write(wp-includes/**)",
+      "Write(vendor/**)",
+      "Write(**/node_modules/**)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git branch -D:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-banner.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-edited.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/append-lesson.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'"
+          }
+        ]
+      }
+    ]
+  }
+}

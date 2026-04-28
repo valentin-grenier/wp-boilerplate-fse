@@ -257,7 +257,7 @@ update_theme_info() {
   log_info "Updating theme information in style.css..."
   echo "   Theme Name: WP FSE Boilerplate → $display_name"
   echo "   Theme URI: ending with /$theme_slug"
-  echo "   Text Domain: fse-boilerplate → $text_domain"
+  echo "   Text Domain: studioval-boilerplate → $text_domain"
 
   if [ "$DRY_RUN" = true ]; then
     echo "[DRY RUN] Would update theme name to '$display_name' in $style_css"
@@ -289,7 +289,7 @@ update_theme_info() {
 
   # Update block categories file
   if [ -f "$block_categories" ]; then
-    sed_inplace "s/'theme-name'/'$text_domain'/g" "$block_categories"
+    sed_inplace "s/'studioval-boilerplate'/'$text_domain'/g" "$block_categories"
     sed_inplace "s/'Theme Name'/'$display_name'/g" "$block_categories"
     log_success "Block categories updated successfully"
     increment_success
@@ -299,9 +299,11 @@ update_theme_info() {
   fi
 
   # Update make-block script
+  # Only substitutes the text-domain. The block namespace (studioval/) and the
+  # CSS class prefix (.wp-block-studioval-) are the agency's brand — they stay
+  # constant across client installs per the project convention.
   if [ -f "$make_block" ]; then
-    sed_inplace "s/'theme-name'/'$text_domain'/g" "$make_block"
-    sed_inplace "s/wp-block-theme-name-/wp-block-$text_domain-/g" "$make_block"
+    sed_inplace "s/'studioval-boilerplate'/'$text_domain'/g" "$make_block"
     log_success "make-block script updated successfully"
     increment_success
   else

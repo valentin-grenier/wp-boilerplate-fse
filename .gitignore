@@ -6,8 +6,6 @@
 .git
 /vendor
 **/node_modules
-package-lock.json
-composer.lock
 *.env
 auth.json
 /cgi-bin/
@@ -67,8 +65,6 @@ wp-content/updraft/*
 wp-content/themes/twenty*
 wp-content/themes/**/*/vendor/
 wp-content/themes/**/*/node_modules/
-wp-content/themes/**/*/package-lock.json
-wp-content/themes/**/*/composer.lock
 wp-content/umbrella-upgrade-backup/
 wp-content/uploads/
 wp-content/uploads-webpc/
@@ -104,8 +100,6 @@ wp-content/themes/**/dist/
 !wp-content/themes/theme-fse/dist/
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
-wp-content/themes/**/package-lock.json
-wp-content/themes/**/composer.lock
 
 # =========================
 # DDEV
@@ -116,6 +110,17 @@ wp-config-ddev.php
 # UPDRAFT
 # =========================
 wp-content/updraft/
+
+# =========================
+# LOCAL TOOLING OVERRIDES
+# =========================
+# The .dist versions are the committed team defaults. Each tool checks for the
+# non-.dist file first and falls back to .dist, so devs can tweak locally
+# without leaking overrides into git.
+phpcs.xml
+phpstan.neon
+phpunit.xml
+.phpunit.result.cache
 
 # =========================
 # OTHERS
