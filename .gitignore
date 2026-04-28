@@ -91,7 +91,6 @@ wp-content/debug.log
 wp-content/plugins/*
 !wp-content/plugins/studioval-custom-login-page/
 wp-content/plugins/studioval-custom-login-page/node_modules/
-wp-content/plugins/studioval-custom-login-page/dist/
 
 # =========================
 # MU-PLUGINS

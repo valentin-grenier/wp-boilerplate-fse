@@ -26,6 +26,8 @@ require_once STUDIOVAL_CLP_DIR . 'includes/class-settings-page.php';
 require_once STUDIOVAL_CLP_DIR . 'includes/class-login-customizer.php';
 
 add_action( 'plugins_loaded', function () {
+	load_plugin_textdomain( 'studioval-clp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
 	( new StudioVal_CLP_Settings_Page() )->init();
 	( new StudioVal_CLP_Login_Customizer() )->init();
 } );

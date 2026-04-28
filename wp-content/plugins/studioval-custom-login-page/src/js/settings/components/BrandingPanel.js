@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextControl, Button } from '@wordpress/components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 import Card from './Card';
 
 export default function BrandingPanel( { settings, onChange } ) {
@@ -17,18 +18,18 @@ export default function BrandingPanel( { settings, onChange } ) {
 	};
 
 	return (
-		<Card title="Identité visuelle">
+		<Card title={ __( 'Branding', 'studioval-clp' ) }>
 			<TextControl
-				label="Titre de la page"
-				help="Remplace le nom du site affiché au-dessus du formulaire."
+				label={ __( 'Page title', 'studioval-clp' ) }
+				help={ __( 'Replaces the site name displayed above the form.', 'studioval-clp' ) }
 				value={ customTitle }
 				onChange={ ( val ) => onChange( 'customTitle', val ) }
-				placeholder="Mon Site"
+				placeholder={ __( 'My Site', 'studioval-clp' ) }
 			/>
 
 			<div className="clp-field-section">
-				<div className="clp-field-label">Logo</div>
-				<p className="clp-help">Remplace le logo WordPress par défaut.</p>
+				<div className="clp-field-label">{ __( 'Logo', 'studioval-clp' ) }</div>
+				<p className="clp-help">{ __( 'Replaces the default WordPress logo.', 'studioval-clp' ) }</p>
 
 				<MediaUploadCheck>
 					<MediaUpload
@@ -44,16 +45,16 @@ export default function BrandingPanel( { settings, onChange } ) {
 										</div>
 										<div className="clp-image-actions">
 											<Button variant="secondary" onClick={ open }>
-												Remplacer
+												{ __( 'Replace', 'studioval-clp' ) }
 											</Button>
 											<Button variant="link" isDestructive onClick={ onRemoveLogo }>
-												Supprimer
+												{ __( 'Remove', 'studioval-clp' ) }
 											</Button>
 										</div>
 									</>
 								) : (
 									<Button variant="secondary" onClick={ open }>
-										Choisir un logo
+										{ __( 'Choose a logo', 'studioval-clp' ) }
 									</Button>
 								) }
 							</div>

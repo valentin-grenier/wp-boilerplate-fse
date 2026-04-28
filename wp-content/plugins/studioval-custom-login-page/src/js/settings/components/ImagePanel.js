@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@wordpress/components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 import Card from './Card';
 
 export default function ImagePanel( { settings, onChange } ) {
@@ -17,9 +18,9 @@ export default function ImagePanel( { settings, onChange } ) {
 	};
 
 	return (
-		<Card title="Image d'arrière-plan">
+		<Card title={ __( 'Background image', 'studioval-clp' ) }>
 			<p className="clp-help">
-				Remplit la moitié de l'écran. Format recommandé : portrait, min 800 × 1000 px.
+				{ __( 'Fills half of the screen. Recommended format: portrait, min 800 × 1000 px.', 'studioval-clp' ) }
 			</p>
 
 			<MediaUploadCheck>
@@ -36,16 +37,16 @@ export default function ImagePanel( { settings, onChange } ) {
 									</div>
 									<div className="clp-image-actions">
 										<Button variant="secondary" onClick={ open }>
-											Remplacer
+											{ __( 'Replace', 'studioval-clp' ) }
 										</Button>
 										<Button variant="link" isDestructive onClick={ onRemove }>
-											Supprimer
+											{ __( 'Remove', 'studioval-clp' ) }
 										</Button>
 									</div>
 								</>
 							) : (
 								<Button variant="secondary" onClick={ open }>
-									Choisir une image
+									{ __( 'Choose an image', 'studioval-clp' ) }
 								</Button>
 							) }
 						</div>
