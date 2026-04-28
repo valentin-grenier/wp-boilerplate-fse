@@ -212,12 +212,12 @@
 	}
 }
 
-// ─── SnackbarList (fixed bottom-right) ───────────────────────────────────────
+// ─── SnackbarList (fixed bottom-left) ────────────────────────────────────────
 
 .clp-snackbars {
 	position: fixed;
 	bottom: 24px;
-	right: 24px;
+	left: 24px;
 	z-index: 99999;
 
 	.components-snackbar-list {
