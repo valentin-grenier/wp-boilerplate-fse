@@ -9,7 +9,7 @@ class StudioVal_CLP_Login_Customizer {
 	private array $settings;
 
 	public function init(): void {
-		$defaults       = ( new StudioVal_CLP_Settings_Page() )->defaults();
+		$defaults       = StudioVal_CLP_Settings_Page::defaults();
 		$saved          = get_option( StudioVal_CLP_Settings_Page::OPTION_NAME, [] );
 		$this->settings = is_array( $saved ) ? array_merge( $defaults, $saved ) : $defaults;
 
@@ -119,7 +119,7 @@ class StudioVal_CLP_Login_Customizer {
 
 	public function logo_text(): string {
 		$title = $this->settings['customTitle'] ?? '';
-		return $title ?: get_bloginfo( 'name' );
+		return esc_html( $title ?: get_bloginfo( 'name' ) );
 	}
 
 	public function maybe_filter_button_text(): void {

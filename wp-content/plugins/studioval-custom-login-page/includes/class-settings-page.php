@@ -16,8 +16,8 @@ class StudioVal_CLP_Settings_Page {
 
 	public function add_menu_page(): void {
 		add_options_page(
-			__( 'Connexion personnalisée', 'studioval-clp' ),
-			__( 'Connexion personnalisée', 'studioval-clp' ),
+			__( 'Custom login', 'studioval-clp' ),
+			__( 'Custom login', 'studioval-clp' ),
 			'manage_options',
 			'studioval-custom-login',
 			[ $this, 'render_page' ]
@@ -52,6 +52,12 @@ class StudioVal_CLP_Settings_Page {
 			true
 		);
 
+		wp_set_script_translations(
+			'studioval-clp-settings',
+			'studioval-clp',
+			STUDIOVAL_CLP_DIR . 'languages'
+		);
+
 		wp_enqueue_style(
 			'studioval-clp-settings',
 			STUDIOVAL_CLP_URL . 'dist/settings.css',
@@ -64,7 +70,7 @@ class StudioVal_CLP_Settings_Page {
 			'studiovalClpData',
 			[
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
-				'settings' => get_option( self::OPTION_NAME, $this->defaults() ),
+				'settings' => get_option( self::OPTION_NAME, self::defaults() ),
 				'loginUrl' => wp_login_url(),
 				'palette'  => $this->get_theme_palette(),
 			]
@@ -101,7 +107,7 @@ class StudioVal_CLP_Settings_Page {
 			self::OPTION_NAME,
 			[
 				'type'              => 'object',
-				'default'           => $this->defaults(),
+				'default'           => self::defaults(),
 				'sanitize_callback' => [ $this, 'sanitize' ],
 				'show_in_rest'      => [
 					'schema' => [
@@ -137,10 +143,10 @@ class StudioVal_CLP_Settings_Page {
 
 	public function sanitize( mixed $raw ): array {
 		if ( ! is_array( $raw ) ) {
-			return $this->defaults();
+			return self::defaults();
 		}
 
-		$d               = $this->defaults();
+		$d               = self::defaults();
 		$allowed_layouts = [ 'basic', 'image-left', 'image-right' ];
 
 		return [
@@ -168,7 +174,7 @@ class StudioVal_CLP_Settings_Page {
 		];
 	}
 
-	public function defaults(): array {
+	public static function defaults(): array {
 		return [
 			'layout'             => 'basic',
 			'bgColor'            => '#f0f0f1',

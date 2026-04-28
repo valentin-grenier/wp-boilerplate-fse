@@ -1,20 +1,21 @@
 import React from 'react';
+import { __ } from '@wordpress/i18n';
 
 const LAYOUTS = [
 	{
 		value: 'basic',
-		label: 'Basique',
-		description: 'Formulaire centré, fond coloré',
+		label: __( 'Basic', 'studioval-clp' ),
+		description: __( 'Centered form, solid background', 'studioval-clp' ),
 	},
 	{
 		value: 'image-left',
-		label: 'Image à gauche',
-		description: 'Formulaire à droite',
+		label: __( 'Image on the left', 'studioval-clp' ),
+		description: __( 'Form on the right', 'studioval-clp' ),
 	},
 	{
 		value: 'image-right',
-		label: 'Image à droite',
-		description: 'Formulaire à gauche',
+		label: __( 'Image on the right', 'studioval-clp' ),
+		description: __( 'Form on the left', 'studioval-clp' ),
 	},
 ];
 

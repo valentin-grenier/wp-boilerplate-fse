@@ -1,5 +1,6 @@
 import React from 'react';
 import { ColorPalette, ColorPicker, Dropdown, RangeControl } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import Card from './Card';
 
 const palette = window.studiovalClpData?.palette ?? [];
@@ -51,34 +52,34 @@ export default function ColorsPanel( { settings, onChange } ) {
 	const hasImageLayout = [ 'image-left', 'image-right' ].includes( settings.layout );
 
 	return (
-		<Card title="Couleurs">
+		<Card title={ __( 'Colors', 'studioval-clp' ) }>
 			<ColorControl
-				label="Arrière-plan de la page"
+				label={ __( 'Page background', 'studioval-clp' ) }
 				value={ settings.bgColor }
 				onChange={ ( val ) => onChange( 'bgColor', val ) }
 			/>
 			<ColorControl
-				label="Arrière-plan du formulaire"
+				label={ __( 'Form background', 'studioval-clp' ) }
 				value={ settings.formBgColor }
 				onChange={ ( val ) => onChange( 'formBgColor', val ) }
 			/>
 			<ColorControl
-				label="Texte"
+				label={ __( 'Text', 'studioval-clp' ) }
 				value={ settings.textColor }
 				onChange={ ( val ) => onChange( 'textColor', val ) }
 			/>
 			<ColorControl
-				label="Fond du bouton"
+				label={ __( 'Button background', 'studioval-clp' ) }
 				value={ settings.buttonBgColor }
 				onChange={ ( val ) => onChange( 'buttonBgColor', val ) }
 			/>
 			<ColorControl
-				label="Texte du bouton"
+				label={ __( 'Button text', 'studioval-clp' ) }
 				value={ settings.buttonTextColor }
 				onChange={ ( val ) => onChange( 'buttonTextColor', val ) }
 			/>
 			<ColorControl
-				label="Liens"
+				label={ __( 'Links', 'studioval-clp' ) }
 				value={ settings.linkColor }
 				onChange={ ( val ) => onChange( 'linkColor', val ) }
 			/>
@@ -87,13 +88,17 @@ export default function ColorsPanel( { settings, onChange } ) {
 				<>
 					<div className="clp-separator" />
 					<ColorControl
-						label="Superposition (image)"
+						label={ __( 'Image overlay', 'studioval-clp' ) }
 						value={ settings.overlayColor }
 						onChange={ ( val ) => onChange( 'overlayColor', val ) }
 					/>
 					<div className="clp-range-wrap">
 						<RangeControl
-							label={ `Opacité — ${ Math.round( settings.overlayOpacity * 100 ) } %` }
+							label={ sprintf(
+								/* translators: %d: opacity percentage. */
+								__( 'Opacity — %d %%', 'studioval-clp' ),
+								Math.round( settings.overlayOpacity * 100 )
+							) }
 							value={ Math.round( settings.overlayOpacity * 100 ) }
 							onChange={ ( val ) => onChange( 'overlayOpacity', val / 100 ) }
 							min={ 0 }

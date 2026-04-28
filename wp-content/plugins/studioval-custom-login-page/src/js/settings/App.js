@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, SnackbarList } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import LayoutPanel from './components/LayoutPanel';
 import ColorsPanel from './components/ColorsPanel';
 import ImagePanel from './components/ImagePanel';
@@ -43,9 +44,12 @@ export default function App() {
 				setSettings( updated.studioval_clp_settings );
 			}
 
-			addNotice( 'Réglages enregistrés.' );
+			addNotice( __( 'Settings saved.', 'studioval-clp' ) );
 		} catch ( error ) {
-			addNotice( error?.message || 'Une erreur est survenue lors de l\'enregistrement.', 'error' );
+			addNotice(
+				error?.message || __( 'An error occurred while saving.', 'studioval-clp' ),
+				'error'
+			);
 		} finally {
 			setIsSaving( false );
 		}
@@ -56,14 +60,14 @@ export default function App() {
 	return (
 		<div className="clp-settings-wrap">
 			<div className="clp-settings-header">
-				<h1 className="clp-settings-title">Connexion personnalisée</h1>
+				<h1 className="clp-settings-title">{ __( 'Custom login', 'studioval-clp' ) }</h1>
 				<Button
 					variant="primary"
 					onClick={ saveSettings }
 					isBusy={ isSaving }
 					disabled={ isSaving }
 				>
-					{ isSaving ? 'Enregistrement…' : 'Enregistrer' }
+					{ isSaving ? __( 'Saving…', 'studioval-clp' ) : __( 'Save', 'studioval-clp' ) }
 				</Button>
 			</div>
 

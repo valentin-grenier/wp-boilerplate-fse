@@ -1,13 +1,14 @@
 import React from 'react';
 import { TextControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import Card from './Card';
 
 export default function RedirectPanel( { settings, onChange } ) {
 	return (
-		<Card title="Redirections">
+		<Card title={ __( 'Redirects', 'studioval-clp' ) }>
 			<TextControl
-				label="Administrateurs et éditeurs"
-				help="Laisser vide pour utiliser la valeur par défaut (/wp-admin)."
+				label={ __( 'Administrators and editors', 'studioval-clp' ) }
+				help={ __( 'Leave empty to use the default (/wp-admin).', 'studioval-clp' ) }
 				type="url"
 				value={ settings.redirectAdminUrl }
 				onChange={ ( val ) => onChange( 'redirectAdminUrl', val ) }
@@ -15,8 +16,8 @@ export default function RedirectPanel( { settings, onChange } ) {
 			/>
 
 			<TextControl
-				label="Tous les autres utilisateurs"
-				help="Laisser vide pour utiliser la valeur par défaut."
+				label={ __( 'All other users', 'studioval-clp' ) }
+				help={ __( 'Leave empty to use the default.', 'studioval-clp' ) }
 				type="url"
 				value={ settings.redirectUserUrl }
 				onChange={ ( val ) => onChange( 'redirectUserUrl', val ) }
