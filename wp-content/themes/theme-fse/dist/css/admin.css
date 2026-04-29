@@ -1,1 +1,28 @@
-.wp-admin-theme-name-theme-options-page__snackbar-list{bottom:24px;max-width:300px;position:fixed;right:0;width:100%}.wp-admin-theme-name-theme-options-page__cards{display:flex;flex-wrap:wrap;gap:16px;margin-top:20px}.wp-admin-theme-name-theme-options-page__card{max-width:500px;width:100%}.wp-admin-theme-name-theme-options-page__card-header-title{margin:0}.wp-admin-theme-name-theme-options-page__submit-button{margin-top:24px}
+/*!****************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./scss/admin.scss ***!
+  \****************************************************************************************************************************************************/
+.wp-admin-theme-name-theme-options-page__snackbar-list {
+  position: fixed;
+  bottom: 24px;
+  right: 0;
+  max-width: 300px;
+  width: 100%;
+}
+.wp-admin-theme-name-theme-options-page__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+.wp-admin-theme-name-theme-options-page__card {
+  max-width: 500px;
+  width: 100%;
+}
+.wp-admin-theme-name-theme-options-page__card-header-title {
+  margin: 0;
+}
+.wp-admin-theme-name-theme-options-page__submit-button {
+  margin-top: 24px;
+}
+
+/*# sourceMappingURL=admin.css.map*/

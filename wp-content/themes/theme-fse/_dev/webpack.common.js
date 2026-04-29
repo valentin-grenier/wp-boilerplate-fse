@@ -93,6 +93,15 @@ module.exports = {
 					from: path.resolve(devRoot, 'assets/theme'),
 					to: path.resolve(themeRoot, 'dist/assets/theme'),
 				},
+				{
+					from: path.resolve(devRoot, 'assets/fonts'),
+					to: path.resolve(themeRoot, 'dist/assets/fonts'),
+				},
+				{
+					from: path.resolve(devRoot, 'blocks'),
+					to: path.resolve(themeRoot, 'dist/blocks'),
+					globOptions: { ignore: ['**/*.js', '**/*.scss'] },
+				},
 			],
 		}),
 	],

@@ -54,8 +54,8 @@ function createBlock(blockName, isDynamic) {
 	// ${blockName}.scss / ${blockName}-editor.scss as separate entries so
 	// shared and editor-only styles compile to distinct CSS bundles.
 	const editorPlaceholderInstructions = isDynamic
-		? `Bloc d’exemple dynamique — le markup côté front est rendu par ${blockName}.php.`
-		: `Bloc d’exemple statique — le markup côté front est défini en dur dans Save.`;
+		? `Dynamic block example — front-end markup is rendered by ${blockName}.php.`
+		: `Static block example — front-end markup is defined in the Save function.`;
 
 	const blockJs = `import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
@@ -97,7 +97,7 @@ const Save = () => null;`
 registerBlockType('studioval/${blockName}', {
 	apiVersion: 3,
 	title: __('${titleCase}', 'studioval-boilerplate'),
-	description: __('Un bloc personnalisé nommé ${blockName}.', 'studioval-boilerplate'),
+	description: __('A custom block named ${blockName}.', 'studioval-boilerplate'),
 	category: 'studioval',
 	icon: 'screenoptions',
 	keywords: ['${blockName}'],${
