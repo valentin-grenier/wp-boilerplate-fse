@@ -3,20 +3,21 @@
 	"apiVersion": 3,
 	"name": "studioval/block",
 	"title": "Studio Val",
-	"description": "Default ACF block for starter theme.",
+	"description": "Default native block for starter theme.",
 	"textdomain": "studioval-boilerplate",
-	"style": ["file:../../../dist/blocks/block/block.css"],
-	"script": ["file:../../../dist/blocks/block/block.js"],
 	"category": "studioval",
 	"icon": "screenoptions",
 	"keywords": ["studio"],
-	"acf": {
-		"mode": "preview",
-		"renderTemplate": "block.php"
+	"editorScript": "file:../../../dist/blocks/block/block.js",
+	"style": "file:../../../dist/blocks/block/block.css",
+	"attributes": {
+		"content": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"supports": {
 		"anchor": false,
-		"jsx": false,
 		"inserter": true,
 		"spacing": {
 			"margin": false,
