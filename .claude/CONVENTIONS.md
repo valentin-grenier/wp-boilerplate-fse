@@ -124,11 +124,11 @@ ddev wp i18n make-pot wp-content/themes/theme-fse \
 
 Config files live at the repo root as `<tool>.<ext>.dist` (the non-`.dist` versions are gitignored so local overrides never leak).
 
-| Tool      | Purpose                                                        | Config file                                       | Run with                                      |
-|-----------|----------------------------------------------------------------|---------------------------------------------------|-----------------------------------------------|
-| `phpcs`   | Style + known-unsafe-pattern linter (WordPress-Extra ruleset). | [`phpcs.xml.dist`](../phpcs.xml.dist)             | `composer lint` (report) / `composer lint:fix` (auto-fix via `phpcbf`) |
-| `phpstan` | Static analyzer — finds logic bugs without running the code.   | [`phpstan.neon.dist`](../phpstan.neon.dist)       | `composer stan`                               |
-| `phpunit` | Test runner. Picks up `tests/**Test.php`.                      | [`phpunit.xml.dist`](../phpunit.xml.dist)         | `composer test`                               |
+| Tool      | Purpose                                                        | Config file                                 | Run with                                                               |
+| --------- | -------------------------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------- |
+| `phpcs`   | Style + known-unsafe-pattern linter (WordPress-Extra ruleset). | [`phpcs.xml.dist`](../phpcs.xml.dist)       | `composer lint` (report) / `composer lint:fix` (auto-fix via `phpcbf`) |
+| `phpstan` | Static analyzer — finds logic bugs without running the code.   | [`phpstan.neon.dist`](../phpstan.neon.dist) | `composer stan`                                                        |
+| `phpunit` | Test runner. Picks up `tests/**Test.php`.                      | [`phpunit.xml.dist`](../phpunit.xml.dist)   | `composer test`                                                        |
 
 **What "phpcs" catches:** indentation, docblocks, unescaped `echo`, missing nonces, text-domain
 mismatches, direct SQL without `$wpdb->prepare`, `array()` instead of `[]`, etc. WordPress-Extra is
@@ -136,8 +136,9 @@ the broader of WP's two official rulesets — stricter than plain WordPress, loo
 
 **What "phpstan" catches:** calls to undefined functions, wrong argument types, paths that should
 return a value but don't, unreachable code. Level 5 is the sweet spot for WP code. The
-`szepeviktor/phpstan-wordpress` extension teaches phpstan the WP API (`get_field`, `add_action`,
-`wp_kses_post`, `$wpdb`…) — without it, every WP call would be flagged as "unknown function".
+`szepeviktor/phpstan-wordpress` extension teaches phpstan the WP API (`add_action`,
+`wp_kses_post`, `$wpdb`, `register_block_type`…) — without it, every WP call would be flagged as
+"unknown function".
 
 **What "phpunit" does:** runs test classes that extend `PHPUnit\Framework\TestCase`. No tests
 exist yet; the config is pre-wired so `composer test` exits 0 today and picks up new files
@@ -151,7 +152,6 @@ Enforced by [`settings.json`](settings.json) `permissions.deny`:
 
 - `wp-admin/**`, `wp-includes/**`, `wp-config*.php` — WP core.
 - `vendor/**`, `**/node_modules/**`, `dist/**` — generated.
-- `auth.json` — ACF Pro credentials.
 
 ## Git
 

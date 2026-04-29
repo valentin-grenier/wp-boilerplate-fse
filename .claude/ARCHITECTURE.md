@@ -9,7 +9,7 @@ How the repository is laid out and why.
 ├── .claude/                     # Claude Code config + team docs (Claude-only workflow)
 │   ├── CLAUDE.md                # Session-start context
 │   ├── ARCHITECTURE.md          # This file
-│   ├── BLOCKS.md                # ACF block authoring guide
+│   ├── BLOCKS.md                # Custom block authoring guide
 │   ├── CONVENTIONS.md           # Prefixes, security, i18n, git
 │   ├── settings.json            # Permissions allow/deny + 4 hooks
 │   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
@@ -53,7 +53,6 @@ How the repository is laid out and why.
 ├── phpunit.xml.dist             # phpunit config (tests/ testsuite — empty for now)
 ├── tests/                       # placeholder; phpunit runs green with no tests today
 ├── .mcp.json                    # MCP server template (Notion commented out)
-├── auth.json.example            # Template for ACF Pro credentials
 ├── CHANGELOG.md                 # Keep-a-Changelog
 ├── README.md                    # User-facing project overview
 ├── LICENSE
@@ -81,22 +80,22 @@ defined by four top-level files:
 
 Every file is auto-loaded by `functions.php`. Each one owns one concern:
 
-| File                      | Responsibility                                                              |
-| ------------------------- | --------------------------------------------------------------------------- |
-| `theme-setup.php`         | `add_theme_support` calls, menus, image sizes, editor styles              |
-| `theme-assets.php`        | `wp_enqueue_scripts` / `enqueue_block_editor_assets` with `filemtime()` cache-busting |
-| `block-acf.php`           | Auto-registers ACF blocks by globbing `_dev/blocks/*/block.json`          |
-| `block-bindings.php`      | Custom block bindings source registration                                 |
-| `block-categories.php`    | `block_categories_all` filter: adds the theme's custom category           |
-| `block-settings.php`      | Per-block allow/deny lists (disable unused core blocks/styles)            |
-| `security.php`            | Hardening: XML-RPC off, file editor off, version info hidden              |
-| `performance-hooks.php`   | Strip bloat: emoji scripts, oEmbed, unused head links                     |
-| `post-types.php`          | Custom post types registration (if/when any)                              |
-| `media-uploads.php`       | MIME type allowances, SVG handling, image quality                         |
-| `user-capabilities.php`   | Role tuning (subscriber/editor caps)                                      |
-| `dashboard.php`           | Admin dashboard cleanup (remove default widgets, add custom)              |
-| `comments.php`            | Comments UI / template overrides                                          |
-| `hooks.php`               | Catch-all for small hooks that don't warrant their own file               |
+| File                    | Responsibility                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| `theme-setup.php`       | `add_theme_support` calls, menus, image sizes, editor styles                          |
+| `theme-assets.php`      | `wp_enqueue_scripts` / `enqueue_block_editor_assets` with `filemtime()` cache-busting |
+| `blocks.php`            | Auto-registers blocks by globbing `_dev/blocks/*/block.json` on `init`                |
+| `block-bindings.php`    | Custom block bindings source registration                                             |
+| `block-categories.php`  | `block_categories_all` filter: adds the theme's custom category                       |
+| `block-settings.php`    | Per-block allow/deny lists (disable unused core blocks/styles)                        |
+| `security.php`          | Hardening: XML-RPC off, file editor off, version info hidden                          |
+| `performance-hooks.php` | Strip bloat: emoji scripts, oEmbed, unused head links                                 |
+| `post-types.php`        | Custom post types registration (if/when any)                                          |
+| `media-uploads.php`     | MIME type allowances, SVG handling, image quality                                     |
+| `user-capabilities.php` | Role tuning (subscriber/editor caps)                                                  |
+| `dashboard.php`         | Admin dashboard cleanup (remove default widgets, add custom)                          |
+| `comments.php`          | Comments UI / template overrides                                                      |
+| `hooks.php`             | Catch-all for small hooks that don't warrant their own file                           |
 
 **Convention:** every file begins with `if ( ! defined( 'ABSPATH' ) ) { exit; }` to prevent direct
 HTTP access. Applied across all 14 files.
@@ -105,11 +104,11 @@ HTTP access. Applied across all 14 files.
 
 ```text
 _dev/
-├── blocks/{name}/       # One folder per custom block — currently only the template `block/`
-│   ├── block.json       # WP block metadata
-│   ├── block.php        # Server render template (ACF)
-│   ├── block.js         # Editor-side script (intentionally empty in the template)
-│   └── block.scss       # Scoped styles
+├── blocks/{name}/       # One folder per custom block — currently only the example `block/`
+│   ├── block.json       # WP block metadata + attributes
+│   ├── block.js         # Editor-side script: registerBlockType + edit + save
+│   ├── block.scss       # Scoped styles
+│   └── block.php        # Optional — only for dynamic blocks (referenced by `render` in block.json)
 ├── js/                  # theme.js (frontend) + editor.js (backend)
 ├── scss/                # theme.scss (frontend) + editor.scss + partials
 ├── scripts/make-block.js # Interactive block scaffolder (npm run make-block)
@@ -127,10 +126,10 @@ Compiled output goes to `../dist/` (committed). Deploy workflows FTP-upload that
 
 ### Block discovery
 
-The flow `_dev/blocks/*/block.json` → `inc/block-acf.php` is the contract. `block-acf.php` globs the
-`_dev/blocks` tree and calls `register_block_type` on each `block.json` found. There is no manual
-registration list; drop a folder into `_dev/blocks/`, run `npm run build`, and the block appears in
-the editor.
+The flow `_dev/blocks/*/block.json` → `inc/blocks.php` is the contract. `blocks.php` globs the
+`_dev/blocks` tree and calls `register_block_type` on each `block.json` found, hooked on `init`.
+There is no manual registration list; drop a folder into `_dev/blocks/`, run `npm run build`, and
+the block appears in the editor.
 
 Use `npm run make-block` to scaffold a new block folder (prompts for slug, title, icon, category).
 
@@ -146,12 +145,12 @@ blocks writes there for agents.
 
 Files under `.claude/rules/` are auto-loaded as context on every session. Each file covers one concern and acts as a passive checklist Claude applies when writing or reviewing code.
 
-| File | Scope |
-| --- | --- |
-| `security.md` | Escape/sanitize/nonce/prepare rules — blocking in review |
-| `i18n.md` | Text-domain, translation functions, `.pot` generation |
-| `blocks.md` | `block.json` mandatory fields and `block.php` conventions |
-| `a11y.md` | WCAG/RGAA AA — links, buttons, images, contrast |
+| File          | Scope                                                     |
+| ------------- | --------------------------------------------------------- |
+| `security.md` | Escape/sanitize/nonce/prepare rules — blocking in review  |
+| `i18n.md`     | Text-domain, translation functions, `.pot` generation     |
+| `blocks.md`   | `block.json` mandatory fields and `block.php` conventions |
+| `a11y.md`     | WCAG/RGAA AA — links, buttons, images, contrast           |
 
 ### Skills
 
@@ -166,16 +165,18 @@ description: One-line description used to decide when to auto-trigger.
 ---
 
 ## When to invoke
+
 ## Procedure
+
 ## Output format
 ```
 
-| Skill | Trigger |
-| --- | --- |
-| `sync-docs.md` | Auto — whenever `.claude/` config changes |
-| `a11y-links-buttons.md` | On-demand — `/a11y-links-buttons` |
-| `i18n-audit.md` | On-demand — `/i18n-audit` |
-| `block-audit.md` | On-demand — `/block-audit` |
+| Skill                   | Trigger                                   |
+| ----------------------- | ----------------------------------------- |
+| `sync-docs.md`          | Auto — whenever `.claude/` config changes |
+| `a11y-links-buttons.md` | On-demand — `/a11y-links-buttons`         |
+| `i18n-audit.md`         | On-demand — `/i18n-audit`                 |
+| `block-audit.md`        | On-demand — `/block-audit`                |
 
 ### Agents
 
@@ -183,11 +184,11 @@ Sub-agents live at `.claude/agents/{name}.md`. The `wp-reviewer` agent performs 
 
 ## Environments
 
-| Env        | Purpose                          | Branch     | Deploy                                         |
-| ---------- | -------------------------------- | ---------- | ---------------------------------------------- |
-| Local      | Dev on DDEV                      | `feature/*`| —                                            |
-| Staging    | Client preview / QA              | `staging`  | `.github/workflows/deploy-staging.yml` (FTP) |
-| Production | Live                             | `main`     | `.github/workflows/deploy-production.yml` (FTP) |
+| Env        | Purpose             | Branch      | Deploy                                          |
+| ---------- | ------------------- | ----------- | ----------------------------------------------- |
+| Local      | Dev on DDEV         | `feature/*` | —                                               |
+| Staging    | Client preview / QA | `staging`   | `.github/workflows/deploy-staging.yml` (FTP)    |
+| Production | Live                | `main`      | `.github/workflows/deploy-production.yml` (FTP) |
 
 Integration branch: `development`. Flow: `feature/* → development → staging → main`.
 
@@ -224,6 +225,6 @@ remain and are non-blocking.
 
 - **`functions.php` stays a one-liner.** Logic belongs in `inc/*.php`.
 - **Webpack is the build, not `wp-scripts`** — do not propose a migration without explicit approval.
-- **ACF Pro** is the block content layer (install via `auth.json`, see `auth.json.example`).
+- **Native Gutenberg blocks only.** Blocks are registered from `block.json` and authored in JSX (static) or with a PHP render template (dynamic). No ACF dependency.
 - **Single text-domain.** Source default is `fse-boilerplate` (per `style.css` header); `bin/setup.sh`
   substitutes it on client install.
