@@ -70,7 +70,7 @@ class StudioVal_CLP_Login_Customizer {
 			: $s['logoUrl'];
 		$logo_url        = esc_url( $logo_src );
 		$layout          = esc_attr( $s['layout'] );
-		$has_image       = in_array( $s['layout'], [ 'image-left', 'image-right' ], true );
+		$has_image       = ! empty( $s['imageUrl'] );
 
 		?>
 		<style id="studioval-clp-dynamic">
