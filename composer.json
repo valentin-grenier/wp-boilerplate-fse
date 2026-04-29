@@ -2,7 +2,10 @@
 	"name": "studio-val/wp-boilerplate-fse",
 	"description": "A modern, clean, and production-ready starter theme for building custom WordPress Full Site Editing (FSE) themes",
 	"type": "wordpress-theme",
-	"license": ["MIT", "GPL-2.0-or-later"],
+	"license": [
+		"MIT",
+		"GPL-2.0-or-later"
+	],
 	"authors": [
 		{
 			"name": "Studio Val",
@@ -58,9 +61,6 @@
 			"@lint",
 			"@stan",
 			"@test"
-		],
-		"post-install-cmd": [
-			"@php -r \"if (!file_exists('auth.json') && file_exists('auth.json.example')) { copy('auth.json.example', 'auth.json'); echo 'Created auth.json from example. Please update with your credentials.\\n'; }\""
 		]
 	},
 	"extra": {

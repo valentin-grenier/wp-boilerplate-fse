@@ -7,7 +7,6 @@ Step-by-step installation for the WP FSE Boilerplate.
 - [DDEV](https://ddev.readthedocs.io/) installed and running
 - Node.js — see `.nvmrc` for the required version (`nvm use` to activate it)
 - Composer
-- ACF Pro license (optional — the theme works without it, but custom block fields require it)
 
 ## 1. Clone into your WordPress root
 
@@ -27,10 +26,6 @@ ddev start
 The script renames the theme, substitutes all `boilerplate` slug placeholders with your project slug, installs plugins, and creates Git branches.
 
 ```bash
-# With ACF Pro
-./bin/setup.sh --acf-license=YOUR_LICENSE_KEY
-
-# Without ACF Pro
 ./bin/setup.sh
 ```
 
@@ -54,41 +49,8 @@ ddev wp theme activate your-project-slug
   --theme=NAME          Override source theme name detection
   --theme-dest=NAME     Override destination theme folder name
   --github-user=USER    Override GitHub username (default: valentin-grenier)
-  --acf-license=KEY     ACF Pro license key
   --help, -h            Show this help message
 ```
-
-## ACF Pro configuration
-
-Three ways to supply your license key — pick one:
-
-**1. Command line flag:**
-```bash
-./bin/setup.sh --acf-license=YOUR_LICENSE_KEY
-```
-
-**2. Environment variable:**
-```bash
-export ACF_PRO_LICENSE="your_license_key"
-./bin/setup.sh
-```
-
-**3. auth.json file:**
-```bash
-cp auth.json.example auth.json
-```
-Edit `auth.json` and set your key as the password:
-```json
-{
-    "http-basic": {
-        "connect.advancedcustomfields.com": {
-            "username": "",
-            "password": "YOUR_LICENSE_KEY_HERE"
-        }
-    }
-}
-```
-`auth.json` is gitignored — never commit it.
 
 ## 4. Install frontend dependencies
 
@@ -132,27 +94,28 @@ Staging and production deploys run via FTP on push to the `staging` and `main` b
 
 Go to **Settings → Environments**, create both `staging` and `production` environments, and add these secrets to each:
 
-| Secret | Description |
-|--------|-------------|
-| `FTP_HOST` | FTP/SFTP hostname (e.g., `ftp.example.com`) |
-| `FTP_PORT` | `21` (FTP/FTPS) or `22` (SFTP) |
-| `FTP_PROTOCOL` | `ftp`, `ftps`, or `sftp` |
-| `FTP_USER` | FTP username |
-| `FTP_PASSWORD` | FTP password |
+| Secret           | Description                                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `FTP_HOST`       | FTP/SFTP hostname (e.g., `ftp.example.com`)                                                                                            |
+| `FTP_PORT`       | `21` (FTP/FTPS) or `22` (SFTP)                                                                                                         |
+| `FTP_PROTOCOL`   | `ftp`, `ftps`, or `sftp`                                                                                                               |
+| `FTP_USER`       | FTP username                                                                                                                           |
+| `FTP_PASSWORD`   | FTP password                                                                                                                           |
 | `FTP_SERVER_DIR` | WordPress root with trailing slash (e.g., `/public_html/`) — the workflow appends `wp-content/themes/…` itself, do not include it here |
 
 ### Optional: restrict deployments by branch
 
 In **Settings → Environments**:
+
 - `production` — add required reviewers, restrict to the `main` branch.
 - `staging` — restrict to the `staging` branch.
 
 ### Deployment triggers
 
-| Branch | Trigger |
-|--------|---------|
-| `staging` | Push → deploys to staging |
-| `main` | Push → deploys to production |
+| Branch    | Trigger                      |
+| --------- | ---------------------------- |
+| `staging` | Push → deploys to staging    |
+| `main`    | Push → deploys to production |
 
 ## Git branching strategy
 
@@ -162,24 +125,26 @@ The setup script creates these branches automatically:
 feature/xxx → development → staging → main
 ```
 
-| Branch | Role |
-|--------|------|
-| `main` | Production, protected |
-| `staging` | Pre-production QA |
+| Branch        | Role                   |
+| ------------- | ---------------------- |
+| `main`        | Production, protected  |
+| `staging`     | Pre-production QA      |
 | `development` | Continuous integration |
-| `feature/*` | Active development |
+| `feature/*`   | Active development     |
 
 Never push directly to `main` or `staging`.
 
 ## Recommended plugins
 
 **Auto-installed by `setup.sh`:**
+
 - Query Monitor — debug toolbar
 - UpdraftPlus — backups
 - Admin Site Enhancements — admin UX improvements
 - Contact Form 7 — forms
 
 **Install manually on production projects:**
+
 - Rank Math SEO
 - Complianz GDPR
 - WebP Converter for Media

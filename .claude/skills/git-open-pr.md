@@ -113,4 +113,4 @@ Return the PR URL. Stop. Do not merge, approve, or request reviews.
 - Never rewrite history on `main`, `staging`, or `development`.
 - Never push directly to `main` or `staging`.
 - Never merge a PR.
-- Never commit `wp-config*.php`, `auth.json`, `.env`, or anything under `vendor/`, `node_modules/`, `dist/`.
+- Never commit `wp-config*.php`, `.env`, or anything under `vendor/`, `node_modules/`, `dist/`.

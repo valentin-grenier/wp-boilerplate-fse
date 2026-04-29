@@ -27,7 +27,7 @@ These are pre-existing; do not treat them as regressions from a level bump:
    - **Real bug** — fix the PHP code.
    - **WP false positive** — add `// @phpstan-ignore-line` with a brief comment:
      ```php
-     $value = get_field( 'my_field' ); // @phpstan-ignore-line — ACF returns mixed; narrowed by context
+     $value = $attributes['my_attr'] ?? null; // @phpstan-ignore-line — block attribute typed as mixed by phpstan-wordpress
      ```
 4. **Confirm green**: `composer ci` (lint + stan + test must all pass, 0 errors).
 5. **Commit** using the `git-open-pr` skill conventions:

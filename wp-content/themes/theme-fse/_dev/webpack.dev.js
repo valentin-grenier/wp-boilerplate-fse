@@ -11,7 +11,13 @@ module.exports = merge(common, {
 		new BrowserSyncPlugin(
 			{
 				proxy: 'http://wp-boilerplate-fse.local',
-				files: ['../**/*.php', '../*.php', '../template-parts/**/*.php', '../**/*.html', '../theme.json', '../acf-json/**/*.json'],
+				files: [
+					'../**/*.php',
+					'../*.php',
+					'../template-parts/**/*.php',
+					'../**/*.html',
+					'../theme.json',
+				],
 				open: false,
 				notify: false,
 			},

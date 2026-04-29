@@ -63,16 +63,6 @@ grep -rn "echo ['\"]" \
 
 Flag every hit where the echoed string contains alphabetic characters (i.e. is a user-visible string, not a tag or symbol). Exclude lines where the echo is wrapped in an escaping function (`esc_html`, `esc_attr`, etc.) that also handles translation.
 
-### 4. `[BARE-ECHO-FIELD]` — `echo get_field()` without translation wrapper
-
-```bash
-grep -rn 'echo get_field\|echo esc_html( get_field\|echo wp_kses_post( get_field' \
-  --include="*.php" \
-  wp-content/themes/theme-fse/_dev/blocks
-```
-
-ACF field values are user data and do not need translation functions — this check is informational only. Flag bare `echo get_field()` (no escaping) as a security smell (`[ECHO-FIELD-UNSAFE]`), not an i18n issue.
-
 ## Output format
 
 ```

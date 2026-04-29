@@ -52,4 +52,4 @@ Keep the review under ~400 words unless the diff is unusually large. Link to rul
 - `git diff`, `git status`, `git log --oneline -10`
 - `composer lint <path>`, `composer stan <path>`
 - `grep -rn 'studio_\|WPBoilerplate\|fse-boilerplate' wp-content/themes/theme-fse/` — regression check for the pre-migration naming
-- `grep -rn "echo get_field" wp-content/themes/theme-fse/` — unescaped output smell
+- `grep -rn 'echo \$attributes\[' wp-content/themes/theme-fse/` — unescaped block-attribute output smell

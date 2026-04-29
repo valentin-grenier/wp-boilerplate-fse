@@ -11,7 +11,7 @@ These are blocking in code review. Any PR that violates them gets the changes fl
 - `<textarea>` content → `esc_textarea()`
 - Inline JS → `esc_js()`
 
-**Never** `echo get_field( 'x' )` or `echo $var`. Wrap or pre-escape.
+**Never** `echo $attributes['x']` or `echo $var`. Wrap or pre-escape.
 
 ## Sanitize every input
 
@@ -36,7 +36,7 @@ Use `$wpdb->prepare()` with placeholders (`%s`, `%d`, `%f`, `%i` for identifiers
 ## Defense in depth
 
 - Every file in `wp-content/themes/theme-fse/inc/` opens with `if ( ! defined( 'ABSPATH' ) ) { exit; }`.
-- Sensitive files are blocked by `.claude/settings.json` `permissions.deny`: `wp-config*.php`, `auth.json`, `wp-admin/**`, `wp-includes/**`, `vendor/**`, `node_modules/**`, `dist/**`.
+- Sensitive files are blocked by `.claude/settings.json` `permissions.deny`: `wp-config*.php`, `wp-admin/**`, `wp-includes/**`, `vendor/**`, `node_modules/**`, `dist/**`.
 
 ## Enforcement
 

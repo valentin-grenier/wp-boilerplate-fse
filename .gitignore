@@ -7,7 +7,6 @@
 /vendor
 **/node_modules
 *.env
-auth.json
 /cgi-bin/
 .htaccess
 logs/

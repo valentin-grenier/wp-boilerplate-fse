@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".wp-block-studioval-block-example-dynamic").forEach(function(o){console.log("Block Example Dynamic block initialized",o)})});

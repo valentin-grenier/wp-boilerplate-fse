@@ -1,107 +1,131 @@
 # Block authoring
 
-How custom blocks work in this theme. All blocks are ACF-backed server-rendered blocks, not JS-first
-blocks. This keeps authoring close to PHP and leverages ACF's field UI.
+How custom blocks work in this theme. All blocks are **native Gutenberg blocks** registered **client-side** by the editor JS — no `block.json`, no `register_block_type()`. Each block can be **static** (markup persisted via `save()`) or **dynamic** (markup rendered server-side from a PHP template).
 
 ## Directory contract
 
 ```text
 wp-content/themes/theme-fse/_dev/blocks/{block-slug}/
-├── block.json    # WP block metadata — required, auto-discovered
-├── block.php     # Server render template — receives $block, $content, $is_preview, $post_id
-├── block.js      # Editor-side script — can be empty; consumed by Webpack entry auto-detection
-└── block.scss    # Block-scoped styles — compiled into dist/
+├── {block-slug}.js              # Editor: registerBlockType + edit + save (required)
+├── {block-slug}.scss            # Shared styles — loaded both in editor and front-end
+├── {block-slug}-editor.scss     # Editor-only styles
+├── {block-slug}-frontend.js     # Front-end behaviour (every block, static or dynamic)
+└── {block-slug}.php             # PHP render template — dynamic blocks only
 ```
 
-Every folder under `_dev/blocks/` that contains a `block.json` becomes a registered block.
-Registration is handled by [`inc/block-acf.php`](../wp-content/themes/theme-fse/inc/block-acf.php),
-which globs the directory and calls `register_block_type( $block_json_dir )` on each.
+The compiled output goes to `dist/blocks/{block-slug}/` with normalised names: `block.js`, `block.css`, `block-editor.css`, `block-frontend.js`. [`inc/blocks.php`](../wp-content/themes/theme-fse/inc/blocks.php) globs `dist/blocks/*/`, then enqueues whichever bundles exist on the right action (`enqueue_block_editor_assets` or `wp_enqueue_scripts`).
 
-There is no manual registration list to keep in sync.
+There is no manual registration list to keep in sync. Drop a folder into `_dev/blocks/`, run `npm run build`, and the block appears.
 
-Currently the only block in the repo is the template `block/` folder consumed by `make-block`.
+## Scaffolding
 
-## `block.json` — current template
+```bash
+cd wp-content/themes/theme-fse/_dev
+npm run make-block my-block
+# Prompts: 1) Static or 2) Dynamic.
+```
 
-This is the literal content of `_dev/blocks/block/block.json` at HEAD:
+The script creates the four (static) or five (dynamic) source files seeded with a working RichText starter.
 
-```json
-{
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "studioval/block",
-  "title": "Studio Val",
-  "description": "Default ACF block for starter theme.",
-  "textdomain": "studioval-boilerplate",
-  "style": ["file:../../../dist/blocks/block/block.css"],
-  "script": ["file:../../../dist/blocks/block/block.js"],
-  "category": "studioval",
-  "icon": "screenoptions",
-  "keywords": ["studio"],
-  "acf": {
-    "mode": "preview",
-    "renderTemplate": "block.php"
-  },
-  "supports": {
-    "anchor": false,
-    "jsx": false,
-    "inserter": true,
-    "spacing": {
-      "margin": false,
-      "padding": false
-    }
-  }
+## `{block-slug}.js`
+
+The block is registered entirely in JS — title, description, category, icon, attributes, supports, and edit/save are all passed to `registerBlockType`. No `block.json` is needed.
+
+Pattern from `_dev/blocks/block-example-static/block-example-static.js`:
+
+```js
+import { registerBlockType } from '@wordpress/blocks';
+import { useBlockProps, RichText } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
+
+function Edit({ attributes, setAttributes }) {
+	const blockProps = useBlockProps();
+
+	return (
+		<div {...blockProps}>
+			<RichText
+				tagName="p"
+				value={attributes.content}
+				onChange={(content) => setAttributes({ content })}
+				placeholder={__('Saisir le contenu…', 'studioval-boilerplate')}
+			/>
+		</div>
+	);
 }
+
+function Save({ attributes }) {
+	const blockProps = useBlockProps.save();
+
+	return (
+		<div {...blockProps}>
+			<RichText.Content tagName="p" value={attributes.content} />
+		</div>
+	);
+}
+
+registerBlockType('studioval/my-block', {
+	apiVersion: 3,
+	title: __('My Block', 'studioval-boilerplate'),
+	description: __('Un bloc personnalisé nommé my-block.', 'studioval-boilerplate'),
+	category: 'studioval',
+	icon: 'screenoptions',
+	keywords: ['my-block'],
+	supports: { align: true, anchor: true, html: false },
+	attributes: { content: { type: 'string', default: '' } },
+	edit: Edit,
+	save: Save,
+});
 ```
 
-**Conventions today:**
+The `@wordpress/*` imports resolve to globals at runtime via `webpack.common.js` `externals` (`@wordpress/blocks` → `wp.blocks`, etc.) — nothing is bundled.
 
-- `$schema` — always `https://schemas.wp.org/trunk/block.json`. Powers editor autocomplete.
-- `apiVersion: 3` — opt in to WP 6.3+ behaviour (iframed editor, theme.json support per block).
-- `name` — `studioval/{slug}`. The block namespace is the agency brand and stays constant across
-  client installs.
-- `textdomain` — `studioval-boilerplate`. Required for `ddev wp i18n make-pot` to catch `title`,
-  `description`, and `keywords` strings.
-- `acf.renderTemplate` — `block.php` in the same folder.
-- `style` / `script` — point to the compiled output under `dist/blocks/{slug}/`.
-- `category` — `studioval`, the theme's own category registered by
-  [`inc/block-categories.php`](../wp-content/themes/theme-fse/inc/block-categories.php).
+**Why named `Edit` / `Save` functions instead of inline arrows?** The `react-hooks/rules-of-hooks` ESLint rule only recognises hooks (`useBlockProps`) inside components whose name starts with a capital letter. Inline arrow functions assigned to `edit:` / `save:` trip the lint.
 
-## `block.php` render template
+For a **dynamic** block, `Save` returns `null` and the markup comes from `block.php`:
 
-Pattern in use (see `_dev/blocks/block/block.php` for the literal current template):
+```js
+const Save = () => null;
+
+registerBlockType('studioval/my-block', {
+	// …
+	render: 'file:./my-block.php',
+	edit: Edit,
+	save: Save,
+});
+```
+
+The `render: 'file:./{slug}.php'` field tells WordPress where to find the server-render template (resolved relative to the block JS file).
+
+**SCSS imports.** Do not `import` the SCSS files from the JS. Webpack discovers `{slug}.scss`, `{slug}-editor.scss`, and `{slug}-frontend.js` independently and compiles them into separate output bundles so editor-only styles can be enqueued only in the editor.
+
+## `{block-slug}.php` (dynamic blocks only)
 
 ```php
 <?php
 /**
- * Block render template.
+ * Block render template — My Block.
  *
- * @package StudioVal\WPBoilerplate
- *
- * @var array  $block      Block settings.
- * @var string $content    Inner content (if any).
- * @var bool   $is_preview True when rendering in the editor.
- * @var int    $post_id    Current post ID.
+ * @var array    $attributes Block attributes.
+ * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
+ * @var WP_Block $block      Block instance.
  */
 
-if ( ! defined( 'ABSPATH' ) ) { exit; }
-
-$heading = get_field( 'heading' ) ?: '';
-
-$class = 'block';
-if ( ! empty( $block['className'] ) ) {
-	$class .= ' ' . $block['className'];
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
 }
+
+$content_attr = isset( $attributes['content'] ) ? $attributes['content'] : '';
+
+$wrapper_attributes = get_block_wrapper_attributes();
 ?>
-<section class="<?php echo esc_attr( $class ); ?>">
-	<?php if ( $heading ) : ?>
-		<h2 class="block__heading"><?php echo esc_html( $heading ); ?></h2>
-	<?php endif; ?>
-</section>
+<div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
+	<p><?php echo esc_html( $content_attr ); ?></p>
+</div>
 ```
 
-`block.php` files are included from `register_block_type` rendering, never reached via direct HTTP.
-Add the `ABSPATH` guard anyway — defence-in-depth, costs nothing, consistent with all other templates.
+`block.php` files are included from the block render pipeline, never reached via direct HTTP. Add the `ABSPATH` guard anyway — defence-in-depth, costs nothing.
+
+`get_block_wrapper_attributes()` returns a pre-built attribute string with the block's class (`wp-block-studioval-{slug}`), align/anchor/style, and any custom `className` from the editor. Pass it through `wp_kses_data()` on output so phpcs is happy.
 
 **Escaping rules (every output):**
 
@@ -110,49 +134,34 @@ Add the `ABSPATH` guard anyway — defence-in-depth, costs nothing, consistent w
 - `esc_url()` for URLs (href, src).
 - `wp_kses_post()` for rich content (WYSIWYG, RichText).
 
-**Never** `echo` raw field values. Lint enforcement (phpcs WordPress-Extra) is planned for Batch 2.
+**Never** `echo` raw values from `$attributes` — always run them through an escape function.
 
-## `block.scss`
+## `{block-slug}.scss` and `{block-slug}-editor.scss`
 
 ```scss
-@use "../../scss/abstracts/variables" as *;
+.wp-block-studioval-my-block {
+	// Shared styles (editor + front-end) using nested BEM.
 
-.block {
-  &__heading {
-    font-size: var(--wp--preset--font-size--x-large);
-  }
+	&__heading {
+		font-size: var(--wp--preset--font-size--x-large);
+	}
 }
 ```
 
-BEM naming. Avoid global selectors; scope to `.{block-slug}`.
+BEM naming. Avoid global selectors; scope to `.wp-block-studioval-{slug}`. The editor-only file holds overrides that should not leak to the front-end (e.g. inserter previews, placeholder backgrounds).
 
-## `block.js`
+## `{block-slug}-frontend.js`
 
-For ACF server-rendered blocks this is typically empty (the editor reuses `block.php` via
-`acf.mode: "preview"`). Keep the file so Webpack auto-detects the entry; export nothing.
-
-## Scaffolding a new block
-
-```bash
-cd wp-content/themes/theme-fse/_dev
-npm run make-block
-# Prompts: block slug, title, description, icon, category.
-# Creates the folder with all 4 files seeded from _dev/blocks/block/ (the template folder).
-```
-
-After scaffolding:
-
-1. Define ACF fields in `wp-admin → Custom Fields → Field Groups`. Target the block via its name
-   (`studioval/{slug}`). Export to PHP or JSON inside the block folder for version control.
-2. `npm run dev` to pick up the new entry.
-3. Insert the block in a test page; verify editor preview and frontend render.
+Loads on the front-end only — both static and dynamic blocks get one so any interactive behaviour has a clear home. Stays empty (just a console log placeholder) until you need it.
 
 ## Authoring checklist (code review)
 
-- [ ] Folder under `_dev/blocks/` with the 4 files.
-- [ ] `block.json` `name` uses the `studioval/` namespace.
-- [ ] `block.php` opens with ABSPATH guard.
-- [ ] `block.php` escapes all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`).
-- [ ] No raw `echo get_field(...)`.
-- [ ] Styles use BEM and are scoped to `.{slug}`.
-- [ ] Block appears after `npm run build` without touching `inc/block-acf.php`.
+- [ ] Folder under `_dev/blocks/{slug}/` with `{slug}.js`, `{slug}.scss`, `{slug}-editor.scss`, `{slug}-frontend.js` (and `{slug}.php` for dynamic blocks).
+- [ ] `registerBlockType` namespace is `studioval/{slug}`.
+- [ ] `attributes` declared in the `registerBlockType` call covers every piece of data the block stores.
+- [ ] Static block: `Save` returns markup. Dynamic block: `Save = () => null` and `render: 'file:./{slug}.php'` is set.
+- [ ] Named `Edit` / `Save` functions (capitalised) so hooks linting passes.
+- [ ] PHP template (dynamic) opens with the multi-line ABSPATH guard and escapes all output.
+- [ ] PHP template (dynamic) uses `get_block_wrapper_attributes()` for the wrapper.
+- [ ] Styles use BEM and are scoped to `.wp-block-studioval-{slug}`.
+- [ ] Block bundles compile under `dist/blocks/{slug}/` after `npm run build` — `inc/blocks.php` picks them up automatically.

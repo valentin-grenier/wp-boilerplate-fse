@@ -1,8 +1,7 @@
 # Component conventions (SCSS + PHP)
 
-These conventions apply to **all** PHP templates and their paired SCSS files, regardless of the
-rendering mechanism: native Gutenberg blocks, ACF blocks (`block.php`), ACF flexible content
-components, template parts, etc.
+These conventions apply to **all** PHP templates and their paired SCSS files: native dynamic block
+render templates (`block.php`), template parts, and any other server-rendered partial.
 
 ---
 
@@ -61,14 +60,15 @@ mixin-only files to `main.scss`.
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 ```
 
-### 2. Declare all fields at the top with an empty-string fallback
+### 2. Declare all values at the top with an empty-string fallback
 
-Use `get_field()` for block/post fields and `get_sub_field()` inside flexible content loops.
-Never inline the call inside HTML output.
+For native dynamic blocks, read attributes from `$attributes` (typed by WP from the
+`registerBlockType` call). For post fields and meta, use the appropriate WP API. Never inline
+the call inside HTML output.
 
 ```php
-$title = get_field( 'title' )       ?: '';   // block / post field
-$url   = get_sub_field( 'url' )     ?: '';   // flexible content row field
+$title = $attributes['title'] ?? '';            // block attribute
+$url   = get_post_meta( $post_id, 'url', true ); // post meta
 ```
 
 ### 3. Escape every output
@@ -83,7 +83,7 @@ $url   = get_sub_field( 'url' )     ?: '';   // flexible content row field
 | `<textarea>` content | `esc_textarea( $var )` |
 | Inline JS            | `esc_js( $var )`       |
 
-Never `echo get_field( 'x' )` or `echo get_sub_field( 'x' )` directly.
+Never `echo $attributes['x']` or any other raw value directly.
 
 ### 4. Hardcoded paths
 
@@ -106,17 +106,16 @@ echo esc_url( get_template_directory_uri() . '/assets/images/logo.svg' );
 - `get_the_title()`, `get_the_excerpt()` → wrap in `esc_html()`.
 - `get_the_post_thumbnail()` and `do_shortcode()` return trusted HTML — leave unwrapped.
 
-### 7. PHPDoc for ACF `block.php` templates
+### 7. PHPDoc for dynamic `block.php` templates
 
-ACF block render templates receive four variables injected by `register_block_type`. Document
-them at the top so phpstan and readers understand the signatures:
+Native dynamic block render templates receive three variables injected by `register_block_type`.
+Document them at the top so phpstan and readers understand the signatures:
 
 ```php
 /**
- * @var array  $block      Block settings and attributes.
- * @var string $content    Inner block content (empty for ACF blocks).
- * @var bool   $is_preview True when rendered inside the editor.
- * @var int    $post_id    Current post ID.
+ * @var array    $attributes Block attributes (typed by WP from the registerBlockType call).
+ * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
+ * @var WP_Block $block      Block instance.
  */
 ```
 

@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(".wp-block-studioval-block-example-static").forEach(function(o){console.log("Block Example Static block initialized",o)})});
