@@ -10,6 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function sv_boilerplate_theme_setup() {
+	// Translations.
+	load_theme_textdomain( 'studioval-boilerplate', get_template_directory() . '/languages' );
+
 	// Theme supports.
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
