@@ -100,7 +100,7 @@ log_error() {
 SPINNER_PID=""
 
 start_spinner() {
-  [[ -t 1 ]] || return
+  [[ -t 1 ]] || return 0
   local message="$1"
   local frames=('⣾' '⣽' '⣻' '⢿' '⡿' '⣟' '⣯' '⣷')
   local i=0
@@ -117,7 +117,7 @@ stop_spinner() {
     kill "$SPINNER_PID" 2>/dev/null || true
     wait "$SPINNER_PID" 2>/dev/null || true
     SPINNER_PID=""
-    printf "\r\033[K"
+    printf "\r\033[K" 2>/dev/null || true
   fi
 }
 
@@ -596,6 +596,85 @@ if [ "$DRY_RUN" = false ] && [ -n "$THEME_DEST" ]; then
     increment_warnings
     echo "💡 You can activate it manually from WordPress admin: Appearance → Themes"
     echo "👉 Or run: $WP theme activate $THEME_DEST"
+  fi
+fi
+
+# ========== CREATE HOMEPAGE ==========
+if [ "$DRY_RUN" = false ] && [ $WP_IS_INSTALLED -eq 0 ]; then
+  log_step "🏠 CREATING HOMEPAGE"
+
+  cd "$WP_PATH"
+
+  # Check if a static front page is already set
+  current_show_on_front=$($WP option get show_on_front 2>/dev/null || echo "")
+  current_page_on_front=$($WP option get page_on_front 2>/dev/null || echo "0")
+
+  if [ "$current_show_on_front" = "page" ] && [ "$current_page_on_front" != "0" ]; then
+    log_info "Static front page already configured — skipping homepage creation"
+  else
+    HOMEPAGE_CONTENT=$(cat <<'BLOCK_CONTENT'
+<!-- wp:heading {"level":1} -->
+<h1 class="wp-block-heading">Bienvenue sur votre nouveau site</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Ce site a été créé avec le boilerplate WP FSE de Studio Val. Cette page est un point de départ : modifiez-la ou supprimez-la depuis <strong>Pages → Toutes les pages</strong> dans l'administration WordPress.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":2} -->
+<h2 class="wp-block-heading">Par où commencer ?</h2>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Éditez cette page depuis <strong>Pages → Accueil</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Personnalisez l'en-tête et le pied de page dans l'<strong>Éditeur de site</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Ajoutez vos couleurs et typographies dans <strong>theme.json</strong></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Créez vos premiers blocs ACF avec <code>npm run make-block</code></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+BLOCK_CONTENT
+)
+
+    start_spinner "Creating homepage..."
+    homepage_id=$($WP post create \
+      --post_type=page \
+      --post_title='Accueil' \
+      --post_status=publish \
+      --post_content="$HOMEPAGE_CONTENT" \
+      --porcelain 2>/dev/null)
+    stop_spinner
+
+    if [ -n "$homepage_id" ] && [ "$homepage_id" -gt 0 ] 2>/dev/null; then
+      log_success "Homepage created (ID: $homepage_id)"
+      increment_success
+
+      # Set as static front page
+      $WP option update show_on_front 'page' >/dev/null 2>&1
+      $WP option update page_on_front "$homepage_id" >/dev/null 2>&1
+      log_success "Static front page configured"
+      increment_success
+
+      # Delete the default "Sample Page" if it exists
+      sample_page_id=$($WP post list --post_type=page --post_status=publish --title='Sample Page' --field=ID --format=ids 2>/dev/null | head -1)
+      if [ -n "$sample_page_id" ]; then
+        $WP post delete "$sample_page_id" --force >/dev/null 2>&1
+        log_success "Default 'Sample Page' removed"
+        increment_success
+      fi
+    else
+      log_warning "Could not create homepage — create it manually in WordPress admin"
+      increment_warnings
+    fi
   fi
 fi
 
