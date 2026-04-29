@@ -6,21 +6,34 @@ const CopyPlugin = require('copy-webpack-plugin');
 const themeRoot = path.resolve(__dirname, '..');
 const devRoot = path.resolve(__dirname);
 
+// Per block, discover up to four files and produce up to three entries:
+//   blocks/{name}/block          ← {name}.js + {name}.scss          → block.js + block.css
+//   blocks/{name}/block-editor   ← {name}-editor.scss               → block-editor.css
+//   blocks/{name}/block-frontend ← {name}-frontend.js               → block-frontend.js
 const blockEntries = {};
 
-// Loop over each block dir (e.g., blocks/my-block/)
 glob.sync('blocks/*/', { cwd: devRoot }).forEach((blockFolder) => {
-	const blockName = blockFolder.replace(/^blocks\/|\/$/g, ''); // "my-block"
-	const entryFiles = [];
+	const blockName = blockFolder.replace(/^blocks\/|\/$/g, '');
+	const blockDir = path.join(devRoot, 'blocks', blockName);
 
-	const jsFile = path.join(devRoot, `blocks/${blockName}/block.js`);
-	const scssFile = path.join(devRoot, `blocks/${blockName}/block.scss`);
+	const mainJs = path.join(blockDir, `${blockName}.js`);
+	const mainScss = path.join(blockDir, `${blockName}.scss`);
+	const editorScss = path.join(blockDir, `${blockName}-editor.scss`);
+	const frontendJs = path.join(blockDir, `${blockName}-frontend.js`);
 
-	if (glob.sync(jsFile).length) entryFiles.push(jsFile);
-	if (glob.sync(scssFile).length) entryFiles.push(scssFile);
+	const main = [];
+	if (glob.sync(mainJs).length) main.push(mainJs);
+	if (glob.sync(mainScss).length) main.push(mainScss);
+	if (main.length) {
+		blockEntries[`blocks/${blockName}/block`] = main;
+	}
 
-	if (entryFiles.length) {
-		blockEntries[`blocks/${blockName}`] = entryFiles;
+	if (glob.sync(editorScss).length) {
+		blockEntries[`blocks/${blockName}/block-editor`] = [editorScss];
+	}
+
+	if (glob.sync(frontendJs).length) {
+		blockEntries[`blocks/${blockName}/block-frontend`] = [frontendJs];
 	}
 });
 
@@ -32,6 +45,8 @@ module.exports = {
 		...blockEntries,
 	},
 	externals: {
+		'@wordpress/blocks': ['wp', 'blocks'],
+		'@wordpress/block-editor': ['wp', 'blockEditor'],
 		'@wordpress/element': ['wp', 'element'],
 		'@wordpress/i18n': ['wp', 'i18n'],
 		'@wordpress/api-fetch': ['wp', 'apiFetch'],
@@ -40,8 +55,7 @@ module.exports = {
 	output: {
 		filename: ({ chunk }) => {
 			if (chunk.name.startsWith('blocks/')) {
-				const [, blockName] = chunk.name.split('/');
-				return `blocks/${blockName}/block.js`;
+				return `${chunk.name}.js`;
 			}
 			return 'js/[name].bundle.js';
 		},
@@ -68,8 +82,7 @@ module.exports = {
 		new MiniCssExtractPlugin({
 			filename: ({ chunk }) => {
 				if (chunk.name.startsWith('blocks/')) {
-					const [, blockName] = chunk.name.split('/');
-					return `blocks/${blockName}/block.css`;
+					return `${chunk.name}.css`;
 				}
 				return `css/${chunk.name}.css`;
 			},

@@ -62,8 +62,9 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 ### 2. Declare all values at the top with an empty-string fallback
 
-For native dynamic blocks, read attributes from `$attributes` (auto-typed from `block.json`). For
-post fields and meta, use the appropriate WP API. Never inline the call inside HTML output.
+For native dynamic blocks, read attributes from `$attributes` (typed by WP from the
+`registerBlockType` call). For post fields and meta, use the appropriate WP API. Never inline
+the call inside HTML output.
 
 ```php
 $title = $attributes['title'] ?? '';            // block attribute
@@ -112,7 +113,7 @@ Document them at the top so phpstan and readers understand the signatures:
 
 ```php
 /**
- * @var array    $attributes Block attributes (typed from block.json).
+ * @var array    $attributes Block attributes (typed by WP from the registerBlockType call).
  * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
  * @var WP_Block $block      Block instance.
  */

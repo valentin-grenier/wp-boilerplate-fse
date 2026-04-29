@@ -1,6 +1,6 @@
 # Custom Blocks
 
-Custom blocks in this theme are **native Gutenberg blocks** registered from a `block.json` manifest. The block can be **static** (markup saved in post content via `save()`) or **dynamic** (markup rendered server-side from a PHP template).
+Custom blocks in this theme are **native Gutenberg blocks** registered **client-side** in the editor JS — no `block.json`, no `register_block_type()`. The block can be **static** (markup saved in post content via `save()`) or **dynamic** (markup rendered server-side from a PHP template).
 
 ## Scaffold a new block
 
@@ -18,126 +18,99 @@ The script prompts for the block type:
 
 Each block lives in its own folder under `_dev/blocks/`:
 
-```
+```text
 _dev/blocks/{block-slug}/
-├── block.json    # Block manifest — auto-discovered, no manual registration
-├── block.js      # Editor script: registerBlockType + edit + save
-├── block.scss    # Block-scoped BEM styles (front-end + editor)
-└── block.php     # Optional — only for dynamic blocks
+├── {block-slug}.js              # Editor: registerBlockType + edit + save
+├── {block-slug}.scss            # Shared styles (editor + front-end)
+├── {block-slug}-editor.scss     # Editor-only styles
+├── {block-slug}-frontend.js     # Front-end script
+└── {block-slug}.php             # Optional — only for dynamic blocks
 ```
 
-`inc/blocks.php` globs every `block.json` under `_dev/blocks/*/` and registers each via `register_block_type()` on the `init` hook. No manual registration list to maintain.
+Webpack compiles each block to `dist/blocks/{block-slug}/` with normalised names: `block.js`, `block.css`, `block-editor.css`, `block-frontend.js`. [`inc/blocks.php`](../wp-content/themes/theme-fse/inc/blocks.php) globs `dist/blocks/*/` and enqueues whichever bundles exist — editor-only assets via `enqueue_block_editor_assets`, shared styles and front-end JS via `wp_enqueue_scripts`. No manual registration list to maintain.
 
-## block.json
+## `{block-slug}.js`
 
-```json
-{
-  "$schema": "https://schemas.wp.org/trunk/block.json",
-  "apiVersion": 3,
-  "name": "studioval/my-block",
-  "title": "My Block",
-  "description": "Short description.",
-  "textdomain": "studioval-boilerplate",
-  "category": "studioval",
-  "icon": "screenoptions",
-  "keywords": ["studio"],
-  "editorScript": "file:../../../dist/blocks/my-block/block.js",
-  "style": "file:../../../dist/blocks/my-block/block.css",
-  "attributes": {
-    "content": {
-      "type": "string",
-      "default": ""
-    }
-  },
-  "supports": {
-    "anchor": false,
-    "spacing": { "margin": false, "padding": false }
-  }
-}
-```
-
-For a **dynamic** block, add a `render` field pointing to the PHP template:
-
-```json
-"render": "file:./block.php"
-```
-
-Key fields:
-
-| Field          | Value                                | Note                                                                     |
-| -------------- | ------------------------------------ | ------------------------------------------------------------------------ |
-| `name`         | `studioval/{slug}`                   | Namespace is always `studioval/` — never changes between projects        |
-| `textdomain`   | `studioval-boilerplate`              | Substituted to your project slug by `bin/setup.sh`                       |
-| `category`     | `studioval`                          | Registered in `inc/block-categories.php` — do not use WP core categories |
-| `editorScript` | `file:../../../dist/blocks/{slug}/…` | Editor-side bundle output by Webpack                                     |
-| `style`        | `file:../../../dist/blocks/{slug}/…` | Compiled CSS — loaded on both editor and front-end                       |
-| `render`       | `file:./block.php` (dynamic blocks)  | Server-render template, resolved relative to `block.json`                |
-| `attributes`   | Object                               | Block attributes, read in `edit`/`save` via `attributes`                 |
-
-## block.js
-
-Registers the block in the editor. The example block at `_dev/blocks/block/block.js` is the reference.
+The block is registered entirely in JS — `title`, `description`, `category`, `icon`, `attributes`, `supports`, and `edit`/`save` are all passed to `registerBlockType`. The `@wordpress/*` imports resolve to globals at runtime via Webpack `externals`, so nothing is bundled.
 
 ```js
-const { registerBlockType } = wp.blocks;
-const { useBlockProps, RichText } = wp.blockEditor;
-const { __ } = wp.i18n;
+import { registerBlockType } from '@wordpress/blocks';
+import { useBlockProps, RichText } from '@wordpress/block-editor';
+import { __ } from '@wordpress/i18n';
 
 function Edit({ attributes, setAttributes }) {
-  const blockProps = useBlockProps();
+	const blockProps = useBlockProps();
 
-  return (
-    <div {...blockProps}>
-      <RichText
-        tagName="p"
-        value={attributes.content}
-        onChange={(content) => setAttributes({ content })}
-        placeholder={__("Saisir le contenu…", "studioval-boilerplate")}
-      />
-    </div>
-  );
+	return (
+		<div {...blockProps}>
+			<RichText
+				tagName="p"
+				value={attributes.content}
+				onChange={(content) => setAttributes({ content })}
+				placeholder={__('Saisir le contenu…', 'studioval-boilerplate')}
+			/>
+		</div>
+	);
 }
 
 function Save({ attributes }) {
-  const blockProps = useBlockProps.save();
+	const blockProps = useBlockProps.save();
 
-  return (
-    <div {...blockProps}>
-      <RichText.Content tagName="p" value={attributes.content} />
-    </div>
-  );
+	return (
+		<div {...blockProps}>
+			<RichText.Content tagName="p" value={attributes.content} />
+		</div>
+	);
 }
 
-registerBlockType("studioval/my-block", {
-  edit: Edit,
-  save: Save,
+registerBlockType('studioval/my-block', {
+	apiVersion: 3,
+	title: __('My Block', 'studioval-boilerplate'),
+	description: __('Un bloc personnalisé nommé my-block.', 'studioval-boilerplate'),
+	category: 'studioval',
+	icon: 'screenoptions',
+	keywords: ['my-block'],
+	supports: { align: true, anchor: true, html: false },
+	attributes: { content: { type: 'string', default: '' } },
+	edit: Edit,
+	save: Save,
 });
 ```
 
-For **dynamic** blocks, return `null` from `save` — the markup comes from `block.php`:
+For a **dynamic** block, `Save` returns `null` and the markup comes from `{block-slug}.php`:
 
 ```js
-registerBlockType("studioval/my-block", {
-  edit: Edit,
-  save: () => null,
+const Save = () => null;
+
+registerBlockType('studioval/my-block', {
+	// …
+	render: 'file:./my-block.php',
+	edit: Edit,
+	save: Save,
 });
 ```
 
-The Babel config (`_dev/babel.config.json`) compiles JSX through `@wordpress/element`, so JSX works without a `React` import. WordPress globals (`wp.blocks`, `wp.blockEditor`, `wp.i18n`) are guaranteed to be available in the editor context — no ES `import` needed.
+The `render: 'file:./{slug}.php'` field tells the block render pipeline where to find the server-side template.
 
-## block.php (dynamic blocks only)
+> **Important:** do not `import` the SCSS files from the JS. Webpack discovers `{slug}.scss`, `{slug}-editor.scss`, and `{slug}-frontend.js` independently and compiles them to separate bundles so editor-only styles stay out of the front-end.
+
+## `{block-slug}.php` (dynamic blocks only)
 
 ```php
 <?php
-if ( ! defined( 'ABSPATH' ) ) { exit; }
-
 /**
+ * Block render template — My Block.
+ *
  * @var array    $attributes Block attributes.
  * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
  * @var WP_Block $block      Block instance.
  */
 
-$content_attr = $attributes['content'] ?? '';
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+$content_attr = isset( $attributes['content'] ) ? $attributes['content'] : '';
 
 $wrapper_attributes = get_block_wrapper_attributes();
 ?>
@@ -148,45 +121,49 @@ $wrapper_attributes = get_block_wrapper_attributes();
 
 **Escaping rules — no exceptions:**
 
-| Output type            | Function         |
-| ---------------------- | ---------------- |
-| Plain text             | `esc_html()`     |
-| HTML attributes        | `esc_attr()`     |
-| URLs (href, src)       | `esc_url()`      |
-| Rich content / WYSIWYG | `wp_kses_post()` |
+| Output type            | Function          |
+| ---------------------- | ----------------- |
+| Plain text             | `esc_html()`      |
+| HTML attributes        | `esc_attr()`      |
+| URLs (href, src)       | `esc_url()`       |
+| Rich content / WYSIWYG | `wp_kses_post()`  |
 
-`get_block_wrapper_attributes()` returns a pre-escaped attribute string that includes the block's class names (including `wp-block-studioval-{slug}`), align/anchor/style attributes, and any custom `className` from the editor.
+`get_block_wrapper_attributes()` returns a pre-built attribute string that includes the block's class names (including `wp-block-studioval-{slug}`), align/anchor/style attributes, and any custom `className` from the editor. Pass it through `wp_kses_data()` on output.
 
-## block.scss
+## `{block-slug}.scss` and `{block-slug}-editor.scss`
 
 ```scss
 .wp-block-studioval-my-block {
-  // Block-scoped styles using nested BEM.
+	// Shared styles (editor + front-end) using nested BEM.
 
-  &__heading {
-    font-size: var(--wp--preset--font-size--x-large);
-  }
+	&__heading {
+		font-size: var(--wp--preset--font-size--x-large);
+	}
 }
 ```
 
 - BEM only: `.block`, `.block__element`, `.block--modifier`.
 - Scope everything to `.wp-block-studioval-{slug}` — no global selectors.
 - Prefer `var(--wp--preset--color--x)` / `var(--wp--custom--spacing--x)` over hardcoded values when the source is `theme.json`.
+- The `-editor` file holds overrides that should not leak to the front-end (placeholder backgrounds, inserter previews, etc.).
+
+## `{block-slug}-frontend.js`
+
+Loads on the front-end only — both static and dynamic blocks get one so any interactive behaviour has a clear home. Stays empty (just a placeholder `console.log`) until you need it.
 
 ## After scaffolding
 
-1. Run `npm run dev` to pick up the new Webpack entry.
-2. Insert the block in the editor; verify edit and front-end render.
+1. Run `npm run dev` to pick up the new Webpack entries.
+2. Insert the block in the editor; verify `edit` and front-end render.
 3. Run `composer lint` and `npm run lint:css` + `npm run lint:js` to confirm clean.
 
 ## Authoring checklist
 
-- [ ] Folder under `_dev/blocks/` with `block.json`, `block.js`, `block.scss` (and `block.php` for dynamic blocks)
-- [ ] `block.json` `name` uses the `studioval/` namespace
-- [ ] `block.json` `textdomain` is `studioval-boilerplate`
-- [ ] `block.json` `category` is `studioval`
-- [ ] `block.json` declares `attributes` for any data the block stores
-- [ ] Static block: `save()` returns markup. Dynamic block: `save: () => null` and `render: file:./block.php` in `block.json`
+- [ ] Folder under `_dev/blocks/` with `{slug}.js`, `{slug}.scss`, `{slug}-editor.scss`, `{slug}-frontend.js` (and `{slug}.php` for dynamic blocks)
+- [ ] `registerBlockType` namespace is `studioval/{slug}`
+- [ ] `attributes` declared in `registerBlockType` covers every piece of data the block stores
+- [ ] Static block: `Save` returns markup. Dynamic block: `Save = () => null` and `render: 'file:./{slug}.php'`
+- [ ] Named `Edit` / `Save` functions (capitalised) so hooks linting passes
 - [ ] PHP template (dynamic) escapes all output and uses `get_block_wrapper_attributes()`
 - [ ] Styles use BEM and are scoped to `.wp-block-studioval-{slug}`
-- [ ] Block appears in editor after `npm run build` without touching `inc/blocks.php`
+- [ ] Block bundles compile under `dist/blocks/{slug}/` after `npm run build` — `inc/blocks.php` picks them up automatically

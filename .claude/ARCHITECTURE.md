@@ -20,7 +20,7 @@ How the repository is laid out and why.
 │   │   ├── sync-docs.md         # Auto-trigger: audits team-docs drift
 │   │   ├── a11y-links-buttons.md # On-demand: WCAG/RGAA failure grep audit
 │   │   ├── i18n-audit.md        # On-demand: text-domain and untranslated strings audit
-│   │   └── block-audit.md       # On-demand: block.json mandatory fields audit
+│   │   └── block-audit.md       # On-demand: registerBlockType call structure audit
 │   └── lessons.md               # Rolling log appended by the PreCompact hook
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
@@ -84,7 +84,7 @@ Every file is auto-loaded by `functions.php`. Each one owns one concern:
 | ----------------------- | ------------------------------------------------------------------------------------- |
 | `theme-setup.php`       | `add_theme_support` calls, menus, image sizes, editor styles                          |
 | `theme-assets.php`      | `wp_enqueue_scripts` / `enqueue_block_editor_assets` with `filemtime()` cache-busting |
-| `blocks.php`            | Auto-registers blocks by globbing `_dev/blocks/*/block.json` on `init`                |
+| `blocks.php`            | Enqueues compiled block bundles from `dist/blocks/*/` (editor + front-end)            |
 | `block-bindings.php`    | Custom block bindings source registration                                             |
 | `block-categories.php`  | `block_categories_all` filter: adds the theme's custom category                       |
 | `block-settings.php`    | Per-block allow/deny lists (disable unused core blocks/styles)                        |
@@ -104,11 +104,12 @@ HTTP access. Applied across all 14 files.
 
 ```text
 _dev/
-├── blocks/{name}/       # One folder per custom block — currently only the example `block/`
-│   ├── block.json       # WP block metadata + attributes
-│   ├── block.js         # Editor-side script: registerBlockType + edit + save
-│   ├── block.scss       # Scoped styles
-│   └── block.php        # Optional — only for dynamic blocks (referenced by `render` in block.json)
+├── blocks/{name}/       # One folder per custom block — see block-example-static and block-example-dynamic
+│   ├── {name}.js              # Editor: registerBlockType + edit + save (all metadata client-side)
+│   ├── {name}.scss            # Shared styles (editor + front-end)
+│   ├── {name}-editor.scss     # Editor-only styles
+│   ├── {name}-frontend.js     # Front-end script
+│   └── {name}.php             # Optional — only for dynamic blocks (referenced by `render` in the JS)
 ├── js/                  # theme.js (frontend) + editor.js (backend)
 ├── scss/                # theme.scss (frontend) + editor.scss + partials
 ├── scripts/make-block.js # Interactive block scaffolder (npm run make-block)
@@ -126,12 +127,9 @@ Compiled output goes to `../dist/` (committed). Deploy workflows FTP-upload that
 
 ### Block discovery
 
-The flow `_dev/blocks/*/block.json` → `inc/blocks.php` is the contract. `blocks.php` globs the
-`_dev/blocks` tree and calls `register_block_type` on each `block.json` found, hooked on `init`.
-There is no manual registration list; drop a folder into `_dev/blocks/`, run `npm run build`, and
-the block appears in the editor.
+Blocks register themselves **client-side** via `registerBlockType('studioval/{slug}', { …metadata, edit, save })` in `_dev/blocks/{slug}/{slug}.js`. Webpack compiles each block to `dist/blocks/{slug}/` with normalised filenames (`block.js`, `block.css`, `block-editor.css`, `block-frontend.js`). [`inc/blocks.php`](../wp-content/themes/theme-fse/inc/blocks.php) globs `dist/blocks/*/` and enqueues whichever bundles exist on the right action — editor-only on `enqueue_block_editor_assets`, shared styles + front-end JS on `wp_enqueue_scripts`. No `block.json`, no manual registration list.
 
-Use `npm run make-block` to scaffold a new block folder (prompts for slug, title, icon, category).
+Use `npm run make-block {slug}` to scaffold a new block folder (prompts for static or dynamic).
 
 ### `dist/` — compiled output
 
@@ -149,7 +147,7 @@ Files under `.claude/rules/` are auto-loaded as context on every session. Each f
 | ------------- | --------------------------------------------------------- |
 | `security.md` | Escape/sanitize/nonce/prepare rules — blocking in review  |
 | `i18n.md`     | Text-domain, translation functions, `.pot` generation     |
-| `blocks.md`   | `block.json` mandatory fields and `block.php` conventions |
+| `blocks.md`   | `registerBlockType` call shape and `block.php` conventions |
 | `a11y.md`     | WCAG/RGAA AA — links, buttons, images, contrast           |
 
 ### Skills
@@ -225,6 +223,6 @@ remain and are non-blocking.
 
 - **`functions.php` stays a one-liner.** Logic belongs in `inc/*.php`.
 - **Webpack is the build, not `wp-scripts`** — do not propose a migration without explicit approval.
-- **Native Gutenberg blocks only.** Blocks are registered from `block.json` and authored in JSX (static) or with a PHP render template (dynamic). No ACF dependency.
+- **Native Gutenberg blocks only.** Blocks register themselves client-side via `registerBlockType` (no `block.json`); compiled bundles are enqueued from `dist/blocks/*/` by `inc/blocks.php`. No ACF dependency.
 - **Single text-domain.** Source default is `fse-boilerplate` (per `style.css` header); `bin/setup.sh`
   substitutes it on client install.

@@ -13,7 +13,7 @@ only — WordPress core is present locally but **not versioned**. Theme lives at
 - **WordPress** 6.0+, **PHP** 8.2+.
 - **Webpack 5** + **Sass** — **not** `wp-scripts`. ⚠️ Do not propose a wp-scripts migration without explicit approval.
 - **DDEV** (`.ddev/` versioned).
-- **Native Gutenberg blocks** — registered from `block.json`, no ACF dependency.
+- **Native Gutenberg blocks** — JS-side `registerBlockType`, no `block.json`, no ACF dependency.
 - **Composer**: WPCS (WordPress-Extra) + `phpstan` level 5 (target: 8) + PHPCompatibility 8.2.
 
 ## Key tree
@@ -40,13 +40,13 @@ only — WordPress core is present locally but **not versioned**. Theme lives at
 Run `composer ci` (lint → stan → test) before declaring backend work done. Daily commands: `docs/setup.md`.
 
 - **Language**: code, comments, and all documentation in English.
-- **Text-domain**: `studioval-boilerplate` — every `__()`, `esc_html__()`, `block.json textdomain`.
+- **Text-domain**: `studioval-boilerplate` — every `__()`, `esc_html__()`, every i18n string in block JS metadata.
 - **Prefix**: `sv_boilerplate_` — every function and custom hook. Substituted by `bin/setup.sh`.
 - **PHP**: procedural only — no classes or namespaces in `inc/` without explicit approval.
-- **Block namespace**: `studioval/{slug}` in `block.json`.
+- **Block namespace**: `studioval/{slug}` in the `registerBlockType` call.
 - **Security**: every `inc/*.php` opens with `ABSPATH` guard. Escape all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), sanitize all input, `$wpdb->prepare` for SQL, nonces on state-changing handlers.
 - **i18n**: `__()`, `esc_html__()`, `_e()`, `_x()` with text-domain on every visible string.
-- **Blocks**: one folder per block in `_dev/blocks/{name}/`; `block.json` auto-discovered by `inc/blocks.php` on the `init` hook.
+- **Blocks**: one folder per block in `_dev/blocks/{name}/`; compiled bundles are auto-enqueued from `dist/blocks/{name}/` by `inc/blocks.php` (editor + front-end).
 - **Cache-busting**: `filemtime()` on the compiled file — never hardcode a version.
 
 ## Files never to modify

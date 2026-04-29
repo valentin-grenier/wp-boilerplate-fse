@@ -8,7 +8,7 @@ Repository-wide conventions.
 
 **`studioval-boilerplate`** — declared in [`style.css`](../wp-content/themes/theme-fse/style.css)
 header (`Text Domain: studioval-boilerplate`, `Domain Path: /languages`). Every `__()` /
-`esc_html__()` / `_x()` / `block.json` `textdomain` in the theme uses this exact value.
+`esc_html__()` / `_x()` and every i18n string in block JS metadata in the theme use this exact value.
 `bin/setup.sh` substitutes the `boilerplate` token with the client project slug on install.
 Enforced by phpcs via the `WordPress.WP.I18n.TextDomainMismatch` sniff in `phpcs.xml.dist`.
 
@@ -35,8 +35,7 @@ segment with the client name on install.
 
 ### Block namespace
 
-**`studioval/{slug}`** — the slug in `block.json` `name`. Already applied (the only block in the
-repo is `studioval/block`, the scaffolder template).
+**`studioval/{slug}`** — the first argument to `registerBlockType` in each block's editor JS. Already applied to the example blocks in `_dev/blocks/block-example-static/` and `_dev/blocks/block-example-dynamic/`.
 
 A custom block category `studioval` is registered by
 [`inc/block-categories.php`](../wp-content/themes/theme-fse/inc/block-categories.php). New blocks

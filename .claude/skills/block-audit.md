@@ -1,6 +1,6 @@
 ---
 name: block-audit
-description: Read every block.json under _dev/blocks/ and report missing or incorrect mandatory fields as defined in .claude/rules/blocks.md — schema, apiVersion, name namespace, textdomain, category, render (for dynamic blocks), and asset paths.
+description: Read every block source folder under _dev/blocks/ and report missing or incorrect mandatory fields in the registerBlockType call as defined in .claude/rules/blocks.md — namespace, textdomain on i18n strings, category, attributes, edit/save shape, and the render field for dynamic blocks.
 ---
 
 # Block audit skill
@@ -14,45 +14,42 @@ description: Read every block.json under _dev/blocks/ and report missing or inco
 ## Scan path
 
 ```
-wp-content/themes/theme-fse/_dev/blocks/*/block.json
+wp-content/themes/theme-fse/_dev/blocks/*/
 ```
+
+For each block folder, read the editor JS file (`{slug}.js`) and check the `registerBlockType` call.
 
 ## Procedure
 
-For each `block.json` found, read its content and check the following fields. Flag every violation with its category label.
+For each block, flag every violation with its category label.
 
-### 1. `[SCHEMA]` — Missing or wrong `$schema`
+### 1. `[NAMESPACE]` — Wrong block name
 
-Expected: `"$schema": "https://schemas.wp.org/trunk/block.json"` as the first key.
+Expected: `registerBlockType('studioval/{slug}', …)`. Flag any namespace that is not `studioval/`.
 
-### 2. `[API-VER]` — Wrong or missing `apiVersion`
+### 2. `[DOMAIN]` — Missing text-domain on `__()` calls
 
-Expected: `"apiVersion": 3`.
+Every `__('…')` in `title`, `description`, `keywords` must include `'studioval-boilerplate'` as the second arg.
 
-### 3. `[NAMESPACE]` — Block name not prefixed with `studioval/`
+### 3. `[CATEGORY]` — Wrong category
 
-Expected: `"name": "studioval/<slug>"`. Flag any name that does not start with `studioval/`.
+Expected: `category: 'studioval'`. Flag missing field or core WP categories (`text`, `media`, `design`, `widgets`, `theme`, `embed`).
 
-### 4. `[DOMAIN]` — Missing or wrong `textdomain`
+### 4. `[ATTRIBUTES]` — Missing attributes declaration
 
-Expected: `"textdomain": "studioval-boilerplate"`. Flag missing field or any other value.
+If the `Edit` function reads from `attributes.X`, `X` must be declared in the `attributes` object passed to `registerBlockType`. Flag any attribute used in `Edit`/`Save` that is not declared.
 
-### 5. `[CATEGORY]` — Missing or wrong `category`
+### 5. `[EDIT-SAVE]` — Inline arrow functions instead of named components
 
-Expected: `"category": "studioval"`. Flag missing field or core WP categories (`text`, `media`, `design`, `widgets`, `theme`, `embed`).
+Expected: `edit: Edit` and `save: Save` referring to named functions. Flag inline arrow functions like `edit: ({ attributes }) => …` (these break `react-hooks/rules-of-hooks` for `useBlockProps`).
 
-### 6. `[RENDER]` — `block.php` present without `render` field, or vice versa
+### 6. `[RENDER]` — Dynamic block missing `render`, or static block with stray `render`
 
-Expected: if a `block.php` file exists in the same folder, `block.json` must include `"render": "file:./block.php"`. Conversely, if `render` is set, the referenced PHP file must exist. Flag mismatches.
+If a `{slug}.php` file exists in the folder, the JS must include `render: 'file:./{slug}.php'` and `Save` must be `() => null`. Conversely, if `render` is set, the PHP file must exist.
 
-### 7. `[ASSET]` — Missing `editorScript` or `style` asset path
+### 7. `[SCSS-IMPORT]` — JS importing SCSS files
 
-Expected:
-
-- `"editorScript": "file:../../../dist/blocks/<slug>/block.js"`
-- `"style": "file:../../../dist/blocks/<slug>/block.css"` (may legitimately be absent for blocks with no styles — report as a warning, not a blocking failure)
-
-Flag if `editorScript` is absent. Flag as warning if `style` is absent.
+The JS file should not contain `import './{slug}.scss'` or similar. Webpack discovers SCSS independently. Flag any such import.
 
 ## Output format
 
@@ -66,14 +63,14 @@ Flag if `editorScript` is absent. Flag as warning if `style` is absent.
 - <file> — [CAT] <issue>
 
 ### ✅ Clean
-- <file> — all mandatory fields present
+- <slug> — all checks pass
 
 <N> finding(s) across <M> block(s).
 ```
 
-Category labels: `[SCHEMA]`, `[API-VER]`, `[NAMESPACE]`, `[DOMAIN]`, `[CATEGORY]`, `[RENDER]`, `[ASSET]`.
+Category labels: `[NAMESPACE]`, `[DOMAIN]`, `[CATEGORY]`, `[ATTRIBUTES]`, `[EDIT-SAVE]`, `[RENDER]`, `[SCSS-IMPORT]`.
 
-If zero findings: output `✅ All clear — all block.json files are valid.`
+If zero findings: output `✅ All clear — all blocks pass the checklist.`
 
 ## Reference
 

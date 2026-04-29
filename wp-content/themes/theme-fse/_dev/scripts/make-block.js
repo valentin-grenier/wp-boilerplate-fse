@@ -22,19 +22,21 @@ if (fs.existsSync(blockDir)) {
 	process.exit(1);
 }
 
-// Prompt for block type
 const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout,
 });
 
 console.log('');
-rl.question('Block type?\n  1) Static (saved in post content)\n  2) Dynamic (PHP server-side rendering)\n\nChoose [1-2]: ', (answer) => {
-	const isDynamic = answer === '2';
+rl.question(
+	'Block type?\n  1) Static (saved in post content)\n  2) Dynamic (PHP server-side rendering)\n\nChoose [1-2]: ',
+	(answer) => {
+		const isDynamic = answer === '2';
 
-	createBlock(blockName, isDynamic);
-	rl.close();
-});
+		createBlock(blockName, isDynamic);
+		rl.close();
+	}
+);
 
 function createBlock(blockName, isDynamic) {
 	const blocksDir = path.join(__dirname, '..', 'blocks');
@@ -47,21 +49,50 @@ function createBlock(blockName, isDynamic) {
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
 
-	// === [block-name].js (Editor Script) ===
+	// === ${blockName}.js (Editor script) ===
+	// SCSS is intentionally not imported here — webpack discovers
+	// ${blockName}.scss / ${blockName}-editor.scss as separate entries so
+	// shared and editor-only styles compile to distinct CSS bundles.
 	const blockJs = `import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, RichText } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-import './${blockName}.scss';
+function Edit({ attributes, setAttributes }) {
+	const blockProps = useBlockProps();
 
-import Icon from '../../shared/icon-site.jsx';
+	return (
+		<div {...blockProps}>
+			<RichText
+				tagName="p"
+				value={attributes.content}
+				onChange={(content) => setAttributes({ content })}
+				placeholder={__('Saisir le contenu…', 'studioval-boilerplate')}
+			/>
+		</div>
+	);
+}
+
+${
+	isDynamic
+		? `// Dynamic block — markup is rendered by ${blockName}.php on the front-end.
+const Save = () => null;`
+		: `function Save({ attributes }) {
+	const blockProps = useBlockProps.save();
+
+	return (
+		<div {...blockProps}>
+			<RichText.Content tagName="p" value={attributes.content} />
+		</div>
+	);
+}`
+}
 
 registerBlockType('studioval/${blockName}', {
 	apiVersion: 3,
 	title: __('${titleCase}', 'studioval-boilerplate'),
 	description: __('Un bloc personnalisé nommé ${blockName}.', 'studioval-boilerplate'),
 	category: 'studioval',
-	icon: { src: Icon },
+	icon: 'screenoptions',
 	keywords: ['${blockName}'],${
 		isDynamic
 			? `
@@ -79,110 +110,85 @@ registerBlockType('studioval/${blockName}', {
 			default: '',
 		},
 	},
-	edit: ({ attributes, setAttributes }) => {
-		const blockProps = useBlockProps();
-
-		return (
-			<div {...blockProps}>
-				<RichText
-					tagName="p"
-					value={attributes.content}
-					onChange={(content) => setAttributes({ content })}
-					placeholder={__('Saisir le contenu...', 'studioval-boilerplate')}
-				/>
-			</div>
-		);
-	},
-${
-	isDynamic
-		? `
-	// Dynamic block - rendered with PHP
-	save: () => null,`
-		: `
-	save: ({ attributes }) => {
-		const blockProps = useBlockProps.save();
-
-		return (
-			<div {...blockProps}>
-				<RichText.Content tagName="p" value={attributes.content} />
-			</div>
-		);
-	},`
-}
+	edit: Edit,
+	save: Save,
 });
 `;
 	fs.writeFileSync(path.join(blockDir, `${blockName}.js`), blockJs);
 
-	// === [block-name]-editor.scss (Editor Styles) ===
-	fs.writeFileSync(
-		path.join(blockDir, `${blockName}-editor.scss`),
-		`.wp-block-studioval-${blockName} {}
-`
-	);
-
-	// === [block-name].scss (Frontend Styles) ===
+	// === ${blockName}.scss (shared styles, editor + front-end) ===
 	fs.writeFileSync(
 		path.join(blockDir, `${blockName}.scss`),
-		`.wp-block-studioval-${blockName} {}
+		`.wp-block-studioval-${blockName} {
+	// Block-scoped styles.
+}
 `
 	);
 
-	// === [block-name]-frontend.js (Frontend JavaScript) ===
-	if (isDynamic) {
-		const frontendJs = `document.addEventListener('DOMContentLoaded', () => {
+	// === ${blockName}-editor.scss (editor-only styles) ===
+	fs.writeFileSync(
+		path.join(blockDir, `${blockName}-editor.scss`),
+		`.wp-block-studioval-${blockName} {
+	// Editor-only styles.
+}
+`
+	);
+
+	// === ${blockName}-frontend.js (front-end script — both static and dynamic) ===
+	const frontendJs = `document.addEventListener('DOMContentLoaded', () => {
 	const blocks = document.querySelectorAll('.wp-block-studioval-${blockName}');
 
 	blocks.forEach((block) => {
+		// Front-end behaviour for ${titleCase} goes here.
+		// eslint-disable-next-line no-console
 		console.log('${titleCase} block initialized', block);
 	});
 });
 `;
-		fs.writeFileSync(path.join(blockDir, `${blockName}-frontend.js`), frontendJs);
-	}
+	fs.writeFileSync(path.join(blockDir, `${blockName}-frontend.js`), frontendJs);
 
-	// === [block-name].php (PHP render template for dynamic blocks) ===
+	// === ${blockName}.php (dynamic blocks only — server render template) ===
 	if (isDynamic) {
 		const phpTemplate = `<?php
 /**
- * Block Name: ${titleCase}
- * 
- * @param array $attributes Block attributes.
- * @param string $content Block content.
- * @param WP_Block $block Block instance.
+ * Block render template — ${titleCase}.
+ *
+ * @var array    $attributes Block attributes.
+ * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
+ * @var WP_Block $block      Block instance.
  */
 
-$classes = [];
-
-if (isset($attributes['align'])) {
-	$classes[] = 'align' . $attributes['align'];
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
 }
 
-if (isset($attributes['className'])) {
-	$classes[] = $attributes['className'];
-}
+$content_attr = isset( $attributes['content'] ) ? $attributes['content'] : '';
 
-$wrapper_attributes = get_block_wrapper_attributes([
-	'class' => implode(' ', $classes),
-]);
+$wrapper_attributes = get_block_wrapper_attributes();
 ?>
-
-<div <?php echo $wrapper_attributes; ?>>
-	<p><?php echo esc_html('${blockName}'); ?></p>
+<div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
+	<p><?php echo esc_html( $content_attr ); ?></p>
 </div>
 `;
 		fs.writeFileSync(path.join(blockDir, `${blockName}.php`), phpTemplate);
-		console.log('');
-		console.log(`✅ Dynamic block "${blockName}" created in ./blocks/${blockName}`);
-		console.log(`   - ${blockName}.js (editor)`);
-		console.log(`   - ${blockName}.php (render template)`);
-		console.log(`   - ${blockName}.scss (frontend styles)`);
-		console.log(`   - ${blockName}-editor.scss (editor styles)`);
-		console.log(`   - ${blockName}-frontend.js (frontend script)`);
-	} else {
-		console.log('');
-		console.log(`✅ Static block "${blockName}" created in ./blocks/${blockName}`);
-		console.log(`   - ${blockName}.js (editor + save)`);
-		console.log(`   - ${blockName}.scss (frontend styles)`);
-		console.log(`   - ${blockName}-editor.scss (editor styles)`);
 	}
+
+	// === Summary ===
+	console.log('');
+	console.log(
+		`✅ ${isDynamic ? 'Dynamic' : 'Static'} block "${blockName}" created in ./blocks/${blockName}`
+	);
+	console.log(`   - ${blockName}.js          (editor: registerBlockType + edit + save)`);
+	console.log(`   - ${blockName}.scss        (shared styles)`);
+	console.log(`   - ${blockName}-editor.scss (editor-only styles)`);
+	console.log(`   - ${blockName}-frontend.js (front-end script)`);
+	if (isDynamic) {
+		console.log(`   - ${blockName}.php         (PHP render template)`);
+	}
+	console.log('');
+	console.log('Next:');
+	console.log('   - npm run dev       # rebuild and watch');
+	console.log(
+		`   - inc/blocks.php picks up the compiled bundles automatically — no manual registration.`
+	);
 }
