@@ -173,55 +173,6 @@ show_setup_summary() {
   fi
 }
 
-# Function to install ACF Pro
-install_acf_pro() {
-  local license_key="$1"
-  
-  if [ -z "$license_key" ]; then
-    log_warning "No ACF Pro license key provided - skipping ACF Pro installation"
-    echo "💡 Use --acf-license=YOUR_KEY or set ACF_PRO_LICENSE environment variable"
-    increment_warnings
-    return 1
-  fi
-  
-  log_info "Installing ACF Pro with license key..."
-  
-  # Use WP-CLI to install ACF Pro directly from the download URL
-  local download_url="https://connect.advancedcustomfields.com/v2/plugins/download?p=pro&s=plugin&k=${license_key}"
-  
-  # Try to install ACF Pro, but don't let failures crash the script
-  set +e  # Temporarily disable exit on error
-  $WP plugin install "$download_url" --activate 2>/dev/null
-  local install_result=$?
-  set -e  # Re-enable exit on error
-  
-  if [ $install_result -eq 0 ]; then
-    log_success "ACF Pro installed and activated successfully"
-    increment_success
-    
-    # Set the license key in WordPress
-    set +e  # Temporarily disable exit on error for license key setting
-    $WP option update acf_pro_license "$license_key" 2>/dev/null
-    local license_result=$?
-    set -e  # Re-enable exit on error
-    
-    if [ $license_result -eq 0 ]; then
-      log_success "ACF Pro license key configured"
-      increment_success
-    else
-      log_warning "ACF Pro installed but license key configuration failed"
-      echo "💡 You may need to enter the license key manually in WordPress admin"
-      increment_warnings
-    fi
-    
-    return 0
-  else
-    log_error "Failed to install ACF Pro - check your license key and internet connection"
-    increment_errors
-    return 1
-  fi
-}
-
 # Cross-platform in-place sed (BSD/macOS requires -i '', GNU/Linux uses -i)
 sed_inplace() {
   if [[ "$(uname)" == "Darwin" ]]; then
@@ -361,7 +312,6 @@ DRY_RUN=false
 SKIP_PLUGINS=false
 THEME_SLUG=""
 THEME_DEST=""
-ACF_LICENSE_KEY=""
 
 # ========== FLAGS ==========
 while [[ $# -gt 0 ]]; do
@@ -370,7 +320,6 @@ while [[ $# -gt 0 ]]; do
     --skip-plugins)  SKIP_PLUGINS=true ;;
     --theme=*)       THEME_SLUG="${1#*=}" ;;
     --theme-dest=*)  THEME_DEST="${1#*=}" ;;
-    --acf-license=*) ACF_LICENSE_KEY="${1#*=}" ;;
     --help|-h)
       echo "WordPress FSE Boilerplate Setup Script"
       echo ""
@@ -381,16 +330,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --skip-plugins        Skip automatic plugin installation"
       echo "  --theme=NAME          Override source theme name detection"
       echo "  --theme-dest=NAME     Override destination theme name"
-      echo "  --acf-license=KEY     ACF Pro license key for installation"
       echo "  --help, -h            Show this help message"
-      echo ""
-      echo "Environment Variables:"
-      echo "  ACF_PRO_LICENSE       ACF Pro license key (alternative to --acf-license)"
-      echo ""
-      echo "ACF Pro License Sources (in order of precedence):"
-      echo "  1. --acf-license=KEY command line flag"
-      echo "  2. ACF_PRO_LICENSE environment variable"
-      echo "  3. auth.json file (password field for connect.advancedcustomfields.com)"
       echo ""
       echo "Designed for ddev projects. Renames the theme in place, updates theme metadata,"
       echo "and installs dependencies."
@@ -405,23 +345,6 @@ while [[ $# -gt 0 ]]; do
   esac
   shift
 done
-
-# Check for ACF license in environment variable if not provided via flag
-if [ -z "$ACF_LICENSE_KEY" ] && [ -n "$ACF_PRO_LICENSE" ]; then
-  ACF_LICENSE_KEY="$ACF_PRO_LICENSE"
-fi
-
-# Check for ACF license in auth.json file
-if [ -z "$ACF_LICENSE_KEY" ] && [ -f "$REPO_DIR/auth.json" ]; then
-  if command -v jq &> /dev/null; then
-    ACF_LICENSE_KEY=$(jq -r '.["http-basic"]["connect.advancedcustomfields.com"].password // empty' "$REPO_DIR/auth.json" 2>/dev/null)
-    if [ -n "$ACF_LICENSE_KEY" ] && [ "$ACF_LICENSE_KEY" != "null" ]; then
-      echo "🔑 Found ACF Pro license in auth.json"
-    else
-      ACF_LICENSE_KEY=""
-    fi
-  fi
-fi
 
 # ========== ENV DETECTION & WP-CLI CHECK ==========
 cd "$WP_PATH"
@@ -579,27 +502,7 @@ if [ "$DRY_RUN" = false ] && [ "$SKIP_PLUGINS" != true ]; then
   log_step "🔌 INSTALLING RECOMMENDED PLUGINS"
   
   cd "$WP_PATH"
-  
-  # Install ACF Pro first if license key is provided
-  if [ -n "$ACF_LICENSE_KEY" ]; then
-    if [ "$DRY_RUN" = true ]; then
-      echo "[DRY RUN] Would install ACF Pro with provided license key"
-    else
-      start_spinner "Installing ACF Pro..."
-      if install_acf_pro "$ACF_LICENSE_KEY" >/dev/null 2>&1; then
-        stop_spinner
-        log_success "ACF Pro installed and activated successfully"
-        increment_success
-      else
-        stop_spinner
-        log_warning "ACF Pro installation failed - continuing with other plugins"
-        increment_warnings
-        echo "💡 You can install ACF Pro manually later from the WordPress admin"
-      fi
-    fi
-    echo ""
-  fi
-  
+
   log_info "Installing recommended development plugins..."
   
   # Development plugins
