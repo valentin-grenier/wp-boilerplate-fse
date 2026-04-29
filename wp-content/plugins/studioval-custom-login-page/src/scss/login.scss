@@ -94,6 +94,26 @@ body.login.clp-layout-image-right {
   }
 }
 
+// ─── Responsive — collapse split layout on narrow screens ────────────────────
+
+@media screen and (max-width: 700px) {
+  body.login.clp-layout-image-left,
+  body.login.clp-layout-image-right {
+    display: block;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+
+    #login {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}
+
 // ─── Toggled elements ─────────────────────────────────────────────────────────
 
 body.login.clp-hide-forgot-password #nav {
