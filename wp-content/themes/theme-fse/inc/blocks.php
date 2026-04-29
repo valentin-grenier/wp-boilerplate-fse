@@ -54,7 +54,7 @@ function sv_boilerplate_enqueue_block_editor_assets() {
 			wp_enqueue_script(
 				$handle,
 				$block_dir_uri . '/' . $name . '/block.js',
-				array( 'wp-blocks', 'wp-block-editor', 'wp-element', 'wp-i18n' ),
+				array( 'wp-blocks', 'wp-block-editor', 'wp-components', 'wp-element', 'wp-i18n' ),
 				filemtime( $editor_js ),
 				true
 			);

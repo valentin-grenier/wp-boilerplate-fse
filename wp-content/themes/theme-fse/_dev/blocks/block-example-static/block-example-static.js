@@ -1,28 +1,31 @@
 import { registerBlockType } from '@wordpress/blocks';
-import { useBlockProps, RichText } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-function Edit({ attributes, setAttributes }) {
+function Edit() {
 	const blockProps = useBlockProps();
 
 	return (
 		<div {...blockProps}>
-			<RichText
-				tagName="p"
-				value={attributes.content}
-				onChange={(content) => setAttributes({ content })}
-				placeholder={__('Saisir le contenu…', 'studioval-boilerplate')}
+			<Placeholder
+				icon="screenoptions"
+				label={__('Block Example Static', 'studioval-boilerplate')}
+				instructions={__(
+					'Bloc d’exemple statique — le markup côté front est défini en dur dans Save.',
+					'studioval-boilerplate'
+				)}
 			/>
 		</div>
 	);
 }
 
-function Save({ attributes }) {
+function Save() {
 	const blockProps = useBlockProps.save();
 
 	return (
 		<div {...blockProps}>
-			<RichText.Content tagName="p" value={attributes.content} />
+			<p>Block Example Static — front-end placeholder.</p>
 		</div>
 	);
 }
@@ -30,7 +33,7 @@ function Save({ attributes }) {
 registerBlockType('studioval/block-example-static', {
 	apiVersion: 3,
 	title: __('Block Example Static', 'studioval-boilerplate'),
-	description: __('Un bloc personnalisé nommé block-example-static.', 'studioval-boilerplate'),
+	description: __('Un bloc d’exemple statique.', 'studioval-boilerplate'),
 	category: 'studioval',
 	icon: 'screenoptions',
 	keywords: ['block-example-static'],
@@ -38,12 +41,6 @@ registerBlockType('studioval/block-example-static', {
 		align: true,
 		anchor: true,
 		html: false,
-	},
-	attributes: {
-		content: {
-			type: 'string',
-			default: '',
-		},
 	},
 	edit: Edit,
 	save: Save,

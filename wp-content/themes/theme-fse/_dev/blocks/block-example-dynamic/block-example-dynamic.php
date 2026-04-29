@@ -11,10 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-$content_attr = isset( $attributes['content'] ) ? $attributes['content'] : '';
-
 $wrapper_attributes = get_block_wrapper_attributes();
 ?>
 <div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
-	<p><?php echo esc_html( $content_attr ); ?></p>
+	<p>Block Example Dynamic — front-end placeholder.</p>
 </div>

@@ -53,20 +53,27 @@ function createBlock(blockName, isDynamic) {
 	// SCSS is intentionally not imported here — webpack discovers
 	// ${blockName}.scss / ${blockName}-editor.scss as separate entries so
 	// shared and editor-only styles compile to distinct CSS bundles.
+	const editorPlaceholderInstructions = isDynamic
+		? `Bloc d’exemple dynamique — le markup côté front est rendu par ${blockName}.php.`
+		: `Bloc d’exemple statique — le markup côté front est défini en dur dans Save.`;
+
 	const blockJs = `import { registerBlockType } from '@wordpress/blocks';
-import { useBlockProps, RichText } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-function Edit({ attributes, setAttributes }) {
+function Edit() {
 	const blockProps = useBlockProps();
 
 	return (
 		<div {...blockProps}>
-			<RichText
-				tagName="p"
-				value={attributes.content}
-				onChange={(content) => setAttributes({ content })}
-				placeholder={__('Saisir le contenu…', 'studioval-boilerplate')}
+			<Placeholder
+				icon="screenoptions"
+				label={__('${titleCase}', 'studioval-boilerplate')}
+				instructions={__(
+					'${editorPlaceholderInstructions}',
+					'studioval-boilerplate'
+				)}
 			/>
 		</div>
 	);
@@ -76,12 +83,12 @@ ${
 	isDynamic
 		? `// Dynamic block — markup is rendered by ${blockName}.php on the front-end.
 const Save = () => null;`
-		: `function Save({ attributes }) {
+		: `function Save() {
 	const blockProps = useBlockProps.save();
 
 	return (
 		<div {...blockProps}>
-			<RichText.Content tagName="p" value={attributes.content} />
+			<p>${titleCase} — front-end placeholder.</p>
 		</div>
 	);
 }`
@@ -103,12 +110,6 @@ registerBlockType('studioval/${blockName}', {
 		align: true,
 		anchor: true,
 		html: false,
-	},
-	attributes: {
-		content: {
-			type: 'string',
-			default: '',
-		},
 	},
 	edit: Edit,
 	save: Save,
@@ -162,12 +163,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-$content_attr = isset( $attributes['content'] ) ? $attributes['content'] : '';
-
 $wrapper_attributes = get_block_wrapper_attributes();
 ?>
 <div <?php echo wp_kses_data( $wrapper_attributes ); ?>>
-	<p><?php echo esc_html( $content_attr ); ?></p>
+	<p>${titleCase} — front-end placeholder.</p>
 </div>
 `;
 		fs.writeFileSync(path.join(blockDir, `${blockName}.php`), phpTemplate);
