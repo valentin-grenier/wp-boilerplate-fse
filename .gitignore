@@ -97,7 +97,6 @@ wp-content/plugins/studioval-custom-login-page/node_modules/
 # =========================
 wp-content/themes/**/dist/
 !wp-content/themes/theme-fse/dist/
-wp-content/themes/theme-fse/dist/**/*.map
 wp-content/themes/**/node_modules/
 wp-content/themes/**/vendor/
 
