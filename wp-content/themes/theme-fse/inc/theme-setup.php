@@ -27,9 +27,10 @@ function sv_boilerplate_theme_setup() {
 	);
 	add_theme_support( 'responsive-embeds' );
 
-	// Optional: Editor styles (uncomment if needed).
-	// add_theme_support( 'editor-styles' );
-	// add_editor_style( 'assets/css/editor.css' );
+	// Editor styles: load the compiled front-end stylesheet inside the block editor
+	// so the editing surface mirrors the front-end render.
+	add_theme_support( 'editor-styles' );
+	add_editor_style( 'dist/css/theme.css' );
 
 	// Remove core block patterns and block directory suggestions.
 	remove_action( 'enqueue_block_editor_assets', 'wp_enqueue_editor_block_directory_assets' );

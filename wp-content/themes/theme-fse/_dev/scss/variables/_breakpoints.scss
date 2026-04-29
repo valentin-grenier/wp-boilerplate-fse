@@ -1,0 +1,5 @@
+// SCSS-only breakpoints. CSS @media does not accept var(), so these stay as
+// SCSS variables rather than being mirrored from theme.json.
+$bp__mobile: 768px;
+$bp__tablet: 1024px;
+$bp__desktop: 1280px;
