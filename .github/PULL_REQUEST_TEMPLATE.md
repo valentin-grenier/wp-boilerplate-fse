@@ -20,7 +20,7 @@ Closes #
 ## Checklist
 
 - [ ] My code follows the project conventions (`studio_` prefix, security escaping, etc.)
-- [ ] I have tested my changes locally (Local by Flywheel)
+- [ ] I have tested my changes locally
 - [ ] Assets have been compiled with `npm run build` if SCSS/JS was modified
 - [ ] No secrets or credentials are hardcoded
 - [ ] Output is properly escaped (`esc_html()`, `esc_attr()`, `esc_url()`)
