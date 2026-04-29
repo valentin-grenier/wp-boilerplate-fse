@@ -10,6 +10,7 @@
 auth.json
 /cgi-bin/
 .htaccess
+logs/
 
 # OS files
 .DS_Store
@@ -83,7 +84,9 @@ wp-content/debug.log
 # =========================
 # PLUGINS
 # =========================
-wp-content/plugins/
+wp-content/plugins/*
+!wp-content/plugins/studioval-custom-login-page/
+wp-content/plugins/studioval-custom-login-page/node_modules/
 
 # =========================
 # MU-PLUGINS

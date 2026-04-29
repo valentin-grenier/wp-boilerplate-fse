@@ -28,7 +28,14 @@ module.exports = {
 	entry: {
 		theme: ['./js/theme.js', './scss/theme.scss'],
 		editor: ['./js/editor.js', './scss/editor.scss'],
+		admin: ['./admin/admin.js', './scss/admin.scss'],
 		...blockEntries,
+	},
+	externals: {
+		'@wordpress/element': ['wp', 'element'],
+		'@wordpress/i18n': ['wp', 'i18n'],
+		'@wordpress/api-fetch': ['wp', 'apiFetch'],
+		'@wordpress/components': ['wp', 'components'],
 	},
 	output: {
 		filename: ({ chunk }) => {
@@ -44,7 +51,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
+				test: /\.(js|jsx)$/,
 				exclude: /node_modules/,
 				use: ['babel-loader'],
 			},
@@ -55,7 +62,7 @@ module.exports = {
 		],
 	},
 	resolve: {
-		extensions: ['.js', '.scss'],
+		extensions: ['.js', '.jsx', '.scss'],
 	},
 	plugins: [
 		new MiniCssExtractPlugin({

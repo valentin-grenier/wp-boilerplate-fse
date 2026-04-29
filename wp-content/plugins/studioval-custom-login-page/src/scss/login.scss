@@ -1,0 +1,127 @@
+// Structural styles for the custom login page.
+// Dynamic values (colors, image URL, overlay) are injected inline by PHP.
+
+// ─── Basic layout with background image ──────────────────────────────────────
+
+body.login.clp-layout-basic {
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+// ─── Split layouts (image left / image right) ────────────────────────────────
+
+body.login.clp-layout-image-left,
+body.login.clp-layout-image-right {
+  display: flex;
+  min-height: 100vh;
+  padding: 0;
+
+  // Image panel and overlay use fixed pseudo-elements on the same half.
+  &::before,
+  &::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    pointer-events: none;
+  }
+
+  // ::before carries the background image (set inline by PHP).
+  &::before {
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+  }
+
+  // ::after carries the semi-transparent overlay (color + opacity set inline).
+  &::after {
+    z-index: 1;
+  }
+
+  // The form panel occupies the other half.
+  #login {
+    position: relative;
+    z-index: 2;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+
+  #loginform,
+  #lostpasswordform,
+  #resetpassform {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    padding: 32px;
+    width: 100%;
+    max-width: 360px;
+    box-sizing: border-box;
+  }
+}
+
+body.login.clp-layout-image-left {
+  &::before,
+  &::after {
+    left: 0;
+  }
+
+  #login {
+    margin-left: 50%;
+  }
+}
+
+body.login.clp-layout-image-right {
+  &::before,
+  &::after {
+    right: 0;
+  }
+
+  #login {
+    margin-right: 50%;
+  }
+}
+
+// ─── Responsive — collapse split layout on narrow screens ────────────────────
+
+@media screen and (max-width: 700px) {
+  body.login.clp-layout-image-left,
+  body.login.clp-layout-image-right {
+    display: block;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+
+    #login {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}
+
+// ─── Toggled elements ─────────────────────────────────────────────────────────
+
+body.login.clp-hide-forgot-password #nav {
+  display: none;
+}
+body.login.clp-hide-back-to-home #backtoblog {
+  display: none;
+}
+body.login.clp-hide-remember-me .forgetmenot {
+  display: none;
+}
