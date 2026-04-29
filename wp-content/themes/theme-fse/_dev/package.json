@@ -21,8 +21,8 @@
 		"sass": "^1.89.2",
 		"sass-loader": "^16.0.5",
 		"style-loader": "^4.0.0",
-		"stylelint": "^17.9.1",
-		"terser-webpack-plugin": "^5.3.14",
+		"stylelint": "^16.10.0",
+		"terser-webpack-plugin": "^5.5.0",
 		"webpack": "^5.99.9",
 		"webpack-cli": "^7.0.2",
 		"webpack-merge": "^6.0.1"
