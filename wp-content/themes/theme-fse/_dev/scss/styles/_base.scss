@@ -1,0 +1,36 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+// External link icon — shown on any <a target="_blank"> outside of nav/buttons
+a[target='_blank']:not(
+		nav a,
+		.wp-block-navigation a,
+		.wp-element-button,
+		[class*='wp-block-button'] a
+	) {
+	&::after {
+		content: ' ↗';
+		font-style: normal;
+	}
+}

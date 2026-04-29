@@ -1,0 +1,19 @@
+textarea {
+  min-height: calc(var(--wp--preset--spacing--lg) * 2);
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  padding: var(--wp--preset--spacing--xs) var(--wp--preset--spacing--sm);
+  border: 1px solid var(--wp--preset--color--accent);
+  background: var(--wp--preset--color--white);
+  border-radius: 2px;
+
+  &:focus-visible {
+    outline: 2px solid var(--wp--preset--color--contrast);
+    outline-offset: 1px;
+  }
+}
