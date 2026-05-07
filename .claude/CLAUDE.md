@@ -4,9 +4,10 @@ Session-start context for Claude Code on this repository.
 
 ## What this is
 
-Studio Val boilerplate for a WordPress **Full Site Editing** (FSE) theme. Theme + DDEV + tooling
-only — WordPress core is present locally but **not versioned**. Theme lives at
-`/wp-content/themes/theme-fse/`.
+Studio Val boilerplate for a WordPress **Full Site Editing** (FSE) theme **and a companion
+plugin scaffold**. Theme + plugin + DDEV + tooling only — WordPress core is present locally
+but **not versioned**. Theme lives at `/wp-content/themes/theme-fse/`; the plugin scaffold at
+`/wp-content/plugins/studioval-plugin-boilerplate/`.
 
 ## Stack
 
@@ -20,18 +21,27 @@ only — WordPress core is present locally but **not versioned**. Theme lives at
 
 ```text
 .
-├── wp-content/themes/theme-fse/
-│   ├── style.css        # Theme header (Theme Name, Version, Text Domain)
-│   ├── theme.json       # Global FSE config (palette, typography, layout)
-│   ├── functions.php    # require-only: glob(inc/*.php)
-│   ├── inc/             # PHP logic split by concern (auto-loaded)
-│   ├── templates/       # FSE templates (.html) — index, home, single, page, 404…
-│   ├── parts/           # header.html, footer.html
-│   ├── _dev/            # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
-│   └── dist/            # Build output (committed)
+├── wp-content/
+│   ├── themes/theme-fse/
+│   │   ├── style.css        # Theme header (Theme Name, Version, Text Domain)
+│   │   ├── theme.json       # Global FSE config (palette, typography, layout)
+│   │   ├── functions.php    # require-only: glob(inc/*.php)
+│   │   ├── inc/             # PHP logic split by concern (auto-loaded)
+│   │   ├── templates/       # FSE templates (.html) — index, home, single, page, 404…
+│   │   ├── parts/           # header.html, footer.html
+│   │   ├── _dev/            # Source: SCSS, JS, blocks, webpack — edit here, not in dist/
+│   │   └── dist/            # Build output (committed)
+│   └── plugins/studioval-plugin-boilerplate/
+│       ├── studioval-plugin-boilerplate.php  # Plugin header + bootstrap
+│       ├── uninstall.php    # Cleans up wp_options on plugin delete
+│       ├── includes/        # OOP — Singleton trait + one class per concern
+│       ├── src/             # Source: JS (admin = React/Gutenberg, frontend = vanilla), SCSS
+│       ├── dist/            # Webpack output (committed) — *.js, *.css, *.asset.php
+│       ├── webpack.config.js # Independent build, runs from inside the plugin folder
+│       └── languages/       # .pot lives here when generated
 ├── .claude/             # Claude Code config + team docs (BLOCKS.md, CONVENTIONS.md)
 ├── .ddev/               # DDEV config (versioned)
-├── bin/setup.sh         # Install: renames theme, substitutes placeholders, activates
+├── bin/setup.sh         # Install: renames theme + plugin, substitutes placeholders, activates
 └── .github/workflows/   # CI + FTP deploy workflows
 ```
 
@@ -40,19 +50,22 @@ only — WordPress core is present locally but **not versioned**. Theme lives at
 Run `composer ci` (lint → stan → test) before declaring backend work done. Daily commands: `docs/setup.md`.
 
 - **Language**: code, comments, and all documentation in English.
-- **Text-domain**: `studioval-boilerplate` — every `__()`, `esc_html__()`, every i18n string in block JS metadata.
-- **Prefix**: `sv_boilerplate_` — every function and custom hook. Substituted by `bin/setup.sh`.
-- **PHP**: procedural only — no classes or namespaces in `inc/` without explicit approval.
+- **Text-domains**: `studioval-boilerplate` (theme) + `studioval-plugin-boilerplate` (plugin). Both substituted by `bin/setup.sh`.
+- **Theme prefix**: `sv_boilerplate_` — every function and custom hook. Substituted by `bin/setup.sh`.
+- **Plugin prefix**: `Studioval_Plugin_Boilerplate_` (classes) / `STUDIOVAL_PLUGIN_BOILERPLATE_` (constants) / `studiovalPluginBoilerplate` (JS globals) / `svpb-` (CSS class prefix). All substituted by `bin/setup.sh`.
+- **PHP — theme**: procedural only — no classes or namespaces in `inc/` without explicit approval.
+- **PHP — plugin**: OOP, Singleton pattern. Every public class uses the `Studioval_Plugin_Boilerplate_Singleton` trait (`includes/trait-singleton.php`); each consumer declares `private function __construct()` and registers its hooks there. Bootstrap calls `ClassName::instance()` from `class-plugin.php`. **Never** `new ClassName()`.
 - **Block namespace**: `studioval/{slug}` in the `registerBlockType` call.
-- **Security**: every `inc/*.php` opens with `ABSPATH` guard. Escape all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), sanitize all input, `$wpdb->prepare` for SQL, nonces on state-changing handlers.
-- **i18n**: `__()`, `esc_html__()`, `_e()`, `_x()` with text-domain on every visible string.
+- **Security**: every `inc/*.php` and `includes/*.php` opens with `ABSPATH` guard. Escape all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), sanitize all input, `$wpdb->prepare` for SQL, nonces on state-changing handlers. The plugin's REST flow uses `wp_create_nonce('wp_rest')` + `apiFetch.createNonceMiddleware`.
+- **i18n**: `__()`, `esc_html__()`, `_e()`, `_x()` with text-domain on every visible string. JS strings via `@wordpress/i18n` `__()`; admin scripts call `wp_set_script_translations()`.
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`; compiled bundles are auto-enqueued from `dist/blocks/{name}/` by `inc/blocks.php` (editor + front-end).
-- **Cache-busting**: `filemtime()` on the compiled file — never hardcode a version.
+- **Cache-busting**: theme uses `filemtime()` on the compiled file. Plugin uses the version from the webpack-emitted `dist/{entry}.asset.php` manifest (via `@wordpress/dependency-extraction-webpack-plugin`).
 
 ## Files never to modify
 
 - `wp-config*.php` — DB config and salts.
 - `/wp-content/themes/theme-fse/dist/**` — build output; use `npm run build` only.
+- `/wp-content/plugins/studioval-plugin-boilerplate/dist/**` — same rule, `npm run build` from inside the plugin folder.
 
 ## Git workflow
 

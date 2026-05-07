@@ -1,0 +1,76 @@
+/**
+ * Frontend banner styles.
+ *
+ * BEM scoped under .svpb-banner. No global selectors.
+ */
+
+.svpb-banner {
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	padding: 0.75rem 3rem 0.75rem 1.5rem;
+	font-size: 0.95rem;
+	line-height: 1.4;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+	transition: transform 0.25s ease, opacity 0.25s ease;
+
+	&--top {
+		top: 0;
+	}
+
+	&--bottom {
+		bottom: 0;
+	}
+
+	&__message {
+		margin: 0;
+		text-align: center;
+		max-width: 80ch;
+	}
+
+	&__close {
+		position: absolute;
+		top: 50%;
+		right: 0.75rem;
+		transform: translateY(-50%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		min-height: 32px;
+		padding: 0;
+		font-size: 1.5rem;
+		line-height: 1;
+		color: inherit;
+		background: transparent;
+		border: 0;
+		cursor: pointer;
+		border-radius: 4px;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(255, 255, 255, 0.15);
+			outline: none;
+		}
+
+		&:focus-visible {
+			box-shadow: 0 0 0 2px currentcolor;
+		}
+	}
+
+	&.is-hidden {
+		opacity: 0;
+		pointer-events: none;
+		transform: translateY(-100%);
+	}
+
+	&--bottom.is-hidden {
+		transform: translateY(100%);
+	}
+}

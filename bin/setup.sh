@@ -263,6 +263,146 @@ update_theme_info() {
   fi
 }
 
+# ========== PLUGIN BOILERPLATE HELPERS ==========
+# These mirror update_theme_info / update_workflow_files but operate on the
+# plugin scaffold under wp-content/plugins/studioval-plugin-boilerplate/.
+
+# Derive identifier forms from a kebab-case slug. Sets plugin_* globals.
+#   my-plugin  →  my_plugin / My_Plugin / MY_PLUGIN / myPlugin / mp
+plugin_compute_forms() {
+  local slug="$1"
+  PLUGIN_KEBAB="$slug"
+  PLUGIN_SNAKE=$(echo "$slug" | tr '-' '_')
+  PLUGIN_PASCAL=$(echo "$slug" | awk -F'-' '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))} 1' OFS='_')
+  PLUGIN_SCREAM=$(echo "$PLUGIN_SNAKE" | tr '[:lower:]' '[:upper:]')
+  PLUGIN_CAMEL=$(echo "$slug" | awk -F'-' '{out=tolower($1); for(i=2;i<=NF;i++) out=out toupper(substr($i,1,1)) tolower(substr($i,2)); print out}')
+  PLUGIN_INITIALS=$(echo "$slug" | awk -F'-' '{for(i=1;i<=NF;i++) printf "%s", substr($i,1,1); print ""}')
+  PLUGIN_DISPLAY=$(slug_to_display_name "$slug")
+}
+
+# Replace every boilerplate identifier in one file. Order matters: longest /
+# most specific patterns first so we don't double-substitute.
+plugin_substitute_in_file() {
+  local file="$1"
+  sed_inplace "s/STUDIOVAL_PLUGIN_BOILERPLATE/$PLUGIN_SCREAM/g" "$file"
+  sed_inplace "s/Studioval_Plugin_Boilerplate/$PLUGIN_PASCAL/g" "$file"
+  sed_inplace "s/studioval_plugin_boilerplate/$PLUGIN_SNAKE/g" "$file"
+  sed_inplace "s/studiovalPluginBoilerplate/$PLUGIN_CAMEL/g" "$file"
+  sed_inplace "s/studioval-plugin-boilerplate/$PLUGIN_KEBAB/g" "$file"
+  sed_inplace "s/svpb-/${PLUGIN_INITIALS}-/g" "$file"
+  sed_inplace "s/svpb_/${PLUGIN_INITIALS}_/g" "$file"
+}
+
+# Walk PHP/JS/JSON/SCSS files in the plugin and substitute all id forms in each.
+update_plugin_info() {
+  local plugin_path="$1"
+  local plugin_slug="$2"
+
+  plugin_compute_forms "$plugin_slug"
+
+  log_info "Substituting plugin identifiers..."
+  echo "   kebab:    studioval-plugin-boilerplate → $PLUGIN_KEBAB"
+  echo "   snake:    studioval_plugin_boilerplate → $PLUGIN_SNAKE"
+  echo "   Pascal:   Studioval_Plugin_Boilerplate → $PLUGIN_PASCAL"
+  echo "   SCREAM:   STUDIOVAL_PLUGIN_BOILERPLATE → $PLUGIN_SCREAM"
+  echo "   camel:    studiovalPluginBoilerplate   → $PLUGIN_CAMEL"
+  echo "   initials: svpb                          → $PLUGIN_INITIALS"
+  echo "   display:  Studio Val • Plugin Boilerplate → Studio Val • $PLUGIN_DISPLAY"
+
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would substitute identifiers in PHP/JS/JSON/SCSS files under $plugin_path"
+    return 0
+  fi
+
+  # Iterate matched files. Skip node_modules + dist (the latter is regenerated).
+  while IFS= read -r -d '' file; do
+    plugin_substitute_in_file "$file"
+  done < <(find "$plugin_path" \
+      \( -name "*.php" -o -name "*.js" -o -name "*.json" -o -name "*.scss" -o -name ".babelrc" -o -name ".eslintrc.json" -o -name ".stylelintrc.json" \) \
+      -type f \
+      ! -path "*/node_modules/*" \
+      ! -path "*/dist/*" \
+      -print0)
+
+  # Plugin Name header — single string replace, not driven by the identifier subs.
+  local main_file="$plugin_path/$plugin_slug.php"
+  if [ -f "$main_file" ]; then
+    sed_inplace "s|^ \\* Plugin Name:.*$| * Plugin Name:       Studio Val • $PLUGIN_DISPLAY|" "$main_file"
+  fi
+
+  log_success "Plugin identifiers updated"
+  increment_success
+}
+
+# Update repo-level lint configs (phpcs, phpstan) so they target the renamed
+# plugin path and accept the renamed text-domain.
+update_plugin_lint_configs() {
+  local target_root="$1"
+  local plugin_slug="$2"
+  local phpcs="$target_root/phpcs.xml.dist"
+  local phpstan="$target_root/phpstan.neon.dist"
+
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would update phpcs.xml.dist + phpstan.neon.dist with plugin slug $plugin_slug"
+    return 0
+  fi
+
+  if [ -f "$phpcs" ]; then
+    sed_inplace "s|wp-content/plugins/studioval-plugin-boilerplate/|wp-content/plugins/$plugin_slug/|g" "$phpcs"
+    sed_inplace "s|<element value=\"studioval-plugin-boilerplate\"/>|<element value=\"$plugin_slug\"/>|" "$phpcs"
+    log_success "phpcs.xml.dist updated for plugin"
+    increment_success
+  fi
+
+  if [ -f "$phpstan" ]; then
+    # Order matters: constants → main-file path → directory paths.
+    # 1) Constant names referenced in dynamicConstantNames.
+    sed_inplace "s|STUDIOVAL_PLUGIN_BOILERPLATE|$PLUGIN_SCREAM|g" "$phpstan"
+    # 2) bootstrapFiles entry: .../studioval-plugin-boilerplate/studioval-plugin-boilerplate.php
+    sed_inplace "s|/studioval-plugin-boilerplate/studioval-plugin-boilerplate.php|/$plugin_slug/$plugin_slug.php|g" "$phpstan"
+    # 3) Remaining directory paths.
+    sed_inplace "s|wp-content/plugins/studioval-plugin-boilerplate/|wp-content/plugins/$plugin_slug/|g" "$phpstan"
+    log_success "phpstan.neon.dist updated for plugin"
+    increment_success
+  fi
+}
+
+# Top-level orchestrator. Renames folder + main file, then runs identifier
+# substitution and lint-config updates. No-op if user keeps the default slug.
+update_plugin_boilerplate() {
+  local plugins_dir="$1"
+  local source_slug="studioval-plugin-boilerplate"
+  local target_slug="$2"
+  local target_root="$3"
+
+  local source_path="$plugins_dir/$source_slug"
+  local target_path="$plugins_dir/$target_slug"
+
+  if [ ! -d "$source_path" ]; then
+    log_warning "Plugin boilerplate '$source_slug' not found — skipping"
+    increment_warnings
+    return 1
+  fi
+
+  if [ "$source_slug" != "$target_slug" ]; then
+    echo "📦 Renaming plugin '$source_slug' → '$target_slug' ..."
+    if [ "$DRY_RUN" = true ]; then
+      echo "[DRY RUN] mv \"$source_path\" \"$target_path\""
+      echo "[DRY RUN] mv \"$target_path/$source_slug.php\" \"$target_path/$target_slug.php\""
+    else
+      mv "$source_path" "$target_path"
+      mv "$target_path/$source_slug.php" "$target_path/$target_slug.php"
+      log_success "Plugin folder + main file renamed"
+      increment_success
+    fi
+  else
+    log_info "Plugin slug unchanged: $target_slug"
+  fi
+
+  update_plugin_info "$target_path" "$target_slug"
+  update_plugin_lint_configs "$target_root" "$target_slug"
+}
+
 # Function to update GitHub workflow files with the correct theme name
 update_workflow_files() {
   local theme_slug="$1"
@@ -310,35 +450,46 @@ WP_PATH="$REPO_DIR"
 
 DRY_RUN=false
 SKIP_PLUGINS=false
+SKIP_PLUGIN_BOILERPLATE=false
 THEME_SLUG=""
 THEME_DEST=""
+PLUGIN_DEST=""
 
 # ========== FLAGS ==========
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --dry-run)       DRY_RUN=true ;;
-    --skip-plugins)  SKIP_PLUGINS=true ;;
-    --theme=*)       THEME_SLUG="${1#*=}" ;;
-    --theme-dest=*)  THEME_DEST="${1#*=}" ;;
+    --dry-run)                  DRY_RUN=true ;;
+    --skip-plugins)             SKIP_PLUGINS=true ;;
+    --skip-plugin-boilerplate)  SKIP_PLUGIN_BOILERPLATE=true ;;
+    --theme=*)                  THEME_SLUG="${1#*=}" ;;
+    --theme-dest=*)             THEME_DEST="${1#*=}" ;;
+    --plugin-dest=*)            PLUGIN_DEST="${1#*=}" ;;
     --help|-h)
       echo "WordPress FSE Boilerplate Setup Script"
       echo ""
       echo "Usage: $0 [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  --dry-run             Show what would be done without making changes"
-      echo "  --skip-plugins        Skip automatic plugin installation"
-      echo "  --theme=NAME          Override source theme name detection"
-      echo "  --theme-dest=NAME     Override destination theme name"
-      echo "  --help, -h            Show this help message"
+      echo "  --dry-run                   Show what would be done without making changes"
+      echo "  --skip-plugins              Skip automatic plugin installation"
+      echo "  --skip-plugin-boilerplate   Leave the plugin boilerplate untouched"
+      echo "  --theme=NAME                Override source theme name detection"
+      echo "  --theme-dest=NAME           Override destination theme name"
+      echo "  --plugin-dest=NAME          Override destination plugin slug"
+      echo "  --help, -h                  Show this help message"
       echo ""
       echo "Designed for ddev projects. Renames the theme in place, updates theme metadata,"
-      echo "and installs dependencies."
+      echo "renames the plugin boilerplate, and installs dependencies."
       echo ""
       echo "Theme customization:"
       echo "  • Renames theme folder (e.g., theme-fse → my-project)"
       echo "  • Updates Theme Name, Theme URI, and Text Domain in style.css"
       echo "  • Updates text domain in block categories and make-block script"
+      echo ""
+      echo "Plugin customization:"
+      echo "  • Renames the studioval-plugin-boilerplate folder + main file"
+      echo "  • Substitutes identifiers (snake/Pascal/SCREAM/camel/initials) across PHP, JS, SCSS"
+      echo "  • Updates phpcs.xml.dist + phpstan.neon.dist to point at the renamed plugin"
       exit 0
       ;;
     *)  ;; # ignore unknown flags
@@ -495,6 +646,28 @@ if [ "$SKIP_THEME" = false ]; then
   fi
 else
   log_info "Skipping theme setup (already completed)"
+fi
+
+# ========== PLUGIN BOILERPLATE RENAME ==========
+if [ "$SKIP_PLUGIN_BOILERPLATE" = false ] && [ -d "$WP_CONTENT/plugins/studioval-plugin-boilerplate" ]; then
+  log_step "🧩 PLUGIN BOILERPLATE"
+
+  if [ -z "$PLUGIN_DEST" ]; then
+    read -p "Enter target plugin slug (default: studioval-plugin-boilerplate, or 'skip'): " input_plugin_dest
+    PLUGIN_DEST="${input_plugin_dest:-studioval-plugin-boilerplate}"
+  else
+    log_info "Using provided plugin slug: $PLUGIN_DEST"
+  fi
+
+  if [ "$PLUGIN_DEST" = "skip" ]; then
+    log_info "Skipping plugin boilerplate rename"
+  else
+    if [[ ! "$PLUGIN_DEST" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+      error_exit "Invalid plugin slug '$PLUGIN_DEST'. Use only lowercase letters, numbers, and hyphens (e.g., 'my-plugin')."
+    fi
+
+    update_plugin_boilerplate "$WP_CONTENT/plugins" "$PLUGIN_DEST" "$TARGET_ROOT"
+  fi
 fi
 
 # ========== INSTALL RECOMMENDED PLUGINS ==========

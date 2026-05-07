@@ -1,0 +1,11 @@
+{
+	"extends": [ "@wordpress/stylelint-config/scss" ],
+	"rules": {
+		"selector-class-pattern": null,
+		"no-descending-specificity": null,
+		"scss/at-rule-no-unknown": [
+			true,
+			{ "ignoreAtRules": [ "use", "forward", "mixin", "include", "if", "else", "each", "for" ] }
+		]
+	}
+}

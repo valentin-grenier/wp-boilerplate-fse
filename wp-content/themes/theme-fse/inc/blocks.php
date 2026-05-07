@@ -46,9 +46,9 @@ function sv_boilerplate_enqueue_block_editor_assets() {
 	foreach ( sv_boilerplate_get_block_names() as $name ) {
 		$handle = 'sv-block-' . $name;
 
-		$editor_js   = $block_dir . '/' . $name . '/block.js';
-		$shared_css  = $block_dir . '/' . $name . '/block.css';
-		$editor_css  = $block_dir . '/' . $name . '/block-editor.css';
+		$editor_js  = $block_dir . '/' . $name . '/block.js';
+		$shared_css = $block_dir . '/' . $name . '/block.css';
+		$editor_css = $block_dir . '/' . $name . '/block-editor.css';
 
 		if ( file_exists( $editor_js ) ) {
 			wp_enqueue_script(
