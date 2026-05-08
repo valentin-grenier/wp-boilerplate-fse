@@ -8,6 +8,19 @@ class StudioVal_CLP_Settings_Page {
 
 	const OPTION_NAME = 'studioval_clp_settings';
 
+	/**
+	 * Top-level "Studio Val" menu slug. Shared with every other Studio Val
+	 * plugin so they cohabit under a single brand entry. `studioval` (bare)
+	 * is the agency's brand literal and is preserved across `bin/setup.sh`.
+	 */
+	const PARENT_MENU_SLUG = 'studioval';
+
+	/**
+	 * Hook suffix returned by `add_submenu_page` — captured at registration
+	 * time, used to gate the asset enqueue.
+	 */
+	private string $page_hook = '';
+
 	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'add_menu_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
@@ -15,13 +28,80 @@ class StudioVal_CLP_Settings_Page {
 	}
 
 	public function add_menu_page(): void {
-		add_options_page(
+		self::ensure_parent_menu();
+
+		$hook = add_submenu_page(
+			self::PARENT_MENU_SLUG,
 			__( 'Custom login', 'studioval-clp' ),
 			__( 'Custom login', 'studioval-clp' ),
 			'manage_options',
 			'studioval-custom-login',
 			[ $this, 'render_page' ]
 		);
+
+		if ( is_string( $hook ) ) {
+			$this->page_hook = $hook;
+		}
+	}
+
+	/**
+	 * Register the shared "Studio Val" top-level menu once.
+	 *
+	 * Idempotent: every Studio Val plugin can call this; the first to load
+	 * creates the parent, the rest see it in `$admin_page_hooks` and skip.
+	 * Hides the auto-synthesised duplicate sub-entry on a late `admin_menu`
+	 * priority once every real sub-page has had a chance to register.
+	 */
+	private static function ensure_parent_menu(): void {
+		global $admin_page_hooks;
+
+		if ( isset( $admin_page_hooks[ self::PARENT_MENU_SLUG ] ) ) {
+			return;
+		}
+
+		add_menu_page(
+			'Studio Val',
+			'Studio Val',
+			'manage_options',
+			self::PARENT_MENU_SLUG,
+			'__return_null',
+			self::get_menu_icon(),
+			30
+		);
+
+		add_action(
+			'admin_menu',
+			static function (): void {
+				remove_submenu_page( self::PARENT_MENU_SLUG, self::PARENT_MENU_SLUG );
+			},
+			PHP_INT_MAX
+		);
+	}
+
+	/**
+	 * Resolve the brand icon. Reads `assets/icons/studioval.svg` shipped
+	 * with the plugin and inlines it as a base64 data URI. Falls back to
+	 * a generic dashicon when the file is missing so the menu never
+	 * disappears mid-development.
+	 *
+	 * Authoring tips: 20×20 viewBox, single-color silhouette, fill="#a7aaad"
+	 * (default WP admin sidebar text colour) so it blends with the menu.
+	 */
+	private static function get_menu_icon(): string {
+		$svg_path = STUDIOVAL_CLP_DIR . 'assets/icons/studioval.svg';
+
+		if ( ! is_readable( $svg_path ) ) {
+			return 'dashicons-admin-generic';
+		}
+
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a static plugin asset shipped with the code, not a remote fetch.
+		$svg = file_get_contents( $svg_path );
+		if ( false === $svg || '' === $svg ) {
+			return 'dashicons-admin-generic';
+		}
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Standard data-URI encoding for an inline menu icon, not obfuscation.
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
 	public function render_page(): void {
@@ -33,7 +113,7 @@ class StudioVal_CLP_Settings_Page {
 	}
 
 	public function enqueue_scripts( string $hook ): void {
-		if ( 'settings_page_studioval-custom-login' !== $hook ) {
+		if ( '' === $this->page_hook || $this->page_hook !== $hook ) {
 			return;
 		}
 
