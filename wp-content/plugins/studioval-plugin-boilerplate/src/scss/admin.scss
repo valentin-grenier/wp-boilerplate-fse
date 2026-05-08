@@ -1,5 +1,5 @@
 /**
- * Admin settings page styles.
+ * Admin page styles.
  *
  * Scoped to the mount node so nothing leaks to wp-admin chrome.
  */
@@ -8,20 +8,7 @@
 	max-width: 960px;
 	margin-top: 1.5rem;
 
-	.svpb-settings {
+	.svpb-admin {
 		position: relative;
-	}
-
-	.svpb-snackbars {
-		position: fixed;
-		bottom: 1.5rem;
-		left: 50%;
-		transform: translateX(-50%);
-		z-index: 100000;
-		pointer-events: none;
-
-		> * {
-			pointer-events: auto;
-		}
 	}
 }

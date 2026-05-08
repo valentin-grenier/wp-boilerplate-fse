@@ -9,6 +9,10 @@ plugin scaffold**. Theme + plugin + DDEV + tooling only — WordPress core is pr
 but **not versioned**. Theme lives at `/wp-content/themes/theme-fse/`; the plugin scaffold at
 `/wp-content/plugins/studioval-plugin-boilerplate/`.
 
+The plugin scaffold is intentionally **blank** — Singleton bootstrap, one admin page with an
+empty React mount, and the build chain. Add Settings/Frontend/REST/etc. as your plugin needs
+them, instead of deleting demo code.
+
 ## Stack
 
 - **WordPress** 6.0+, **PHP** 8.2+.
@@ -33,9 +37,9 @@ but **not versioned**. Theme lives at `/wp-content/themes/theme-fse/`; the plugi
 │   │   └── dist/            # Build output (committed)
 │   └── plugins/studioval-plugin-boilerplate/
 │       ├── studioval-plugin-boilerplate.php  # Plugin header + bootstrap
-│       ├── uninstall.php    # Cleans up wp_options on plugin delete
-│       ├── includes/        # OOP — Singleton trait + one class per concern
-│       ├── src/             # Source: JS (admin = React/Gutenberg, frontend = vanilla), SCSS
+│       ├── uninstall.php    # Stub for cleanup on plugin delete (add delete_option calls as needed)
+│       ├── includes/        # OOP — Singleton trait, bootstrap, one admin-page class
+│       ├── src/             # Source: JS (admin = React/Gutenberg) + admin SCSS
 │       ├── dist/            # Webpack output (committed) — *.js, *.css, *.asset.php
 │       ├── webpack.config.js # Independent build, runs from inside the plugin folder
 │       └── languages/       # .pot lives here when generated
@@ -56,7 +60,7 @@ Run `composer ci` (lint → stan → test) before declaring backend work done. D
 - **PHP — theme**: procedural only — no classes or namespaces in `inc/` without explicit approval.
 - **PHP — plugin**: OOP, Singleton pattern. Every public class uses the `Studioval_Plugin_Boilerplate_Singleton` trait (`includes/trait-singleton.php`); each consumer declares `private function __construct()` and registers its hooks there. Bootstrap calls `ClassName::instance()` from `class-plugin.php`. **Never** `new ClassName()`.
 - **Block namespace**: `studioval/{slug}` in the `registerBlockType` call.
-- **Security**: every `inc/*.php` and `includes/*.php` opens with `ABSPATH` guard. Escape all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), sanitize all input, `$wpdb->prepare` for SQL, nonces on state-changing handlers. The plugin's REST flow uses `wp_create_nonce('wp_rest')` + `apiFetch.createNonceMiddleware`.
+- **Security**: every `inc/*.php` and `includes/*.php` opens with `ABSPATH` guard. Escape all output (`esc_html`, `esc_attr`, `esc_url`, `wp_kses_post`), sanitize all input, `$wpdb->prepare` for SQL, nonces on state-changing handlers. When the plugin grows a REST flow, use `wp_create_nonce('wp_rest')` exposed via `wp_localize_script` + `apiFetch.createNonceMiddleware` on the JS side.
 - **i18n**: `__()`, `esc_html__()`, `_e()`, `_x()` with text-domain on every visible string. JS strings via `@wordpress/i18n` `__()`; admin scripts call `wp_set_script_translations()`.
 - **Blocks**: one folder per block in `_dev/blocks/{name}/`; compiled bundles are auto-enqueued from `dist/blocks/{name}/` by `inc/blocks.php` (editor + front-end).
 - **Cache-busting**: theme uses `filemtime()` on the compiled file. Plugin uses the version from the webpack-emitted `dist/{entry}.asset.php` manifest (via `@wordpress/dependency-extraction-webpack-plugin`).

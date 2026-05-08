@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Studio Val • Plugin Boilerplate
  * Plugin URI:        https://studio-val.fr
- * Description:       Boilerplate for custom WordPress plugins. Singleton classes, Gutenberg-component admin UI, vanilla JS + SCSS, webpack-built. Use this as a starting point for new plugins.
+ * Description:       Blank scaffold for custom WordPress plugins. Singleton classes, empty React admin page, webpack-built. Add your own logic on top.
  * Version:           1.0.0
  * Author:            Valentin Grenier • Studio Val
  * Author URI:        https://github.com/valentin-grenier/
@@ -26,9 +26,7 @@ define( 'STUDIOVAL_PLUGIN_BOILERPLATE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'STUDIOVAL_PLUGIN_BOILERPLATE_URL', plugin_dir_url( __FILE__ ) );
 
 require_once STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'includes/trait-singleton.php';
-require_once STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'includes/class-settings.php';
 require_once STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'includes/class-admin-page.php';
-require_once STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'includes/class-frontend.php';
 require_once STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'includes/class-plugin.php';
 
 add_action(

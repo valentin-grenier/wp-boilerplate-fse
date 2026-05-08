@@ -1,7 +1,7 @@
 {
 	"name": "studioval-plugin-boilerplate",
 	"version": "1.0.0",
-	"description": "Boilerplate WordPress plugin — Singleton classes, Gutenberg-component admin UI, vanilla JS + SCSS, webpack-built.",
+	"description": "Blank scaffold for WordPress plugins — Singleton classes, empty React admin page, webpack-built.",
 	"private": true,
 	"scripts": {
 		"dev": "webpack --mode development --watch",

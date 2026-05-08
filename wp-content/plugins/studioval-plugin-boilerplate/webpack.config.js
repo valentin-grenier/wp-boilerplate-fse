@@ -10,7 +10,6 @@ module.exports = {
 
 	entry: {
 		admin: './src/js/admin/index.js',
-		frontend: './src/js/frontend.js',
 	},
 
 	output: {
