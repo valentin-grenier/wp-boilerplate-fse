@@ -4,7 +4,7 @@
 		"@babel/preset-env": "^7.29.5",
 		"@babel/preset-react": "^7.27.1",
 		"@wordpress/eslint-plugin": "^22.10.0",
-		"@wordpress/stylelint-config": "^23.18.0",
+		"@wordpress/stylelint-config": "^23.37.0",
 		"autoprefixer": "^10.4.21",
 		"babel-loader": "^10.0.0",
 		"browser-sync": "^3.0.4",
