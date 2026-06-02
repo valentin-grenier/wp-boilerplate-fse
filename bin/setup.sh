@@ -647,6 +647,20 @@ else
   increment_success
 fi
 
+# ========== PRISTINE BOILERPLATE CHECK ==========
+# Refuse to run on an already-installed base (e.g. the `main` demo branch), where
+# the `studioval-boilerplate` placeholders have already been consumed. There the
+# substitutions would be silent no-ops and leave an inconsistent half-renamed project.
+log_step "🧪 PRISTINE BASE CHECK"
+
+THEME_STYLE_CSS="$TARGET_ROOT/wp-content/themes/theme-fse/style.css"
+if [ -f "$THEME_STYLE_CSS" ] && ! grep -q "^Text Domain: studioval-boilerplate" "$THEME_STYLE_CSS"; then
+  error_exit "This repo is not a pristine boilerplate — the 'studioval-boilerplate' placeholder is already consumed (you are likely on 'main', the installed demo).\n   Start from the clean base:  git checkout boilerplate   (or the v2.0.0 tag), then re-run this script."
+fi
+
+log_success "Pristine boilerplate base confirmed (placeholders intact)"
+increment_success
+
 # ========== THEME AUTO-DETECT & RENAME ==========
 log_step "🎨 THEME SETUP"
 
