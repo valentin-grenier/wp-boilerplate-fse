@@ -6,8 +6,14 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Added
+
+- `bin/setup.sh` pristine-base guard: aborts with a clear message when the `studioval-boilerplate` placeholder is already consumed (e.g. run from `main`), pointing to the `boilerplate` branch / `v2.0.0` tag.
+- Deploy workflows guarded with `if: github.repository != '…'` so the template repo never deploys itself; `setup.sh` strips the guard from generated client projects.
+
 ### Changed
 
+- Setup docs (`README`, `docs/setup.md`) now clone the `boilerplate` branch (the pristine base) instead of the default `main`.
 - Consolidated Claude Code docs to a single source per topic: merged the block guide into `docs/blocks.md` (removed `.claude/BLOCKS.md`), trimmed `CONVENTIONS.md` to Git + tooling, cut and corrected `ARCHITECTURE.md`, and deduplicated `rules/components.md` against `rules/security.md`.
 
 ### Fixed

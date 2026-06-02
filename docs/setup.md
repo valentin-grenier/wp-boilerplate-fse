@@ -8,10 +8,14 @@ Step-by-step installation for the WP FSE Boilerplate.
 - Node.js — see `.nvmrc` for the required version (`nvm use` to activate it)
 - Composer
 
-## 1. Clone into your WordPress root
+## 1. Clone the pristine base into your WordPress root
+
+Start from the **`boilerplate`** branch (or the `v2.0.0` tag) — the clean base with the
+slug placeholders intact. The default branch `main` is an _installed demo_ (placeholders
+already consumed), and `bin/setup.sh` will refuse to run from it.
 
 ```bash
-git clone https://github.com/valentin-grenier/wp-boilerplate-fse.git my-project
+git clone --branch boilerplate https://github.com/valentin-grenier/wp-boilerplate-fse.git my-project
 cd my-project
 ```
 

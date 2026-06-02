@@ -13,7 +13,11 @@ Studio Val's turn-key starter theme for WordPress Full Site Editing (FSE) — We
 
 ## Quick start
 
+Start from the **`boilerplate`** branch — the pristine base (`main` is an installed demo):
+
 ```bash
+git clone --branch boilerplate https://github.com/valentin-grenier/wp-boilerplate-fse.git my-project
+cd my-project
 ./bin/setup.sh
 ```
 
