@@ -13,13 +13,15 @@ Studio Val's turn-key starter theme for WordPress Full Site Editing (FSE) — We
 
 ## Quick start
 
-Start from the **`boilerplate`** branch — the pristine base (`main` is an installed demo):
+Click **"Use this template"** on GitHub to create your project repo, then:
 
 ```bash
-git clone --branch boilerplate https://github.com/valentin-grenier/wp-boilerplate-fse.git my-project
+git clone https://github.com/<your-org>/<your-project>.git my-project
 cd my-project
 ./bin/setup.sh
 ```
+
+`main` is the pristine base — `setup.sh` substitutes the placeholders, then commits and creates `staging` + `development`. (The `demo` branch shows an installed example.)
 
 For prerequisites, step-by-step install, and deployment configuration see [docs/setup.md](docs/setup.md).
 

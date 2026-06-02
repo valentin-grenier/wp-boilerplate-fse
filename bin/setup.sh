@@ -533,6 +533,43 @@ update_workflow_files() {
   fi
 }
 
+# Commit the setup result and lay down the client project's branch structure.
+# The pristine base is `main` (a fresh "Use this template" repo), so we stay on
+# it and just add staging + development. Skipped with --skip-branches.
+finalize_project_branches() {
+  if [ "$SKIP_BRANCHES" = true ]; then
+    log_info "Skipping project branch setup (--skip-branches)"
+    return 0
+  fi
+  if ! git -C "$TARGET_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    log_warning "Not a git repository — skipping branch setup"
+    increment_warnings
+    return 0
+  fi
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would commit the setup result and create 'staging' + 'development' from the current branch"
+    return 0
+  fi
+  git -C "$TARGET_ROOT" add -A
+  if git -C "$TARGET_ROOT" diff --cached --quiet; then
+    log_info "Nothing to commit — working tree already clean"
+  else
+    git -C "$TARGET_ROOT" commit -q -m "chore: Initial project setup from boilerplate"
+    log_success "Committed setup result"
+    increment_success
+  fi
+  local b
+  for b in staging development; do
+    if git -C "$TARGET_ROOT" show-ref --verify --quiet "refs/heads/$b"; then
+      log_info "Branch '$b' already exists — skipping"
+    else
+      git -C "$TARGET_ROOT" branch "$b" && { log_success "Created branch: $b"; increment_success; }
+    fi
+  done
+  log_success "Project ready on '$(git -C "$TARGET_ROOT" rev-parse --abbrev-ref HEAD)' (+ staging, development)"
+  increment_success
+}
+
 # ========== CONFIG ==========
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
@@ -543,6 +580,7 @@ WP_PATH="$REPO_DIR"
 DRY_RUN=false
 SKIP_PLUGINS=false
 SKIP_PLUGIN_BOILERPLATE=false
+SKIP_BRANCHES=false
 THEME_SLUG=""
 THEME_DEST=""
 PLUGIN_DEST=""
@@ -553,6 +591,7 @@ while [[ $# -gt 0 ]]; do
     --dry-run)                  DRY_RUN=true ;;
     --skip-plugins)             SKIP_PLUGINS=true ;;
     --skip-plugin-boilerplate)  SKIP_PLUGIN_BOILERPLATE=true ;;
+    --skip-branches)            SKIP_BRANCHES=true ;;
     --theme=*)                  THEME_SLUG="${1#*=}" ;;
     --theme-dest=*)             THEME_DEST="${1#*=}" ;;
     --plugin-dest=*)            PLUGIN_DEST="${1#*=}" ;;
@@ -565,6 +604,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --dry-run                   Show what would be done without making changes"
       echo "  --skip-plugins              Skip automatic plugin installation"
       echo "  --skip-plugin-boilerplate   Leave the plugin boilerplate untouched"
+      echo "  --skip-branches             Skip committing + creating staging/development branches"
       echo "  --theme=NAME                Override source theme name detection"
       echo "  --theme-dest=NAME           Override destination theme name"
       echo "  --plugin-dest=NAME          Override destination plugin slug"
@@ -655,7 +695,7 @@ log_step "🧪 PRISTINE BASE CHECK"
 
 THEME_STYLE_CSS="$TARGET_ROOT/wp-content/themes/theme-fse/style.css"
 if [ -f "$THEME_STYLE_CSS" ] && ! grep -q "^Text Domain: studioval-boilerplate" "$THEME_STYLE_CSS"; then
-  error_exit "This repo is not a pristine boilerplate — the 'studioval-boilerplate' placeholder is already consumed (you are likely on 'main', the installed demo).\n   Start from the clean base:  git checkout boilerplate   (or the v2.0.0 tag), then re-run this script."
+  error_exit "This repo is not a pristine boilerplate — the 'studioval-boilerplate' placeholder is already consumed (you are likely on the 'demo' branch).\n   Start from the pristine base: 'main' on a fresh 'Use this template' repo (or 'git checkout main'), then re-run this script."
 fi
 
 log_success "Pristine boilerplate base confirmed (placeholders intact)"
@@ -927,7 +967,7 @@ if [ "$DRY_RUN" = false ] && [ $WP_IS_INSTALLED -eq 0 ]; then
 <!-- /wp:list-item -->
 
 <!-- wp:list-item -->
-<li>Créez vos premiers blocs ACF avec <code>npm run make-block</code></li>
+<li>Créez vos premiers blocs natifs avec <code>npm run make-block</code></li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 BLOCK_CONTENT
@@ -965,6 +1005,9 @@ BLOCK_CONTENT
     fi
   fi
 fi
+
+# ========== PROJECT BRANCHES ==========
+finalize_project_branches
 
 # ========== SUCCESS MESSAGE ==========
 if [ "$DRY_RUN" = false ]; then

@@ -8,16 +8,20 @@ Step-by-step installation for the WP FSE Boilerplate.
 - Node.js — see `.nvmrc` for the required version (`nvm use` to activate it)
 - Composer
 
-## 1. Clone the pristine base into your WordPress root
+## 1. Create your project from the template
 
-Start from the **`boilerplate`** branch (or the `v2.0.0` tag) — the clean base with the
-slug placeholders intact. The default branch `main` is an _installed demo_ (placeholders
-already consumed), and `bin/setup.sh` will refuse to run from it.
+Click **"Use this template" → Create a new repository** on the
+[GitHub repo](https://github.com/valentin-grenier/wp-boilerplate-fse). The default branch
+`main` is the pristine base (slug placeholders intact), so your new repo is ready for setup.
+Then clone _your_ new repo into your WordPress root:
 
 ```bash
-git clone --branch boilerplate https://github.com/valentin-grenier/wp-boilerplate-fse.git my-project
+git clone https://github.com/<your-org>/<your-project>.git my-project
 cd my-project
 ```
+
+> The `demo` branch holds an installed example (placeholders already consumed); `bin/setup.sh`
+> refuses to run from it. Always set up from the pristine `main`.
 
 ## 2. Start the local environment
 
@@ -27,7 +31,7 @@ ddev start
 
 ## 3. Run the setup script
 
-The script renames the theme, substitutes all `boilerplate` slug placeholders with your project slug, installs plugins, and creates Git branches.
+The script renames the theme, substitutes all placeholder slugs with your project slug, installs plugins, commits the result on `main`, and creates the `staging` + `development` branches.
 
 ```bash
 ./bin/setup.sh
@@ -123,7 +127,7 @@ In **Settings → Environments**:
 
 ## Git branching strategy
 
-The setup script creates these branches automatically:
+`main` comes from the template; `bin/setup.sh` commits the setup and adds `staging` + `development`:
 
 ```
 feature/xxx → development → staging → main
