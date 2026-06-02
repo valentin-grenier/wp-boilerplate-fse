@@ -7,7 +7,7 @@
  * events, transients — so a clean slate is left behind.
  *
  * Example:
- *   delete_option( 'studioval_plugin_boilerplate_settings' );
+ *   delete_option( 'theme_fse_plugin_boilerplate_settings' );
  *
  * @package Studioval\Plugin_Boilerplate
  */

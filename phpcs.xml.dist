@@ -20,7 +20,7 @@
 
 	<!-- Which paths are linted. Relative to this file (repo root). -->
 	<file>wp-content/themes/theme-fse/</file>
-	<file>wp-content/plugins/studioval-plugin-boilerplate/</file>
+	<file>wp-content/plugins/theme-fse-plugin-boilerplate/</file>
 
 	<!-- Exclusions: compiled output, third-party code, and node dependencies. -->
 	<exclude-pattern>*/dist/*</exclude-pattern>
@@ -60,8 +60,8 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="studioval-boilerplate"/>
-				<element value="studioval-plugin-boilerplate"/>
+				<element value="theme-fse"/>
+				<element value="theme-fse-plugin-boilerplate"/>
 			</property>
 		</properties>
 	</rule>

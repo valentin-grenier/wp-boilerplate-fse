@@ -12,7 +12,7 @@ msgstr ""
 "POT-Creation-Date: 2026-04-29T20:56:26+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: studioval-boilerplate\n"
+"X-Domain: theme-fse\n"
 
 #. Theme Name of the theme
 #: style.css

@@ -69,10 +69,10 @@ function Edit() {
 		<div {...blockProps}>
 			<Placeholder
 				icon="screenoptions"
-				label={__('${titleCase}', 'studioval-boilerplate')}
+				label={__('${titleCase}', 'theme-fse')}
 				instructions={__(
 					'${editorPlaceholderInstructions}',
-					'studioval-boilerplate'
+					'theme-fse'
 				)}
 			/>
 		</div>
@@ -96,8 +96,8 @@ const Save = () => null;`
 
 registerBlockType('studioval/${blockName}', {
 	apiVersion: 3,
-	title: __('${titleCase}', 'studioval-boilerplate'),
-	description: __('A custom block named ${blockName}.', 'studioval-boilerplate'),
+	title: __('${titleCase}', 'theme-fse'),
+	description: __('A custom block named ${blockName}.', 'theme-fse'),
 	category: 'studioval',
 	icon: 'screenoptions',
 	keywords: ['${blockName}'],${

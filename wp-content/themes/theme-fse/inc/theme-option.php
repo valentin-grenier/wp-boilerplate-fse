@@ -9,8 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function sv_boilerplate_theme_options_menu() {
 	add_menu_page(
-		__( 'Options du thème', 'studioval-boilerplate' ),
-		__( 'Options', 'studioval-boilerplate' ),
+		__( 'Options du thème', 'theme-fse' ),
+		__( 'Options', 'theme-fse' ),
 		'manage_options',
 		'sv-boilerplate-theme-options',
 		'sv_boilerplate_theme_options_page',

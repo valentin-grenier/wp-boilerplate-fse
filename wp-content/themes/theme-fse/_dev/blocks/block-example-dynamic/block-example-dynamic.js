@@ -10,10 +10,10 @@ function Edit() {
 		<div {...blockProps}>
 			<Placeholder
 				icon="screenoptions"
-				label={__('Block Example Dynamic', 'studioval-boilerplate')}
+				label={__('Block Example Dynamic', 'theme-fse')}
 				instructions={__(
 					'Bloc d’exemple dynamique — le markup côté front est rendu par block-example-dynamic.php.',
-					'studioval-boilerplate'
+					'theme-fse'
 				)}
 			/>
 		</div>
@@ -25,8 +25,8 @@ const Save = () => null;
 
 registerBlockType('studioval/block-example-dynamic', {
 	apiVersion: 3,
-	title: __('Block Example Dynamic', 'studioval-boilerplate'),
-	description: __('Un bloc d’exemple dynamique.', 'studioval-boilerplate'),
+	title: __('Block Example Dynamic', 'theme-fse'),
+	description: __('Un bloc d’exemple dynamique.', 'theme-fse'),
 	category: 'studioval',
 	icon: 'screenoptions',
 	keywords: ['block-example-dynamic'],

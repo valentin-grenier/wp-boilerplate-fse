@@ -11,12 +11,12 @@ import { __ } from '@wordpress/i18n';
  */
 export default function App() {
 	return (
-		<div className="svpb-admin">
+		<div className="tfpb-admin">
 			<Heading level={1} size={20}>
-				{__('Plugin Boilerplate', 'studioval-plugin-boilerplate')}
+				{__('Plugin Boilerplate', 'theme-fse-plugin-boilerplate')}
 			</Heading>
 			<p>
-				{__('Replace this scaffold with your plugin UI.', 'studioval-plugin-boilerplate')}
+				{__('Replace this scaffold with your plugin UI.', 'theme-fse-plugin-boilerplate')}
 			</p>
 		</div>
 	);

@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: studioval-boilerplate\n"
+"X-Domain: theme-fse\n"
 
 #: inc/dashboard.php:144
 #: inc/dashboard.php:188
