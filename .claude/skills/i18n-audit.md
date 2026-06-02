@@ -1,6 +1,6 @@
 ---
 name: i18n-audit
-description: Grep all block.php, pattern, and inc/ files for i18n failures — wrong text-domain, plain echo of string literals, and block.json missing textdomain — as defined in .claude/rules/i18n.md.
+description: Grep block JS, dynamic block.php, patterns, and inc/ files for i18n failures — wrong text-domain and plain echo of string literals — as defined in .claude/rules/i18n.md.
 ---
 
 # i18n audit skill
@@ -14,8 +14,8 @@ description: Grep all block.php, pattern, and inc/ files for i18n failures — w
 
 ```
 wp-content/themes/theme-fse/inc/
-wp-content/themes/theme-fse/_dev/blocks/*/block.php
-wp-content/themes/theme-fse/_dev/blocks/*/block.json
+wp-content/themes/theme-fse/_dev/blocks/*/*.js
+wp-content/themes/theme-fse/_dev/blocks/*/*.php
 wp-content/themes/theme-fse/patterns/
 ```
 
@@ -35,21 +35,18 @@ grep -rn '__(\|_e(\|_x(\|_n(\|esc_html__(\|esc_attr__(\|esc_html_e(\|esc_attr_e(
 
 For each hit, check the text-domain argument (last string argument). Flag any value that is **not** `studioval-boilerplate`.
 
-### 2. `[BLOCK-DOMAIN]` — `block.json` missing or wrong `textdomain`
+### 2. `[BLOCK-DOMAIN]` — Wrong text-domain in block editor JS
+
+Blocks register client-side (no `block.json`); their `title`, `description`, `keywords` go through
+`__()` from `@wordpress/i18n`. Grep the block JS for translation calls:
 
 ```bash
-grep -rL '"textdomain"' \
-  wp-content/themes/theme-fse/_dev/blocks/*/block.json
+grep -rn '__(' \
+  wp-content/themes/theme-fse/_dev/blocks/*/*.js
 ```
 
-Also run:
-
-```bash
-grep -rn '"textdomain"' \
-  wp-content/themes/theme-fse/_dev/blocks/*/block.json
-```
-
-Flag any `block.json` that lacks `"textdomain"` entirely, or whose value is not `"studioval-boilerplate"`.
+For each hit, check the text-domain argument. Flag any value that is **not** `studioval-boilerplate`,
+and any user-visible `title` / `description` / `keywords` passed as a bare string (not wrapped in `__()`).
 
 ### 3. `[ECHO]` — Plain `echo` of a string literal (potential untranslated string)
 

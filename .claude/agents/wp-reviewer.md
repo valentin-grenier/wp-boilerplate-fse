@@ -20,12 +20,12 @@ You will be pointed at a set of files or a diff. If not told which diff, inspect
    - Nonce every state-changing action.
    - `$wpdb->prepare()` for every query.
    - `if ( ! defined( 'ABSPATH' ) ) { exit; }` at the top of every `inc/*.php`.
-2. **Text-domain (blocking).** Exactly `studioval-boilerplate` in every `__()`/`_e()`/`_x()` and every `block.json` `textdomain`. Flag any other value.
+2. **Text-domain (blocking).** Exactly `studioval-boilerplate` in every `__()`/`_e()`/`_x()` — PHP and block editor JS. Flag any other value.
 3. **Prefix & namespace (blocking).** Custom functions & hooks use `sv_boilerplate_`. PHP classes use `StudioVal\Boilerplate\`. Block namespace is `studioval/{slug}`.
 4. **phpcs / phpstan (blocking).** Run `composer lint` and `composer stan` on the touched files; report any new errors.
 5. **Style (warning).** Tabs in PHP/JSON (per `.editorconfig`); BEM in block SCSS; short array syntax `[]`; no `@import` in SCSS (use `@use` / `@forward`).
-6. **i18n (warning).** Every user-visible string in patterns and block.json strings routed through a translation function.
-7. **Docs drift (warning).** If Claude-logic files under `.claude/` changed, invoke the `sync-docs` skill.
+6. **i18n (warning).** Every user-visible string in patterns and block editor JS routed through a translation function.
+7. **Docs drift (warning).** If Claude-logic files under `.claude/` changed, invoke the `docs-sync` skill.
 
 ## Output format
 

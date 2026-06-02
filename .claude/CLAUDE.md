@@ -43,7 +43,7 @@ them, instead of deleting demo code.
 │       ├── dist/            # Webpack output (committed) — *.js, *.css, *.asset.php
 │       ├── webpack.config.js # Independent build, runs from inside the plugin folder
 │       └── languages/       # .pot lives here when generated
-├── .claude/             # Claude Code config + team docs (BLOCKS.md, CONVENTIONS.md)
+├── .claude/             # Claude Code config + team docs (ARCHITECTURE.md, CONVENTIONS.md)
 ├── .ddev/               # DDEV config (versioned)
 ├── bin/setup.sh         # Install: renames theme + plugin, substitutes placeholders, activates
 └── .github/workflows/   # CI + FTP deploy workflows
@@ -90,5 +90,5 @@ Default: **French**. Switch to English when I write in English.
 
 - **Commits and PRs**: use the `git-open-pr` skill (build → commit → push → PR, never merge).
 - **PHPStan level bumps**: use the `phpstan-bump` skill.
-- **Block authoring**: `.claude/BLOCKS.md`.
-- **Naming, security, i18n, git details**: `.claude/CONVENTIONS.md`.
+- **Block authoring**: `docs/blocks.md`.
+- **Naming, security, i18n, a11y, blocks**: `.claude/rules/`. **Git & tooling**: `.claude/CONVENTIONS.md`.
