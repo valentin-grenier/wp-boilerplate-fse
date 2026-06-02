@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
+final class Studioval_Plugin_Boilerplate_Admin_Page {
 
-	use Theme_Fse_Plugin_Boilerplate_Singleton;
+	use Studioval_Plugin_Boilerplate_Singleton;
 
 	/**
 	 * Top-level "Studio Val" menu slug. Shared across every Studio Val plugin
@@ -26,7 +26,7 @@ final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
 	/**
 	 * This plugin's own sub-page slug. Substituted by `bin/setup.sh`.
 	 */
-	private const MENU_SLUG = 'theme-fse-plugin-boilerplate';
+	private const MENU_SLUG = 'studioval-plugin-boilerplate';
 
 	/**
 	 * Hook suffix returned by `add_submenu_page`. Captured at registration
@@ -48,8 +48,8 @@ final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
 
 		$hook = add_submenu_page(
 			self::PARENT_MENU_SLUG,
-			__( 'Plugin Boilerplate', 'theme-fse-plugin-boilerplate' ),
-			__( 'Plugin Boilerplate', 'theme-fse-plugin-boilerplate' ),
+			__( 'Plugin Boilerplate', 'studioval-plugin-boilerplate' ),
+			__( 'Plugin Boilerplate', 'studioval-plugin-boilerplate' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_page' )
@@ -111,7 +111,7 @@ final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
 	 *   icon blends with the surrounding menu entries.
 	 */
 	private static function get_menu_icon(): string {
-		$svg_path = THEME_FSE_PLUGIN_BOILERPLATE_DIR . 'assets/icons/studioval.svg';
+		$svg_path = STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'assets/icons/studioval.svg';
 
 		if ( ! is_readable( $svg_path ) ) {
 			return 'dashicons-admin-generic';
@@ -133,7 +133,7 @@ final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
 	public function render_page(): void {
 		?>
 		<div class="wrap">
-			<div id="theme-fse-plugin-boilerplate-app"></div>
+			<div id="studioval-plugin-boilerplate-app"></div>
 		</div>
 		<?php
 	}
@@ -153,34 +153,34 @@ final class Theme_Fse_Plugin_Boilerplate_Admin_Page {
 			? require $asset_file
 			: array(
 				'dependencies' => array(),
-				'version'      => THEME_FSE_PLUGIN_BOILERPLATE_VERSION,
+				'version'      => STUDIOVAL_PLUGIN_BOILERPLATE_VERSION,
 			);
 
 		wp_enqueue_script(
-			'theme-fse-plugin-boilerplate-admin',
-			THEME_FSE_PLUGIN_BOILERPLATE_URL . 'dist/admin.js',
+			'studioval-plugin-boilerplate-admin',
+			STUDIOVAL_PLUGIN_BOILERPLATE_URL . 'dist/admin.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
 		wp_set_script_translations(
-			'theme-fse-plugin-boilerplate-admin',
-			'theme-fse-plugin-boilerplate',
-			THEME_FSE_PLUGIN_BOILERPLATE_DIR . 'languages'
+			'studioval-plugin-boilerplate-admin',
+			'studioval-plugin-boilerplate',
+			STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'languages'
 		);
 
 		wp_enqueue_style(
-			'theme-fse-plugin-boilerplate-admin',
-			THEME_FSE_PLUGIN_BOILERPLATE_URL . 'dist/admin.css',
+			'studioval-plugin-boilerplate-admin',
+			STUDIOVAL_PLUGIN_BOILERPLATE_URL . 'dist/admin.css',
 			array( 'wp-components' ),
 			$asset['version']
 		);
 
 		// When you wire REST or any server-passed data, expose it here:
 		// wp_localize_script(
-		// 'theme-fse-plugin-boilerplate-admin',
-		// 'themeFsePluginBoilerplateData',
+		// 'studioval-plugin-boilerplate-admin',
+		// 'studiovalPluginBoilerplateData',
 		// array(
 		// 'nonce' => wp_create_nonce( 'wp_rest' ),
 		// ...

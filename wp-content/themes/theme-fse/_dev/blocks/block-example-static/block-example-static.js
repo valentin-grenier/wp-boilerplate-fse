@@ -10,10 +10,10 @@ function Edit() {
 		<div {...blockProps}>
 			<Placeholder
 				icon="screenoptions"
-				label={__('Block Example Static', 'theme-fse')}
+				label={__('Block Example Static', 'studioval-boilerplate')}
 				instructions={__(
 					'Bloc d’exemple statique — le markup côté front est défini en dur dans Save.',
-					'theme-fse'
+					'studioval-boilerplate'
 				)}
 			/>
 		</div>
@@ -32,8 +32,8 @@ function Save() {
 
 registerBlockType('studioval/block-example-static', {
 	apiVersion: 3,
-	title: __('Block Example Static', 'theme-fse'),
-	description: __('Un bloc d’exemple statique.', 'theme-fse'),
+	title: __('Block Example Static', 'studioval-boilerplate'),
+	description: __('Un bloc d’exemple statique.', 'studioval-boilerplate'),
 	category: 'studioval',
 	icon: 'screenoptions',
 	keywords: ['block-example-static'],

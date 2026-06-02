@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function sv_boilerplate_theme_setup() {
 	// Translations.
-	load_theme_textdomain( 'theme-fse', get_template_directory() . '/languages' );
+	load_theme_textdomain( 'studioval-boilerplate', get_template_directory() . '/languages' );
 
 	// Theme supports.
 	add_theme_support( 'title-tag' );

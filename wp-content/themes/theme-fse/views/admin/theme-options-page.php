@@ -15,6 +15,6 @@ if ( ! current_user_can( 'manage_options' ) ) {
 ?>
 
 <div class="sv-boilerplate-theme-options-page wrap">
-	<h1 class="sv-boilerplate-theme-options-page__title"><?php esc_html_e( 'Options du thème', 'theme-fse' ); ?></h1>
+	<h1 class="sv-boilerplate-theme-options-page__title"><?php esc_html_e( 'Options du thème', 'studioval-boilerplate' ); ?></h1>
 	<div id="sv-boilerplate-theme-options-page__root"></div>
 </div>

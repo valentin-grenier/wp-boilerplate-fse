@@ -18,7 +18,7 @@
 	"rules": {
 		"@wordpress/i18n-text-domain": [
 			"error",
-			{ "allowedTextDomain": [ "theme-fse-plugin-boilerplate" ] }
+			{ "allowedTextDomain": [ "studioval-plugin-boilerplate" ] }
 		],
 		"import/no-extraneous-dependencies": "off",
 		"@wordpress/no-unsafe-wp-apis": "off"
