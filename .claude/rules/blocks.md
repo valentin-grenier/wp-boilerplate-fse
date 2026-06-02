@@ -1,6 +1,6 @@
 # Block authoring rules
 
-See [`../BLOCKS.md`](../BLOCKS.md) for the full guide. This rule file is the quick review checklist that phpcs can't enforce.
+See [`../../docs/blocks.md`](../../docs/blocks.md) for the full guide. This rule file is the quick review checklist that phpcs can't enforce.
 
 ## Folder structure
 

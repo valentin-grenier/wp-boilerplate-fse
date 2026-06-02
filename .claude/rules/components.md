@@ -52,15 +52,13 @@ mixin-only files to `main.scss`.
 
 ---
 
-## PHP — security hardening
+## PHP — template specifics
 
-### 1. ABSPATH guard — first line of every template
+The blocking rules — escape every output, sanitize every input, `ABSPATH` guard, nonces,
+`$wpdb->prepare()` — are in [`security.md`](security.md) and apply here too. On top of those,
+server-rendered templates (dynamic `block.php`, template parts) follow:
 
-```php
-if ( ! defined( 'ABSPATH' ) ) { exit; }
-```
-
-### 2. Declare all values at the top with an empty-string fallback
+### Declare all values at the top, with an empty-string fallback
 
 For native dynamic blocks, read attributes from `$attributes` (typed by WP from the
 `registerBlockType` call). For post fields and meta, use the appropriate WP API. Never inline
@@ -71,42 +69,17 @@ $title = $attributes['title'] ?? '';            // block attribute
 $url   = get_post_meta( $post_id, 'url', true ); // post meta
 ```
 
-### 3. Escape every output
+### Paths
 
-| Output context       | Function               |
-| -------------------- | ---------------------- |
-| Plain text           | `esc_html( $var )`     |
-| HTML attribute       | `esc_attr( $var )`     |
-| URL (href, src)      | `esc_url( $var )`      |
-| Rich text / WYSIWYG  | `wp_kses_post( $var )` |
-| Inline style value   | `esc_attr( $var )`     |
-| `<textarea>` content | `esc_textarea( $var )` |
-| Inline JS            | `esc_js( $var )`       |
+- Hardcoded internal links → `esc_url( home_url( '/contact' ) )`.
+- Theme-relative assets → `esc_url( get_template_directory_uri() . '/assets/images/logo.svg' )`.
 
-Never `echo $attributes['x']` or any other raw value directly.
-
-### 4. Hardcoded paths
-
-Replace with `home_url( '/path' )` wrapped in `esc_url()`:
-
-```php
-echo esc_url( home_url( '/contact' ) );
-```
-
-### 5. Theme-relative asset paths
-
-Use `get_template_directory_uri()` wrapped in `esc_url()`:
-
-```php
-echo esc_url( get_template_directory_uri() . '/assets/images/logo.svg' );
-```
-
-### 6. WP function output
+### WP function output
 
 - `get_the_title()`, `get_the_excerpt()` → wrap in `esc_html()`.
 - `get_the_post_thumbnail()` and `do_shortcode()` return trusted HTML — leave unwrapped.
 
-### 7. PHPDoc for dynamic `block.php` templates
+### PHPDoc for dynamic `block.php` templates
 
 Native dynamic block render templates receive three variables injected by `register_block_type`.
 Document them at the top so phpstan and readers understand the signatures:
@@ -117,14 +90,6 @@ Document them at the top so phpstan and readers understand the signatures:
  * @var string   $content    Inner block content (empty for blocks without InnerBlocks).
  * @var WP_Block $block      Block instance.
  */
-```
-
-### 8. User input
-
-Sanitize before use:
-
-```php
-$key = sanitize_text_field( wp_unslash( $_GET['key'] ?? '' ) );
 ```
 
 ---

@@ -6,6 +6,14 @@ All notable changes to this project are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Consolidated Claude Code docs to a single source per topic: merged the block guide into `docs/blocks.md` (removed `.claude/BLOCKS.md`), trimmed `CONVENTIONS.md` to Git + tooling, cut and corrected `ARCHITECTURE.md`, and deduplicated `rules/components.md` against `rules/security.md`.
+
+### Fixed
+
+- Stale doc references: `block.json` mentions (the theme has none — blocks register via `registerBlockType`), the `fse-boilerplate` / `arnauneprim` text-domain leftovers, and phantom `bin/cleanup.sh` / `IMPLEMENTATION.md` paths in `ARCHITECTURE.md` and `docs-sync`.
+
 ## [2.0.0] — 2026-06-02
 
 ### Added

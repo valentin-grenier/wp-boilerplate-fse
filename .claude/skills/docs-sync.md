@@ -1,6 +1,6 @@
 ---
 name: docs-sync
-description: Invoke automatically when the conversation adds or modifies Claude Code automation — hooks or permissions in .claude/settings.json, rules under .claude/rules/, agents under .claude/agents/, skills under .claude/skills/, slash commands under .claude/commands/, MCP servers in .mcp.json, or the team docs themselves (.claude/CLAUDE.md, ARCHITECTURE.md, BLOCKS.md, CONVENTIONS.md). Audits the team docs against the live state of .claude/ and proposes updates. Does not auto-apply edits — reports drift and proposes them for user approval.
+description: Invoke automatically when the conversation adds or modifies Claude Code automation — hooks or permissions in .claude/settings.json, rules under .claude/rules/, agents under .claude/agents/, skills under .claude/skills/, slash commands under .claude/commands/, MCP servers in .mcp.json, or the team docs themselves (.claude/CLAUDE.md, ARCHITECTURE.md, CONVENTIONS.md). Audits the team docs against the live state of .claude/ and proposes updates. Does not auto-apply edits — reports drift and proposes them for user approval.
 ---
 
 # Sync docs skill
@@ -16,7 +16,7 @@ Trigger this skill whenever the current turn adds, removes, or modifies any of:
 - `.claude/agents/**`
 - `.claude/skills/**`
 - `.claude/commands/**`
-- `.claude/CLAUDE.md`, `ARCHITECTURE.md`, `BLOCKS.md`, `CONVENTIONS.md`
+- `.claude/CLAUDE.md`, `ARCHITECTURE.md`, `CONVENTIONS.md`
 - `.mcp.json`
 - Scripts under `.claude/hooks/` or `bin/` that are wired into Claude hooks.
 
@@ -24,7 +24,7 @@ If the current turn only edits theme code (`wp-content/themes/theme-fse/**`), do
 
 ## Procedure
 
-1. **Read each team doc** under `.claude/`: CLAUDE.md, ARCHITECTURE.md, CONVENTIONS.md, BLOCKS.md, IMPLEMENTATION.md.
+1. **Read each team doc** under `.claude/`: CLAUDE.md, ARCHITECTURE.md, CONVENTIONS.md. The full block guide lives at `docs/blocks.md`.
 2. **Enumerate assertions each doc makes about Claude logic**, e.g.:
    - "5 hook types configured"
    - "rules/ contains security, i18n, blocks"
@@ -64,4 +64,3 @@ End with a one-line summary: `<N> drift items — approve to apply, or /ignore t
 - **Never silently edit.** Always surface the drift and ask.
 - **Minimize the diff.** Propose the smallest change that restores sync.
 - **Prefer updating the doc, not the code.** The code is the source of truth; docs describe the code, not vice-versa.
-- **Respect the tracker.** `.claude/IMPLEMENTATION.md` is a narrative; only touch it for genuine drift, not historical context that's still accurate.
