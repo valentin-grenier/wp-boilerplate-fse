@@ -1,5 +1,5 @@
 {
-	"name": "studioval-plugin-boilerplate",
+	"name": "theme-fse-plugin-boilerplate",
 	"version": "1.0.0",
 	"description": "Blank scaffold for WordPress plugins — Singleton classes, empty React admin page, webpack-built.",
 	"private": true,

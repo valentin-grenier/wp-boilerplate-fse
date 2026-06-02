@@ -26,24 +26,24 @@ parameters:
     # What to analyze.
     paths:
         - wp-content/themes/theme-fse/
-        - wp-content/plugins/studioval-plugin-boilerplate/
+        - wp-content/plugins/theme-fse-plugin-boilerplate/
 
     # Skip these — compiled output and build-tool sources.
     excludePaths:
         - wp-content/themes/theme-fse/dist/*
         - wp-content/themes/theme-fse/_dev/*
-        - wp-content/plugins/studioval-plugin-boilerplate/dist/*
-        - wp-content/plugins/studioval-plugin-boilerplate/node_modules/*
+        - wp-content/plugins/theme-fse-plugin-boilerplate/dist/*
+        - wp-content/plugins/theme-fse-plugin-boilerplate/node_modules/*
 
     # Constants whose runtime value phpstan should treat as "unknown string".
-    # Without this, phpstan tries to resolve `STUDIOVAL_PLUGIN_BOILERPLATE_DIR . 'dist/x.asset.php'`
+    # Without this, phpstan tries to resolve `THEME_FSE_PLUGIN_BOILERPLATE_DIR . 'dist/x.asset.php'`
     # to a literal path and warns when the path doesn't exist — but the actual
     # runtime value depends on plugin_dir_path() and a `file_exists()` guard.
     dynamicConstantNames:
-        - STUDIOVAL_PLUGIN_BOILERPLATE_VERSION
-        - STUDIOVAL_PLUGIN_BOILERPLATE_FILE
-        - STUDIOVAL_PLUGIN_BOILERPLATE_DIR
-        - STUDIOVAL_PLUGIN_BOILERPLATE_URL
+        - THEME_FSE_PLUGIN_BOILERPLATE_VERSION
+        - THEME_FSE_PLUGIN_BOILERPLATE_FILE
+        - THEME_FSE_PLUGIN_BOILERPLATE_DIR
+        - THEME_FSE_PLUGIN_BOILERPLATE_URL
 
     # Explicit bootstrap (the extension ships one; naming it here makes intent clear
     # and survives future extension updates). The plugin main file registers its
@@ -51,4 +51,4 @@ parameters:
     # without phpstan crying "constant not found".
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
-        - wp-content/plugins/studioval-plugin-boilerplate/studioval-plugin-boilerplate.php
+        - wp-content/plugins/theme-fse-plugin-boilerplate/theme-fse-plugin-boilerplate.php

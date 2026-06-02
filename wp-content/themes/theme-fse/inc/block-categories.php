@@ -15,9 +15,9 @@ function sv_boilerplate_register_patterns_categories() {
 		: 'star-filled';
 
 	register_block_pattern_category(
-		'studioval-boilerplate',
+		'theme-fse',
 		array(
-			'label' => __( 'Theme Name', 'studioval-boilerplate' ),
+			'label' => __( 'Theme Fse', 'theme-fse' ),
 			'icon'  => $icon,
 		)
 	);
@@ -40,8 +40,8 @@ function sv_boilerplate_register_blocks_categories( $categories, $post ) {
 	return array_merge(
 		array(
 			array(
-				'slug'  => 'studioval-boilerplate',
-				'title' => __( 'Theme Name', 'studioval-boilerplate' ),
+				'slug'  => 'theme-fse',
+				'title' => __( 'Theme Fse', 'theme-fse' ),
 				'icon'  => $icon,
 			),
 		),

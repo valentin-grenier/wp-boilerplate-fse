@@ -4,11 +4,11 @@
  * Scoped to the mount node so nothing leaks to wp-admin chrome.
  */
 
-#studioval-plugin-boilerplate-app {
+#theme-fse-plugin-boilerplate-app {
 	max-width: 960px;
 	margin-top: 1.5rem;
 
-	.svpb-admin {
+	.tfpb-admin {
 		position: relative;
 	}
 }

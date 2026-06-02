@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-trait Studioval_Plugin_Boilerplate_Singleton {
+trait Theme_Fse_Plugin_Boilerplate_Singleton {
 
 	/**
 	 * Single instance, created on first call to `instance()`.
