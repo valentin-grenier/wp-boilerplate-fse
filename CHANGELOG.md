@@ -15,7 +15,7 @@ All notable changes to this project are documented here. Format follows
 - Reproducibility: `.editorconfig`, `.nvmrc`, `.env.example`.
 - PHP tooling: `phpcs.xml.dist` (WordPress-Extra), `phpstan.neon.dist` (level 5 + `szepeviktor/phpstan-wordpress`), `phpunit.xml.dist`.
 - Frontend tooling: `_dev/.eslintrc.json`, `_dev/.stylelintrc.json`, `_dev/.prettierrc`, `_dev/.prettierignore`.
-- FSE: `patterns/` with starter pattern, `languages/studioval-boilerplate.pot`, `$schema` in every `block.json`.
+- FSE: `patterns/` with starter pattern, `languages/studioval-boilerplate.pot`.
 - Claude Code: PostToolUse / PreToolUse / SessionStart / PreCompact / Notification hooks; `.claude/rules/`, `.claude/agents/wp-reviewer.md`, `.claude/commands/smoke.md`, `.claude/lessons.md`; `.mcp.json` template.
 - Verification: `bin/smoke.sh`.
 - CI: `.github/workflows/ci.yml` (lint + stan + build on PR), `.github/workflows/pr-checklist.yml` (fails the PR while any `## Checklist` box is unchecked).
@@ -27,8 +27,13 @@ All notable changes to this project are documented here. Format follows
 - Function/hook prefix migrated from `studio_` to `sv_boilerplate_`.
 - PHP namespace migrated from `StudioVal\WPBoilerplate\` to `StudioVal\Boilerplate\`.
 - Block namespace migrated to `studioval/{name}`.
+- Blocks migrated from `block.json` auto-discovery to client-side `registerBlockType('studioval/{slug}')` registration — no `block.json`.
 - `composer.json` platform bumped to PHP 8.2; `style.css` `Requires PHP` bumped to 8.2.
 - `bin/setup.sh` substitution table updated to the new token scheme.
+
+### Removed
+
+- ACF Pro dependency (`auth.json`) — blocks are now native Gutenberg, registered via `registerBlockType`; no ACF.
 
 ### Fixed
 

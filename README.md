@@ -6,7 +6,7 @@ Studio Val's turn-key starter theme for WordPress Full Site Editing (FSE) — We
 
 - **Full FSE support** — templates and parts as native `.html` files
 - **SCSS workflow** — separate frontend and editor stylesheets, Webpack 5 (not wp-scripts)
-- **Native Gutenberg blocks** — auto-discovered via `block.json`, scaffoldable via CLI (static or dynamic)
+- **Native Gutenberg blocks** — registered client-side via `registerBlockType` (no `block.json`), scaffoldable via CLI (static or dynamic)
 - **Modular PHP** — `inc/` files split by concern: setup, security, performance, blocks…
 - **Security hardened** — XML-RPC off, file editor blocked, version hidden, ABSPATH guards throughout
 - **Automated setup** — renames theme, substitutes slugs, installs plugins, creates Git branches
