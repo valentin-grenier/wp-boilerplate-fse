@@ -73,9 +73,11 @@ Run `composer ci` (lint → stan → test) before declaring backend work done. D
 
 ## Git workflow
 
-Branches (`bin/setup.sh` creates them): `main` (production, protected) · `staging` (pre-prod, FTP deploy on push) · `development` (CI) · `feature/*`.
+**This repo (template):** `main` = the pristine base (default branch), `demo` = an installed example. Neither deploys — the FTP deploy workflows are guarded off here (`if: github.repository != …`).
 
-GitHub Actions gates PHP lint/stan/test + Node lint/build on every PR; deploys via FTP on push to `staging` / `main`.
+**Generated client projects:** `bin/setup.sh` commits on `main` and creates `staging` + `development`. There, `main` = production and `staging` = pre-prod (both FTP-deployed on push); flow is `feature/* → development → staging → main`.
+
+GitHub Actions gates PHP lint/stan/test + Node lint/build on every PR (template and client projects alike).
 
 ## Known pitfalls
 

@@ -42,6 +42,8 @@ Allowed types:
 - `ci` — changes to CI configuration (`.github/workflows/**`, `dependabot.yml`).
 - `chore` — updating tooling, dev tasks, or anything else that doesn't fit above; no production code change.
 
+The flow below applies to **generated client projects** (in this template repo, `main` is the pristine base and `demo` the installed example — neither deploys).
+
 **Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push directly
 to `main` or `staging`.
 
