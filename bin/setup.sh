@@ -367,8 +367,33 @@ update_plugin_lint_configs() {
   fi
 }
 
+# Patch the repo-level .gitignore so the renamed plugin folder stays
+# version-controlled. The plugins glob (wp-content/plugins/*) ignores everything
+# and the boilerplate is re-included by its old name only; without this the
+# renamed folder would silently drop out of git.
+update_plugin_gitignore() {
+  local target_root="$1"
+  local plugin_slug="$2"
+  local gitignore="$target_root/.gitignore"
+
+  if [ "$DRY_RUN" = true ]; then
+    echo "[DRY RUN] Would update .gitignore whitelist for plugin slug $plugin_slug"
+    return 0
+  fi
+
+  if [ -f "$gitignore" ]; then
+    # Covers both the `!…/studioval-plugin-boilerplate/` un-ignore line and the
+    # `…/studioval-plugin-boilerplate/node_modules/` re-ignore line. No-op when
+    # the slug is unchanged (replaces the path with itself).
+    sed_inplace "s|wp-content/plugins/studioval-plugin-boilerplate/|wp-content/plugins/$plugin_slug/|g" "$gitignore"
+    log_success ".gitignore updated for plugin"
+    increment_success
+  fi
+}
+
 # Top-level orchestrator. Renames folder + main file, then runs identifier
-# substitution and lint-config updates. No-op if user keeps the default slug.
+# substitution plus lint-config and .gitignore updates. No-op if user keeps the
+# default slug.
 update_plugin_boilerplate() {
   local plugins_dir="$1"
   local source_slug="studioval-plugin-boilerplate"
@@ -401,6 +426,7 @@ update_plugin_boilerplate() {
 
   update_plugin_info "$target_path" "$target_slug"
   update_plugin_lint_configs "$target_root" "$target_slug"
+  update_plugin_gitignore "$target_root" "$target_slug"
 }
 
 # Function to update GitHub workflow files with the correct theme name
