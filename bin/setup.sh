@@ -504,12 +504,15 @@ update_workflow_files() {
     echo "[DRY RUN] Would update theme paths in GitHub workflow files:"
     echo "[DRY RUN]   theme-fse → $theme_slug in deploy-staging.yml"
     echo "[DRY RUN]   theme-fse → $theme_slug in deploy-production.yml"
+    echo "[DRY RUN]   remove boilerplate-only deploy guard from both workflows"
     return 0
   fi
   
   # Update staging workflow
   if [ -f "$staging_workflow" ]; then
     sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$staging_workflow"
+    # Drop the boilerplate-only deploy guard so the client project deploys normally.
+    sed_inplace "/# The boilerplate repo is a template/,/if: github.repository != /d" "$staging_workflow"
     log_success "Updated deploy-staging.yml with theme name: $theme_slug"
     increment_success
   else
@@ -520,6 +523,8 @@ update_workflow_files() {
   # Update production workflow
   if [ -f "$production_workflow" ]; then
     sed_inplace "s|wp-content/themes/theme-fse/|wp-content/themes/$theme_slug/|g" "$production_workflow"
+    # Drop the boilerplate-only deploy guard so the client project deploys normally.
+    sed_inplace "/# The boilerplate repo is a template/,/if: github.repository != /d" "$production_workflow"
     log_success "Updated deploy-production.yml with theme name: $theme_slug"
     increment_success
   else
