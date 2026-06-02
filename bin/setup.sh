@@ -190,6 +190,63 @@ slug_to_display_name() {
   echo "$slug" | sed 's/[-_]/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))} 1'
 }
 
+# Propagate the theme text-domain across the whole theme, the phpcs allowlist
+# and the languages/ files. Historically update_theme_info only rewrote the
+# domain in style.css, block-categories.php and make-block.js, leaving the rest
+# of the theme on studioval-boilerplate — which breaks phpcs's text-domain check
+# and the renamed theme's translation loading. The block namespace (studioval/)
+# and CSS prefix stay untouched: only the quoted 'studioval-boilerplate' token
+# is matched. Idempotent / safe to re-run.
+update_theme_text_domain() {
+  local theme_path="$1"
+  local text_domain="$2"
+  local target_root="$3"
+  local src="studioval-boilerplate"
+
+  # 1) Quoted occurrences in theme PHP + JS sources (skip build output + deps).
+  while IFS= read -r -d '' file; do
+    sed_inplace "s/'$src'/'$text_domain'/g" "$file"
+  done < <(find "$theme_path" \( -name '*.php' -o -name '*.js' \) -type f \
+      ! -path '*/node_modules/*' ! -path '*/dist/*' ! -path '*/vendor/*' -print0)
+
+  # 2) Pattern headers carry the namespace unquoted (Slug:/Categories:).
+  if [ -d "$theme_path/patterns" ]; then
+    while IFS= read -r -d '' pattern; do
+      sed_inplace "/^ \\* \\(Slug\\|Categories\\):/ s|$src|$text_domain|g" "$pattern"
+    done < <(find "$theme_path/patterns" -name '*.php' -type f -print0)
+  fi
+
+  # 3) phpcs allowlist element for the theme text-domain.
+  if [ -f "$target_root/phpcs.xml.dist" ]; then
+    sed_inplace "s|<element value=\"$src\"/>|<element value=\"$text_domain\"/>|" "$target_root/phpcs.xml.dist"
+  fi
+
+  # 4) languages/: rename the files, repoint the embedded domain, regenerate the
+  #    .mo so the renamed domain keeps loading its translations.
+  local lang_dir="$theme_path/languages"
+  if [ -d "$lang_dir" ]; then
+    local f base
+    for f in "$lang_dir/$src"*; do
+      [ -e "$f" ] || continue
+      base=$(basename "$f")
+      mv "$f" "$lang_dir/${base/$src/$text_domain}"
+    done
+    while IFS= read -r -d '' tf; do
+      sed_inplace "s/$src/$text_domain/g" "$tf"
+    done < <(find "$lang_dir" -type f \( -name '*.pot' -o -name '*.po' -o -name '*.l10n.php' \) -print0)
+    if command -v msgfmt >/dev/null 2>&1; then
+      local po
+      for po in "$lang_dir"/*.po; do
+        [ -e "$po" ] || continue
+        msgfmt "$po" -o "${po%.po}.mo" 2>/dev/null || true
+      done
+    fi
+  fi
+
+  log_success "Theme text-domain propagated across sources, phpcs and languages"
+  increment_success
+}
+
 # Function to update theme information in style.css
 update_theme_info() {
   local theme_path="$1"
@@ -216,6 +273,7 @@ update_theme_info() {
     echo "[DRY RUN] Would update text domain to '$text_domain'"
     echo "[DRY RUN] Would update block categories slugs and labels in $block_categories"
     echo "[DRY RUN] Would update make-block script placeholders in $make_block"
+    echo "[DRY RUN] Would propagate text-domain '$text_domain' across theme PHP/JS, pattern headers, phpcs allowlist and languages/ files"
     return 0
   fi
 
@@ -261,6 +319,9 @@ update_theme_info() {
     log_warning "make-block.js not found - skipping"
     increment_warnings
   fi
+
+  # Propagate the text-domain across the rest of the theme + phpcs + languages.
+  update_theme_text_domain "$theme_path" "$text_domain" "$TARGET_ROOT"
 }
 
 # ========== PLUGIN BOILERPLATE HELPERS ==========
