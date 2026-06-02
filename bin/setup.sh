@@ -502,7 +502,7 @@ cd "$WP_PATH"
 
 if [[ "$(uname -s)" == *"MINGW"* || "$(uname -s)" == *"NT"* ]]; then
   WP="cmd //c wp"
-elif command -v ddev &>/dev/null && ddev status 2>/dev/null | grep -q "running"; then
+elif command -v ddev &>/dev/null && ddev describe -j 2>/dev/null | grep -q '"status":"running"'; then
   WP="ddev wp"
 else
   WP="wp"
@@ -558,11 +558,16 @@ fi
 # ========== THEME AUTO-DETECT & RENAME ==========
 log_step "🎨 THEME SETUP"
 
-# 1) Auto-detect the one source theme folder
+# 1) Determine the source theme folder: an explicit --theme= override wins,
+#    otherwise auto-detect by scanning wp-content/themes/.
 SLUGS=()
-while IFS= read -r slug; do
-  SLUGS+=("$slug")
-done < <(find "$WP_CONTENT/themes" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
+if [ -n "$THEME_SLUG" ]; then
+  SLUGS=("$THEME_SLUG")
+else
+  while IFS= read -r slug; do
+    SLUGS+=("$slug")
+  done < <(find "$WP_CONTENT/themes" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
+fi
 if    [ ${#SLUGS[@]} -eq 0 ]; then
   log_info "No theme folder found in $WP_CONTENT/themes/"
   log_info "Checking if setup has already been completed..."
@@ -592,7 +597,11 @@ if    [ ${#SLUGS[@]} -eq 0 ]; then
   fi
 elif  [ ${#SLUGS[@]} -eq 1 ]; then
   THEME_SRC="${SLUGS[0]}"
-  log_info "Auto-detected source theme: $THEME_SRC"
+  if [ -n "$THEME_SLUG" ]; then
+    log_info "Using provided source theme: $THEME_SRC"
+  else
+    log_info "Auto-detected source theme: $THEME_SRC"
+  fi
 else
   echo "🎨 Multiple themes found:"
   for s in "${SLUGS[@]}"; do echo "  – $s"; done
