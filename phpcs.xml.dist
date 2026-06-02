@@ -60,7 +60,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="studioval-boilerplate"/>
+				<element value="theme-fse"/>
 				<element value="theme-fse-plugin-boilerplate"/>
 			</property>
 		</properties>

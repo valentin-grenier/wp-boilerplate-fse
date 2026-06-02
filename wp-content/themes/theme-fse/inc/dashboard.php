@@ -140,12 +140,12 @@ function sv_boilerplate_custom_admin_bar_menu() {
 	$wp_admin_bar->add_menu(
 		array(
 			'parent' => 'wp-logo-external',
-			'id'     => 'studioval-boilerplate',
-			'title'  => __( 'Studio Val', 'studioval-boilerplate' ),
+			'id'     => 'theme-fse',
+			'title'  => __( 'Studio Val', 'theme-fse' ),
 			'href'   => $contact['website'],
 			'meta'   => array(
 				'target' => '_blank',
-				'title'  => __( 'Visit Studio Val website', 'studioval-boilerplate' ),
+				'title'  => __( 'Visit Studio Val website', 'theme-fse' ),
 			),
 		)
 	);
@@ -154,10 +154,10 @@ function sv_boilerplate_custom_admin_bar_menu() {
 		array(
 			'parent' => 'wp-logo-external',
 			'id'     => 'contact-support',
-			'title'  => __( 'Need help?', 'studioval-boilerplate' ),
+			'title'  => __( 'Need help?', 'theme-fse' ),
 			'href'   => 'mailto:' . $contact['email'] . '?subject=' . rawurlencode( '[' . get_bloginfo( 'name' ) . '] Support request' ),
 			'meta'   => array(
-				'title' => __( 'Contact support', 'studioval-boilerplate' ),
+				'title' => __( 'Contact support', 'theme-fse' ),
 			),
 		)
 	);
@@ -166,11 +166,11 @@ function sv_boilerplate_custom_admin_bar_menu() {
 		array(
 			'parent' => 'wp-logo-external',
 			'id'     => 'meeting',
-			'title'  => __( 'Book a meeting', 'studioval-boilerplate' ),
+			'title'  => __( 'Book a meeting', 'theme-fse' ),
 			'href'   => $contact['meeting'],
 			'meta'   => array(
 				'target' => '_blank',
-				'title'  => __( 'Book a meeting with Studio Val', 'studioval-boilerplate' ),
+				'title'  => __( 'Book a meeting with Studio Val', 'theme-fse' ),
 			),
 		)
 	);

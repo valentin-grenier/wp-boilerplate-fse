@@ -30,7 +30,7 @@ if ( is_admin() && ! defined( 'DISALLOW_FILE_EDIT' ) ) {
  */
 function sv_boilerplate_hide_login_errors( $error ) {
 	unset( $error );
-	return __( 'Login failed. Please try again.', 'studioval-boilerplate' );
+	return __( 'Login failed. Please try again.', 'theme-fse' );
 }
 add_filter( 'login_errors', 'sv_boilerplate_hide_login_errors' );
 
