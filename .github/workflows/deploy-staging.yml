@@ -29,14 +29,37 @@ jobs:
                   server-dir: ${{ secrets.FTP_SERVER_DIR }}
                   timeout: 60000
                   security: strict
+                  # Root deploy ships only runtime root content (e.g. .well-known/security.txt).
+                  # Everything listed below is VCS / CI / dev tooling and must never reach a live host.
                   exclude: |
                       wp-content/**
                       .git/**
                       .github/**
+                      .claude/**
+                      .ddev/**
                       node_modules/**
                       vendor/**
+                      bin/**
+                      docs/**
+                      tests/**
+                      CHANGELOG.md
+                      README.md
+                      LICENSE
+                      composer.json
+                      composer.lock
+                      phpcs.xml.dist
+                      phpstan.neon.dist
+                      phpunit.xml.dist
+                      wp-cli.yml
+                      .editorconfig
+                      .env.example
+                      .gitignore
+                      .markdownlint.json
+                      .nvmrc
 
             - name: Deploy Theme
+              # _dev/ is intentionally shipped with the theme (project requirement).
+              # node_modules/ and .git* are excluded by the action's default ignore list.
               uses: SamKirkland/FTP-Deploy-Action@v4.4.0
               with:
                   server: ${{ secrets.FTP_HOST }}
@@ -61,6 +84,8 @@ jobs:
                   server-dir: ${{ secrets.FTP_SERVER_DIR }}/wp-content/plugins/
                   timeout: 60000
                   security: strict
+                  # Plugin source (src/, webpack, configs) is intentionally kept,
+                  # mirroring the theme's _dev/. Only deps, logs, OS junk and DB dumps are dropped.
                   exclude: |
                       node_modules/**
                       vendor/**
