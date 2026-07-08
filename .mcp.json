@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "wordpress": {
+      "type": "stdio",
+      "command": "ddev",
+      "args": [
+        "wp",
+        "mcp-adapter",
+        "serve",
+        "--server=mcp-adapter-default-server",
+        "--user=${WP_MCP_USER:-admin}"
+      ]
+    }
+  }
+}

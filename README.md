@@ -10,6 +10,7 @@ Studio Val's turn-key starter theme for WordPress Full Site Editing (FSE) — We
 - **Modular PHP** — `inc/` files split by concern: setup, security, performance, blocks…
 - **Security hardened** — XML-RPC off, file editor blocked, version hidden, ABSPATH guards throughout
 - **Automated setup** — renames theme, substitutes slugs, installs plugins, creates Git branches
+- **MCP-ready** — `.mcp.json` lets Claude Code drive the local WordPress via DDEV WP-CLI
 
 ## Quick start
 

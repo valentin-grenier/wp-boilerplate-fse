@@ -42,7 +42,7 @@ How the repository is laid out and why. For the day-to-day commands see
 ├── phpcs.xml.dist               # phpcs ruleset (WordPress-Extra + PHPCompatibility WP 8.2)
 ├── phpstan.neon.dist            # phpstan config (level 5 + szepeviktor/phpstan-wordpress)
 ├── phpunit.xml.dist             # phpunit config (tests/ testsuite — empty for now)
-├── .mcp.json                    # MCP server template
+├── .mcp.json                    # Claude Code MCP config — WordPress via DDEV WP-CLI (STDIO)
 ├── CHANGELOG.md                 # Keep-a-Changelog
 ├── README.md                    # User-facing project overview
 ├── .editorconfig
