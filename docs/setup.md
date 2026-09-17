@@ -43,37 +43,91 @@ After the script completes, activate the theme in **wp-admin → Appearance → 
 ddev wp theme activate your-project-slug
 ```
 
-> **Note:** Do not activate `theme-fse` directly. The source theme uses generic placeholder names (`sv_boilerplate_`, `studioval-boilerplate`, `StudioVal\Boilerplate\`). The setup script substitutes them with your project slug — always run it first.
+> **Note:** Do not activate `theme-fse` directly. The source theme uses generic placeholder
+> names (`sv_boilerplate_` for PHP functions and hooks, `studioval-boilerplate` for the
+> text domain). The setup script substitutes them with your project slug — always run it first.
 
 ## Script options
 
 ```
 ./bin/setup.sh [OPTIONS]
 
-  --dry-run             Show what would happen without making changes
-  --skip-plugins        Skip automatic plugin installation
-  --skip-git            Skip git repository initialization
-  --skip-branches       Skip creating staging/development branches
-  --theme=NAME          Override source theme name detection
-  --theme-dest=NAME     Override destination theme folder name
-  --github-user=USER    Override GitHub username (default: valentin-grenier)
-  --help, -h            Show this help message
+  --theme-dest=SLUG           Target theme folder name (required with --yes)
+  --plugin-dest=SLUG          Target plugin slug, or 'skip' to leave it alone
+  --theme-src=SLUG            Source theme folder (default: auto-detected)
+  --theme-prefix=PREFIX       PHP function prefix (default: sv_<theme_dest>_)
+  --github-user=USER          GitHub owner used in the Theme URI header
+
+  --dry-run                   Print every action without performing any of them
+  --yes, -y                   Non-interactive: take defaults, skip confirmation
+  --force                     Run even when the placeholders look consumed
+
+  --skip-plugins              Do not install the recommended wordpress.org plugins
+  --skip-plugin-boilerplate   Leave the plugin scaffold untouched
+  --skip-content              Do not create the homepage or activate the theme
+  --skip-branches             Do not commit or create staging/development
+  --help, -h                  Show this message
 ```
 
-## 4. Install frontend dependencies
+Unknown options are rejected rather than ignored, so a typo fails loudly instead of
+silently running a full setup.
+
+### Preview before committing to it
+
+Every run prints a plan and asks for confirmation. To see the plan without touching
+anything:
 
 ```bash
+./bin/setup.sh --dry-run --theme-dest=my-project
+```
+
+### Non-interactive runs
+
+The script never prompts without a fallback. With `--yes` it takes every default and
+skips the confirmation, which makes it usable from CI or a provisioning script:
+
+```bash
+./bin/setup.sh --yes --theme-dest=my-project --plugin-dest=my-core
+```
+
+`--theme-dest` is required in that mode: there is no safe default for it.
+
+### Re-running
+
+Every step is idempotent, and the script refuses to run twice over a project that is
+already set up. To deliberately rename an already-renamed project:
+
+```bash
+./bin/setup.sh --force --theme-src=my-project --theme-dest=my-new-name
+```
+
+## 4. Install dependencies
+
+`bin/setup.sh` installs neither Composer nor npm dependencies — it only renames and
+repoints. Do both afterwards, in either order; `composer ci` needs `vendor/` and the
+theme build needs `node_modules/`.
+
+```bash
+# PHP
+composer install
+
+# Frontend
 cd wp-content/themes/your-project-slug/_dev
 nvm use
 npm install
 npm run dev    # Webpack watch + BrowserSync
 ```
 
-## 5. Install PHP dependencies
+## 5. Verify
 
 ```bash
-composer install
+composer ci      # lint + stan + test, pointing at your renamed theme
+bin/smoke.sh     # end-to-end check
 ```
+
+Both are repointed at the renamed theme by the setup script. If either still complains
+about `theme-fse`, a config file was missed — report it, the path list lives in
+`EXTERNAL_REFERENCE_FILES` at the top of `bin/setup.sh`.
 
 ## Daily development commands
 
@@ -144,17 +198,22 @@ Never push directly to `main` or `staging`.
 
 ## Recommended plugins
 
-**Auto-installed by `setup.sh`:**
+**Installed _and activated_ by `setup.sh`:**
 
 - Query Monitor — debug toolbar
 - UpdraftPlus — backups
 - Admin Site Enhancements — admin UX improvements
-- Contact Form 7 — forms
+- Contact Form 7 + Honeypot — forms
 
-**Install manually on production projects:**
+**Installed but _not_ activated** (activate per project, when you need them):
 
+- Broken Link Checker
 - Rank Math SEO
 - Complianz GDPR
 - WebP Converter for Media
 - Simple History
 - Plausible Analytics
+- WP Mail SMTP
+- Better WP Security
+
+Skip the whole step with `--skip-plugins`.

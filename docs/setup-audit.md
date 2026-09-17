@@ -1,8 +1,42 @@
 # `bin/setup.sh` — Phase 1 audit
 
-**Scope:** `bin/setup.sh` (1035 lines) and everything it rewrites.
-**Status:** audit only — no code changed.
+**Scope:** `bin/setup.sh` (1035 lines at the time of the audit) and everything it rewrites.
 **Branch:** `fix/setup-script`.
+
+## Fix status
+
+| ID | Finding | Status |
+|----|---------|--------|
+| S1.1 | Theme rename breaks phpcs/phpstan/phpunit/CI/Dependabot | **Fixed** — `EXTERNAL_REFERENCE_FILES` manifest + `rewrite_external_references()` |
+| S1.2 | Renamed theme's `dist/` drops out of git | **Fixed** — `.gitignore` is in the manifest |
+| S1.3 | `sv_boilerplate_` never substituted | **Fixed** — `update_theme_prefix()` |
+| S1.4 | Non-interactive run aborts mid-migration | **Fixed** — all prompts resolve before the first mutation; `--yes` + required flags |
+| S1.5 | Pristine guard cannot fire on a re-run | **Fixed** — guard moved onto the resolved source theme, with distinct messages |
+| S2.1 | `set -e` makes error branches unreachable | **Fixed** — every command substitution guarded |
+| S2.2 | `increment_errors` never called | **Fixed** — `log_error()` increments; exit code reflects it |
+| S2.3 | `--theme-src` trusted without existence check | **Fixed** — hard error listing the available themes |
+| S2.4 | Substitutions hardcode `theme-fse` as the source | **Fixed** — driven by the resolved `THEME_SRC` |
+| S2.5 | Deploy-guard range `sed` can run away | **Fixed** — per-line deletes, verified afterwards |
+| S2.6 | Plugin install failures downgraded to warnings | **Partly fixed** — already-installed detected, counts reported; still non-fatal by design |
+| S2.7 | Destructive ops without confirmation | **Fixed** — plan + confirmation; `--dry-run` covers every block |
+| S3.1 | Not bash strict mode | **Fixed** — `set -euo pipefail` |
+| S3.2 | Undeclared `python3` dependency | **Fixed** — `ddev exec printenv DDEV_PRIMARY_URL` |
+| S3.3 | DDEV status detected by grepping JSON | **Fixed** — functional `ddev exec true` probe |
+| S3.4 | `LOG_DELAY` sleeps | **Fixed** — removed, along with the spinner |
+| S3.5 | No prerequisite validation | **Fixed** — `preflight()` |
+| S3.6 | Theme auto-detect trips over `twenty*` | **Fixed** — placeholder wins, `twenty*` filtered |
+| S3.7 | Plugin walk does not exclude `vendor/` | **Fixed** |
+| S3.8 | One-letter CSS prefix for single-word slugs | **Fixed** — falls back to the first three characters |
+| S3.9 | Agency identity hardcoded | **Partly fixed** — `--github-user` added; `Studio Val •` still hardcoded in the plugin header |
+| S3.11 | `--help` and docs disagree; unknown flags ignored | **Fixed** — unknown flags rejected, `docs/setup.md` resynced |
+| S3.12 | Branches created before deploy secrets exist | **Fixed** — warning printed; nothing is pushed |
+| §3.4 | Dead `auth.json` / ACF Pro reference | **Fixed** — removed from `.env.example` |
+| S3.10 | DDEV project name never updated | **Open** — renaming a running DDEV project mid-setup is a footgun; surfaced in the summary instead |
+| S4.3 | Mixed French/English user-facing strings | **Fixed** — all script output in English |
+| §4.1 | Split into `bin/lib/*`, move steps to DDEV hooks | **Open** — deferred; the bugs came first |
+
+The audit below describes the script **as it was**, and is kept as the record of why
+each change was made.
 
 > Note on location: the brief says "setup.sh at the root". The script lives at
 > `bin/setup.sh`; there is no root-level `setup.sh`. Everything below refers to
