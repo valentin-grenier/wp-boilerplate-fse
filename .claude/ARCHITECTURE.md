@@ -142,7 +142,7 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 ## CI/CD
 
 - `ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
-- `pr-checklist.yml` — fails the PR check while any item in the `## Checklist` section is unchecked.
+- `pr-checklist.yml` — fails the PR check while the `## Manual testing` section is missing, empty, or has an unchecked item.
 - `deploy-*.yml` — FTP deploy on push to `staging` / `main` **in client projects**; guarded off on this template repo (`if: github.repository != …`). `setup.sh` strips the guard for generated projects.
 - `dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `CODEOWNERS` — single owner: `@valentin-grenier`.

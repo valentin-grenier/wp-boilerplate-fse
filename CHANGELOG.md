@@ -13,6 +13,7 @@ All notable changes to this project are documented here. Format follows
 
 ### Changed
 
+- PR template: the `## Checklist` (items restating CI, stale `studio_` / `copilot-instructions.md` references) is replaced by `## Verification` (filled by the author) and `## Manual testing` (ticked by the reviewer); `pr-checklist.yml` now gates on the latter, accepts numbered tasks and fails on an empty section.
 - Setup docs (`README`, `docs/setup.md`) now clone the `boilerplate` branch (the pristine base) instead of the default `main`.
 - Consolidated Claude Code docs to a single source per topic: merged the block guide into `docs/blocks.md` (removed `.claude/BLOCKS.md`), trimmed `CONVENTIONS.md` to Git + tooling, cut and corrected `ARCHITECTURE.md`, and deduplicated `rules/components.md` against `rules/security.md`.
 
