@@ -17,15 +17,17 @@ Closes #
 - [ ] 🔒 Security fix
 - [ ] 🔧 Configuration / chore
 
-## Checklist
+## Verification
 
-- [ ] My code follows the project conventions (`studio_` prefix, security escaping, etc.)
-- [ ] I have tested my changes locally
-- [ ] Assets have been compiled with `npm run build` if SCSS/JS was modified
-- [ ] No secrets or credentials are hardcoded
-- [ ] Output is properly escaped (`esc_html()`, `esc_attr()`, `esc_url()`)
-- [ ] New PHP files include the `ABSPATH` security guard
-- [ ] Documentation / `copilot-instructions.md` updated if new patterns were introduced
+Commands the author ran and their result (e.g. `composer ci` → green, `npm run build` → OK).
+
+## Manual testing
+
+Steps that CI cannot cover (editor, browser, rendering), as action → expected result. Ticked by the reviewer; the merge stays blocked until every box is ticked.
+
+1. [ ] Action → expected result
+
+- [ ] No secrets or credentials in the diff
 
 ## Screenshots
 

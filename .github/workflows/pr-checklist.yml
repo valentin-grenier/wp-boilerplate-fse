@@ -1,8 +1,9 @@
 name: PR Checklist
 
-# Fails the PR if any task in the "## Checklist" section of the description
-# is still unchecked. The check re-runs whenever the PR body is edited so
-# authors can tick boxes and rerun without pushing a commit.
+# Fails the PR while the "## Manual testing" section of the description is
+# missing, empty, or has an unchecked task. The reviewer ticks those steps; the
+# check re-runs whenever the PR body is edited, without pushing a commit.
+# Job name stays "Checklist complete": it is a required status check.
 
 on:
   pull_request:
@@ -17,30 +18,35 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     steps:
-      - name: Verify all checklist items are ticked
+      - name: Verify all manual testing items are ticked
         uses: actions/github-script@v9
         with:
           script: |
             const body = context.payload.pull_request.body || '';
 
-            const match = body.match(/##\s*Checklist\s*\n([\s\S]*?)(?=\n##\s|$)/i);
+            const match = body.match(/##\s*Manual testing\s*\n([\s\S]*?)(?=\n##\s|$)/i);
             if (!match) {
-              core.setFailed('No "## Checklist" section found in the PR description.');
+              core.setFailed('No "## Manual testing" section found in the PR description.');
               return;
             }
 
             const section = match[1];
-            const unchecked = section.match(/^\s*[-*]\s*\[ \]/gm) || [];
-            const checked   = section.match(/^\s*[-*]\s*\[[xX]\]/gm) || [];
+            const unchecked = section.match(/^\s*(?:[-*]|\d+\.)\s*\[ \]/gm) || [];
+            const checked   = section.match(/^\s*(?:[-*]|\d+\.)\s*\[[xX]\]/gm) || [];
 
             core.summary
               .addHeading('PR Checklist')
               .addRaw(`Checked: ${checked.length} — Unchecked: ${unchecked.length}`)
               .write();
 
+            if (checked.length + unchecked.length === 0) {
+              core.setFailed('The "## Manual testing" section has no task to tick.');
+              return;
+            }
+
             if (unchecked.length > 0) {
               core.setFailed(
-                `${unchecked.length} checklist item(s) still unchecked. ` +
-                'Tick every box in the "## Checklist" section before merging.'
+                `${unchecked.length} manual testing item(s) still unchecked. ` +
+                'Tick every box in the "## Manual testing" section before merging.'
               );
             }

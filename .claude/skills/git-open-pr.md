@@ -59,7 +59,11 @@ If the current branch is `main` or `staging`, stop and ask the user to create a 
 
 ## Step 5 — Open PR
 
-Read `.github/PULL_REQUEST_TEMPLATE.md`, then fill every section. Check the relevant boxes based on the diff. The body must be in **English**.
+Read `.github/PULL_REQUEST_TEMPLATE.md`, then fill every section. The body must be in **English**.
+
+- **Type of Change**: tick the boxes that match the diff.
+- **Verification**: only commands you actually ran, with their result. No claim you did not see.
+- **Manual testing**: numbered steps for what you could not check yourself (editor, browser, rendering, real data), each one action → expected result. **Never tick them**, nor the secrets item: the reviewer does, and `pr-checklist.yml` blocks the merge until they are all ticked.
 
 ```bash
 gh pr create --title "<commit-title>" --body "$(cat <<'EOF'
@@ -82,15 +86,15 @@ Closes #
 - [ ] 🔒 Security fix
 - [ ] 🔧 Configuration / chore
 
-## Checklist
+## Verification
 
-- [ ] My code follows the project conventions (`studio_` prefix, security escaping, etc.)
-- [ ] I have tested my changes locally (Local by Flywheel)
-- [ ] Assets have been compiled with `npm run build` if SCSS/JS was modified
-- [ ] No secrets or credentials are hardcoded
-- [ ] Output is properly escaped (`esc_html()`, `esc_attr()`, `esc_url()`)
-- [ ] New PHP files include the `ABSPATH` security guard
-- [ ] Documentation / `copilot-instructions.md` updated if new patterns were introduced
+<commands run and their result, e.g. `composer ci` → green>
+
+## Manual testing
+
+1. [ ] <action> → <expected result>
+
+- [ ] No secrets or credentials in the diff
 
 ## Screenshots
 

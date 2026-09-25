@@ -51,8 +51,10 @@ to `main` or `staging`.
 
 ## PR checklist
 
-See [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md). The current template
-covers PR type, conventions, asset compilation, escaping, security guards, and docs.
+See [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md). Nothing CI already
+enforces is restated there. The author fills `## Verification` with the commands run and their
+result; `## Manual testing` lists the steps no machine can check, and the reviewer ticks them.
+`pr-checklist.yml` blocks the merge until every box in that section is ticked.
 
 ✅ **CI runs on every PR.** `ci.yml` gates PHP lint/stan/test + Node lint/build.
 
