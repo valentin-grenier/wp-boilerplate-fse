@@ -94,6 +94,31 @@ composer stan           # phpstan level 5
 composer ci             # lint + stan + test in one pass
 ```
 
+## MCP — drive WordPress from Claude Code (optional)
+
+The repo ships an `.mcp.json` that registers a `wordpress` MCP server. Claude Code reads it automatically, letting Claude query and manage the local WordPress over the [Model Context Protocol](https://modelcontextprotocol.io/) through DDEV's WP-CLI (STDIO transport — no secrets stored).
+
+**Requirements:** `ddev start` running, WordPress installed (`bin/setup.sh`), WordPress ≥ 6.9, and an admin user (the login chosen at setup — `admin` by convention).
+
+1. Install the [MCP Adapter](https://github.com/WordPress/mcp-adapter) into the local site (GitHub release — not on wp.org):
+
+   ```bash
+   ddev wp plugin install https://github.com/WordPress/mcp-adapter/releases/latest/download/mcp-adapter.zip --activate
+   ddev wp mcp-adapter list   # should list "mcp-adapter-default-server"
+   ```
+
+   If the zip install fails, clone the repo into `wp-content/plugins/mcp-adapter/`, run `ddev composer install` inside that folder, then `ddev wp plugin activate mcp-adapter`.
+
+2. (Re)start Claude Code in the project root, then check the connection:
+
+   ```bash
+   claude mcp list   # "wordpress" should report: connected
+   ```
+
+   If your admin login is not `admin`, export `WP_MCP_USER=<login>` before launching Claude Code — the `.mcp.json` reads `${WP_MCP_USER:-admin}` from the shell environment, not from `.env`.
+
+> **Note:** DDEV must be running before you start Claude Code, otherwise a container start-up message can corrupt the STDIO JSON-RPC stream. Fallback command: `ddev exec -s web wp mcp-adapter serve --server=mcp-adapter-default-server --user=admin`.
+
 ## GitHub Actions deployment
 
 Staging and production deploys run via FTP on push to the `staging` and `main` branches.
