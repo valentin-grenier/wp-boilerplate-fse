@@ -127,7 +127,7 @@ live state when Claude-logic files change.
 
 ## Environments
 
-**This template repo** has no live environment: `main` is the pristine base (default branch), `demo` is an installed example, and both deploy workflows are guarded off (`if: github.repository != …`).
+**This template repo** has no live environment: `main` is the pristine base (default branch), `demo` is an installed example, and both deploy workflows stay off because `DEPLOY_STAGING` / `DEPLOY_PRODUCTION` are not set.
 
 **Generated client projects** use these environments:
 
@@ -143,7 +143,7 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 
 - `ci.yml` — PHP (lint + stan + test) + Node (lint + build) on every PR and push to `main` / `staging` / `development`.
 - `pr-checklist.yml` — fails the PR check while the `## Manual testing` section is missing, empty, or has an unchecked item.
-- `deploy-*.yml` — FTP deploy on push to `staging` / `main` **in client projects**; guarded off on this template repo (`if: github.repository != …`). `setup.sh` strips the guard for generated projects.
+- `deploy-*.yml` — FTP deploy on push to `staging` / `main`, skipped until the repository variable `DEPLOY_STAGING` / `DEPLOY_PRODUCTION` is `true`. Off on this template repo and on any new client project.
 - `dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `CODEOWNERS` — single owner: `@valentin-grenier`.
 - `bin/setup-branch-protection.sh` — idempotent `gh` helper that enforces the CI gate and CODEOWNER review on `main`.

@@ -8,10 +8,8 @@ on:
 jobs:
     ftp-deploy:
         runs-on: ubuntu-latest
-        # The boilerplate repo is a template and must never deploy itself.
-        # Client projects generated via bin/setup.sh live under a different
-        # repository name, so the guard is true there and the deploy runs.
-        if: github.repository != 'valentin-grenier/wp-boilerplate-fse'
+        # Off until the repository variable DEPLOY_PRODUCTION is "true": a job-level `if` cannot read secrets.
+        if: vars.DEPLOY_PRODUCTION == 'true'
         environment: production
         steps:
             - name: Checkout code

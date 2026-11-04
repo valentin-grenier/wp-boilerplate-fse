@@ -9,7 +9,7 @@ All notable changes to this project are documented here. Format follows
 ### Added
 
 - `bin/setup.sh` pristine-base guard: aborts with a clear message when the `studioval-boilerplate` placeholder is already consumed (e.g. run from `main`), pointing to the `boilerplate` branch / `v2.0.0` tag.
-- Deploy workflows guarded with `if: github.repository != '…'` so the template repo never deploys itself; `setup.sh` strips the guard from generated client projects.
+- Deploy workflows are opt-in: they are skipped until the repository variable `DEPLOY_STAGING` / `DEPLOY_PRODUCTION` is `true`, so the template repo never deploys itself and a new client project no longer fails on missing FTP secrets.
 
 ### Changed
 
