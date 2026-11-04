@@ -96,7 +96,8 @@ composer ci             # lint + stan + test in one pass
 
 ## GitHub Actions deployment
 
-Staging and production deploys run via FTP on push to the `staging` and `main` branches.
+Staging and production deploys run via FTP on push to the `staging` and `main` branches, once enabled.
+A new project starts with both deploys off: the jobs are skipped, so pushes do not fail on missing secrets.
 
 ### Required GitHub secrets
 
@@ -111,6 +112,17 @@ Go to **Settings → Environments**, create both `staging` and `production` envi
 | `FTP_PASSWORD`   | FTP password                                                                                                                           |
 | `FTP_SERVER_DIR` | WordPress root with trailing slash (e.g., `/public_html/`) — the workflow appends `wp-content/themes/…` itself, do not include it here |
 
+### Enable the deploys
+
+Once an environment's secrets are in place, set its repository variable (repository level, an environment variable is not readable from the job condition):
+
+```bash
+gh variable set DEPLOY_STAGING --body true
+gh variable set DEPLOY_PRODUCTION --body true
+```
+
+Delete the variable, or set it to anything else, to turn that deploy off again.
+
 ### Optional: restrict deployments by branch
 
 In **Settings → Environments**:
@@ -120,10 +132,10 @@ In **Settings → Environments**:
 
 ### Deployment triggers
 
-| Branch    | Trigger                      |
-| --------- | ---------------------------- |
-| `staging` | Push → deploys to staging    |
-| `main`    | Push → deploys to production |
+| Branch    | Trigger                      | Requires                 |
+| --------- | ---------------------------- | ------------------------ |
+| `staging` | Push → deploys to staging    | `DEPLOY_STAGING=true`    |
+| `main`    | Push → deploys to production | `DEPLOY_PRODUCTION=true` |
 
 ## Git branching strategy
 
