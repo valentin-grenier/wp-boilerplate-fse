@@ -98,16 +98,6 @@
         ]
       }
     ],
-    "PreCompact": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/append-lesson.sh"
-          }
-        ]
-      }
-    ],
     "Notification": [
       {
         "hooks": [

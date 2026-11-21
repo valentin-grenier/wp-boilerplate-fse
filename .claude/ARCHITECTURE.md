@@ -14,11 +14,10 @@ How the repository is laid out and why. For the day-to-day commands see
 │   ├── CONVENTIONS.md           # Git workflow + tooling reference
 │   ├── rules/                   # Auto-loaded rules: security, i18n, a11y, blocks, components
 │   ├── settings.json            # Permissions allow/deny + hooks
-│   ├── hooks/                   # Hook scripts (session-banner, lint-edited, append-lesson)
+│   ├── hooks/                   # Hook scripts (session-banner, lint-edited)
 │   ├── agents/                  # Review sub-agent(s)
 │   ├── commands/                # Slash commands
-│   ├── skills/                  # On-demand slash-command skills (audits + scaffolders)
-│   └── lessons.md               # Rolling log appended by the PreCompact hook
+│   └── skills/                  # On-demand slash-command skills (audits + scaffolders)
 ├── .ddev/                       # DDEV config (versioned — reproducible local env)
 ├── .github/                     # Workflows, CODEOWNERS, Copilot instructions, templates, Dependabot
 │   └── workflows/               # ci.yml, pr-checklist.yml, deploy-staging.yml, deploy-production.yml
