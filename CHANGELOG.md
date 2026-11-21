@@ -21,6 +21,10 @@ All notable changes to this project are documented here. Format follows
 
 - Stale doc references: `block.json` mentions (the theme has none — blocks register via `registerBlockType`), the `fse-boilerplate` / `arnauneprim` text-domain leftovers, and phantom `bin/cleanup.sh` / `IMPLEMENTATION.md` paths in `ARCHITECTURE.md` and `docs-sync`.
 
+### Removed
+
+- Claude Code: the `PreCompact` hook `append-lesson.sh` and `.claude/lessons.md`. The hook only dumped the JSON event payload (session id, transcript path), never a lesson.
+
 ## [2.0.0] — 2026-06-02
 
 ### Added
