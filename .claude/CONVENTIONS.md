@@ -47,6 +47,11 @@ The flow below applies to **generated client projects** (in this template repo, 
 **Branch flow:** `feature/<ticket>-<slug>` → `development` → `staging` → `main`. Never push directly
 to `main` or `staging`.
 
+**Merge strategy:** every PR merges with a merge commit, never squash or rebase. Branch commits
+already hold one logical change each, and promotions between long-lived branches (`development` →
+`staging` → `main`) need a shared history. Squash and rebase merging are disabled in the repository
+settings.
+
 ⚠️ **Branch protection on `main` is not automatically active.** Run `bin/setup-branch-protection.sh` once locally (requires `gh auth login`) to enforce the CI gate and CODEOWNER review.
 
 ## PR checklist
