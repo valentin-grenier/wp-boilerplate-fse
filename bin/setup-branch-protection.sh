@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # bin/setup-branch-protection.sh
 #
-# Applies branch protection rules to `main` via the GitHub REST API using
-# the `gh` CLI. Idempotent — safe to re-run.
+# Applies branch protection rules to `main` and the repository merge settings
+# via the GitHub REST API using the `gh` CLI. Idempotent — safe to re-run.
 #
 # What it enforces on main:
 #   - Require a passing CI run (ci.yml jobs: 'PHP (lint + stan + test)' + 'Frontend (lint + build)')
@@ -12,6 +12,9 @@
 #   - Block force-pushes.
 #   - Block branch deletion.
 #   - Apply to admins too (no accidental bypass).
+#
+# What it sets on the repository:
+#   - Merge commits only: squash and rebase merging are disabled.
 #
 # Prerequisites:
 #   - `gh auth login` completed with a token that has `repo` scope.
@@ -32,7 +35,7 @@ for arg in "$@"; do
         --branch=*) BRANCH="${arg#*=}" ;;
         --dry-run)  DRY_RUN=true ;;
         -h|--help)
-            sed -n '2,24p' "$0"
+            sed -n '2,27p' "$0"
             exit 0
             ;;
         *)
@@ -87,6 +90,7 @@ if [ "$DRY_RUN" = true ]; then
     echo "---- Payload (dry-run) ----"
     printf '%s\n' "$PAYLOAD"
     echo "---- Would PUT to /repos/$REPO/branches/$BRANCH/protection"
+    echo "---- Would PATCH /repos/$REPO with allow_merge_commit=true allow_squash_merge=false allow_rebase_merge=false"
     exit 0
 fi
 
@@ -98,5 +102,17 @@ printf '%s' "$PAYLOAD" | gh api \
     --input -
 
 echo "✅ Branch protection applied to $REPO:$BRANCH"
+
+gh api \
+    --method PATCH \
+    -H "Accept: application/vnd.github+json" \
+    "/repos/$REPO" \
+    -F allow_merge_commit=true \
+    -F allow_squash_merge=false \
+    -F allow_rebase_merge=false \
+    >/dev/null
+
+echo "✅ Merge commits only on $REPO"
 echo ""
 echo "Verify at: https://github.com/$REPO/settings/branches"
+echo "       and https://github.com/$REPO/settings (Pull Requests section)"

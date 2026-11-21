@@ -23,7 +23,7 @@ How the repository is laid out and why. For the day-to-day commands see
 │   └── workflows/               # ci.yml, pr-checklist.yml, deploy-staging.yml, deploy-production.yml
 ├── bin/
 │   ├── setup.sh                 # Client-project bootstrap (placeholder substitution + WP install)
-│   ├── setup-branch-protection.sh # Idempotent gh helper: CI gate + CODEOWNER review on main
+│   ├── setup-branch-protection.sh # Idempotent gh helper: CI gate + CODEOWNER review on main, merge commits only
 │   ├── reset-theme-json.sh      # Reset theme.json to the boilerplate default
 │   └── smoke.sh                 # End-to-end smoke check (DB, theme, lint, stan, build)
 ├── wp-content/themes/theme-fse/ # The theme — the only application code in this repo
@@ -145,7 +145,7 @@ Integration branch: `development`. Flow: `feature/* → development → staging 
 - `deploy-*.yml` — FTP deploy on push to `staging` / `main`, skipped until the repository variable `DEPLOY_STAGING` / `DEPLOY_PRODUCTION` is `true`. Off on this template repo and on any new client project.
 - `dependabot.yml` — weekly npm (`_dev/`) + GitHub Actions updates.
 - `CODEOWNERS` — single owner: `@valentin-grenier`.
-- `bin/setup-branch-protection.sh` — idempotent `gh` helper that enforces the CI gate and CODEOWNER review on `main`.
+- `bin/setup-branch-protection.sh` — idempotent `gh` helper that enforces the CI gate and CODEOWNER review on `main`, and allows merge commits only.
 
 ## Design constraints to preserve
 
